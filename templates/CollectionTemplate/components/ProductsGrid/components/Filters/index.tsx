@@ -1,177 +1,282 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import classNames from '@/helpers/classNames';
-import Container from '@/components/Container';
 import Button from '@/components/Button';
-import Text from '@/components/Text';
-import Link from '@/components/Link';
 import Icon from '@/components/Icon';
-import LayoutOptions from '../LayoutOptions';
-import type { LayoutOption } from '../LayoutOptions';
-import SortByDropdown from '../SortByDropdown';
+import Text from '@/components/Text';
 import {
   GetCollectionFiltersByHandleResponse,
   GetCollectionSubCollectionFiltersByIdResponse
 } from '@/tools/apis/shopify';
-import { setCollectionFiltersChangedProperty } from '../../helpers';
 import styles from './styles.module.scss';
 
-const Filters = ({
-  filters,
-  subCollectionFilters,
-  setLayout
-}: {
+type Props = {
   filters: GetCollectionFiltersByHandleResponse;
   subCollectionFilters: GetCollectionSubCollectionFiltersByIdResponse;
-  setLayout: React.Dispatch<React.SetStateAction<LayoutOption>>;
-}) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [filtersHidden, setFiltersHidden] = useState(true);
-
-  return (
-    <div className={styles.filters}>
-      <Container>
-        <div className={styles.filtersContainer}>
-          <Button
-            className={classNames(styles.mobileFiltersToggle, { [styles.active]: !filtersHidden })}
-            variant="normal-sm"
-            onClick={() => setFiltersHidden(!filtersHidden)}
-          >
-            Filter <Icon title="chevronDown" className={styles.mobileFiltersToggleIcon} />
-          </Button>
-          <div className={classNames(styles.filterOptions, { [styles.hidden]: filtersHidden })}>
-            {subCollectionFilters && subCollectionFilters.length > 0 && (
-              <div className={styles.subCollectionFilter}>
-                <Text size="b2" className={styles.filterGroupLabel} text="Filter by" />
-                <div className={classNames(styles.filtersList)}>
-                  {subCollectionFilters.map(({ handle, title, isSelected }) => (
-                    <Link
-                      href={`/${handle}/`}
-                      key={handle}
-                      className={classNames(styles.filterButton, { [styles.active]: isSelected })}
-                      variant="normal-sm"
-                    >
-                      {title}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-            {filters && filters.length > 0 && (
-              <div className={styles.otherFilters}>
-                {filters.map(filter => (
-                  <div key={filter.id} className={styles.filterGroup}>
-                    <Text size="b2" className={styles.filterGroupLabel}>
-                      {filter.label}
-                    </Text>
-                    <div className={styles.filtersList}>
-                      {filter.values.map(value => (
-                        <FilterButton
-                          label={value.label}
-                          filterValueId={value.id}
-                          key={value.id}
-                          customOnClick={() => {
-                            setCollectionFiltersChangedProperty(true);
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div>
-              <Button
-                variant="normal-sm"
-                className={styles.clearFilters}
-                onClick={() => {
-                  setCollectionFiltersChangedProperty(true);
-                  const params = new URLSearchParams();
-                  router.push(`${pathname}?${params.toString()}`, { scroll: false });
-                }}
-              >
-                Clear Filters
-              </Button>
-            </div>
-          </div>
-          <div className={styles.sorting}>
-            <div className={styles.sortFilter}>
-              <SortByDropdown />
-            </div>
-            {/* <div className={classNames(styles.layoutFilters, { [styles.hidden]: !filtersHidden })}>
-              <LayoutOptions setLayout={setLayout} />
-            </div> */}
-          </div>
-        </div>
-      </Container>
-    </div>
-  );
+  productCount?: number;
 };
 
-const FilterButton = ({
-  label,
-  filterValueId,
-  customOnClick
-}: {
-  label: string;
-  filterValueId: string;
-  customOnClick?: () => void;
-}) => {
-  const searchParams = useSearchParams();
+const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, productCount = 0 }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [hydrated, setHydrated] = useState(false);
 
-  const idSplit = filterValueId.split('.');
-  const filterValue = idSplit.slice(-1)[0];
-  const filterKey = idSplit.slice(0, -1).join('.');
-
-  const isActive = hydrated ? searchParams.getAll(filterKey).includes(filterValue) : false;
+  // Debug logging
+  useEffect(() => {
+    console.log('Filters data:', filters);
+    console.log('SubCollection filters:', subCollectionFilters);
+    console.log('Search params:', searchParams?.toString());
+  }, [filters, subCollectionFilters, searchParams]);
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  // When a filter is clicked, update the URL
-  const onClick = () => {
-    if (customOnClick) {
-      customOnClick();
-    }
+  const anyFilterActive = useMemo(() => {
+    if (!searchParams) return false;
+    const keys = Array.from(searchParams.keys()).filter(k => k !== 'page' && k !== 'sort_by');
+    return keys.length > 0;
+  }, [searchParams]);
 
-    const params = new URLSearchParams(searchParams.toString());
+  const openDrawer = () => setDrawerOpen(true);
+  const closeDrawer = () => setDrawerOpen(false);
+  const toggleSection = (key: string) =>
+    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
-    // Reset page to 1 when filters change
+  const toggleFilterParam = (filterKey: string, filterValue: string) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
     params.set('page', '1');
 
-    const existingFilterParam = params.getAll(filterKey);
+    const existing = params.getAll(filterKey);
 
-    // If the filter is already selected, remove it
-    // Otherwise, add it
-    if (existingFilterParam && existingFilterParam.includes(filterValue)) {
-      params.delete(filterKey, filterValue);
+    if (existing.includes(filterValue)) {
+      const remaining = existing.filter(v => v !== filterValue);
+      params.delete(filterKey);
+      remaining.forEach(v => params.append(filterKey, v));
     } else {
       params.append(filterKey, filterValue);
     }
 
-    const query = params.toString();
-
-    router.push(`${pathname}?${query}`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
+  const clearAllFilters = () => {
+    const params = new URLSearchParams();
+    const currentSort = searchParams?.get('sort_by');
+    if (currentSort) {
+      params.set('sort_by', currentSort);
+    }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const isFilterActive = (filterKey: string, filterValue: string) => {
+    if (!hydrated) return false;
+    const values = searchParams.getAll(filterKey);
+    return values.includes(filterValue);
+  };
+
+  const handleSortChange = (value: string) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+
+    if (value) {
+      params.set('sort_by', value);
+    } else {
+      params.delete('sort_by');
+    }
+
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Check if we have actual filter data
+  const hasFilters = filters && filters.length > 0;
+  const hasSubCollectionFilters = subCollectionFilters && subCollectionFilters.length > 0;
+
   return (
-    <Button
-      variant="normal-sm"
-      className={classNames(styles.filterButton, {
-        [styles.active]: isActive
-      })}
-      onClick={onClick}
-    >
-      {label}
-    </Button>
+    <>
+      {/* Trigger Button */}
+      <div className={classNames(styles.triggerContainer, { [styles.hidden]: drawerOpen })}>
+        <div className={styles.triggerText} onClick={openDrawer}>
+          <span>Filters & Sorting</span>
+          {(anyFilterActive || hasSubCollectionFilters) && (
+            <span className={styles.filterIndicator}>•</span>
+          )}
+        </div>
+
+      </div>
+
+      {/* Overlay */}
+      <div
+        className={classNames(styles.overlay, { [styles.open]: drawerOpen })}
+        onClick={closeDrawer}
+        aria-hidden={!drawerOpen}
+      />
+
+      {/* Drawer */}
+      <aside className={classNames(styles.drawer, { [styles.open]: drawerOpen })} role="dialog" aria-modal="true">
+        <div className={styles.header}>
+          <Text size="h4" text="Filters & Sorting" />
+          <button aria-label="Close filters" className={styles.closeBtn} onClick={closeDrawer}>
+            <Icon title="close" />
+          </button>
+        </div>
+
+        <div className={styles.content}>
+          {/* Sort By Section */}
+          <section className={styles.section}>
+            <button
+              className={styles.sectionHeader}
+              onClick={() => toggleSection('sort')}
+              aria-expanded={!!expandedSections['sort']}
+            >
+              <span>Sort By</span>
+              <Icon title="chevronDown" className={classNames(styles.chev, { [styles.rotate]: expandedSections['sort'] })} />
+            </button>
+
+            {expandedSections['sort'] && (
+              <div className={styles.sectionBody}>
+                <div className={styles.sortOptions}>
+                  {[
+                    { value: '', label: 'Featured' },
+                    { value: 'best-selling', label: 'Best Selling' },
+                    { value: 'price-ascending', label: 'Price: Low to High' },
+                    { value: 'price-descending', label: 'Price: High to Low' },
+                    { value: 'title-ascending', label: 'A-Z' },
+                    { value: 'title-descending', label: 'Z-A' },
+                    { value: 'created-descending', label: 'Newest' },
+                    { value: 'created-ascending', label: 'Oldest' },
+                  ].map((option) => {
+                    const currentSort = searchParams?.get('sort_by') || '';
+                    const isActive = currentSort === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        className={classNames(styles.sortOption, { [styles.activeSort]: isActive })}
+                        onClick={() => handleSortChange(option.value)}
+                      >
+                        {option.label}
+                        {isActive && <Icon title="check" className={styles.checkIcon} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Sub-collection Filters */}
+          {hasSubCollectionFilters && (
+            <section className={styles.section}>
+              <button
+                className={styles.sectionHeader}
+                onClick={() => toggleSection('subcollections')}
+                aria-expanded={!!expandedSections['subcollections']}
+              >
+                <span>Collections</span>
+                <Icon title="chevronDown" className={classNames(styles.chev, { [styles.rotate]: expandedSections['subcollections'] })} />
+              </button>
+
+              {expandedSections['subcollections'] && (
+                <div className={styles.sectionBody}>
+                  {subCollectionFilters.map(sc => (
+                    <a
+                      key={sc.handle}
+                      href={`/${sc.handle}/`}
+                      className={classNames(styles.linkButton, { [styles.activeLink]: sc.isSelected })}
+                      onClick={closeDrawer}
+                    >
+                      {sc.title}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+
+          {/* Shopify Filters */}
+          {hasFilters ? (
+            filters.map(filter => {
+              const sectionKey = filter.id || filter.label;
+
+              // Check if this filter has any values
+              const hasValues = filter.values && filter.values.length > 0;
+
+              if (!hasValues) return null;
+
+              return (
+                <section className={styles.section} key={sectionKey}>
+                  <button
+                    className={styles.sectionHeader}
+                    onClick={() => toggleSection(sectionKey)}
+                    aria-expanded={!!expandedSections[sectionKey]}
+                  >
+                    <span>{filter.label}</span>
+                    <Icon title="chevronDown" className={classNames(styles.chev, { [styles.rotate]: expandedSections[sectionKey] })} />
+                  </button>
+
+                  {expandedSections[sectionKey] && (
+                    <div className={styles.sectionBody}>
+                      {filter.values.map(v => {
+                        // Parse the filter ID to get the key and value
+                        const idSplit = v.id.split('.');
+                        const filterValue = idSplit.slice(-1)[0];
+                        const filterKey = idSplit.slice(0, -1).join('.');
+                        const active = isFilterActive(filterKey, filterValue);
+
+                        return (
+                          <label key={v.id} className={classNames(styles.checkboxLabel, { [styles.activeCheckbox]: active })}>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              onChange={() => toggleFilterParam(filterKey, filterValue)}
+                            />
+                            <span className={styles.checkboxFake} />
+                            <span className={styles.checkboxText}>
+                              {v.label}
+                              {v.count !== undefined && v.count !== null && (
+                                <span className={styles.count}>({v.count})</span>
+                              )}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              );
+            })
+          ) : (
+            // Show message if no filters available
+            <div className={styles.noFilters}>
+            </div>
+          )}
+        </div>
+
+        {/* <div className={styles.footer}>
+          <div className={styles.footerRow}>
+            {anyFilterActive && (
+              <button className={styles.clearBtn} onClick={clearAllFilters}>
+                Clear Filters
+              </button>
+            )}
+            <button
+              className={styles.displayBtn}
+              onClick={closeDrawer}
+            >
+              VIEW {productCount} RESULTS
+            </button>
+          </div>
+        </div> */}
+      </aside>
+    </>
   );
 };
 
-export default Filters;
+export default FiltersDrawer;

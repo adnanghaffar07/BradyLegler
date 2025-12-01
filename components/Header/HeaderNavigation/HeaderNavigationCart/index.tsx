@@ -20,12 +20,12 @@ const HeaderNavigationCart = () => {
   if (!isMounted) return null;
 
   return (
-    <Button
-      variant="normal-sm"
-      className={styles.container}
-      onClick={handleToggleCart}
-      text={`Yours (${cart?.totalQuantity || 0})`}
-    />
+    // <Button
+    //   variant="normal-sm"
+    //   className={styles.container}
+    //   onClick={handleToggleCart}
+    //   text={`Yours (${cart?.totalQuantity || 0})`}
+    // />
   );
 };
 

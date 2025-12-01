@@ -20,6 +20,7 @@ import { ICollectionDocument } from '@/tools/sanity/schema/documents/collection'
 import type { LayoutOption } from './components/LayoutOptions';
 import QuoteCard from './components/QuoteCard';
 import styles from './styles.module.scss';
+import FiltersDrawer from './components/Filters';
 
 const ProductsGrid = ({
   initialData,
@@ -36,12 +37,18 @@ const ProductsGrid = ({
   subCollectionFilters: GetCollectionSubCollectionFiltersByIdResponse;
   sectionsMiddle?: React.ReactNode;
 }) => {
+  // Debug the incoming props
+  console.log('ProductsGrid - filters:', filters);
+  console.log('ProductsGrid - subCollectionFilters:', subCollectionFilters);
+  console.log('ProductsGrid - initialData:', initialData);
+  
   const { shopifyCollectionData, productCount } = useCollectionFilters({
     initialData,
     initialProductCount,
     filters,
     collectionSlug: sanityCollectionData.store.slug.current
   });
+  
   const hasQuotes = sanityCollectionData?.quotes?.length > 0;
   const layoutType = sanityCollectionData?.layout || 'fluidAndGrid';
 
@@ -112,9 +119,23 @@ const ProductsGrid = ({
 
   return (
     <>
-      {layoutType !== 'list' && (
+      {/* Debug info - remove in production */}
+      {/* <div style={{ background: '#f5f5f5', padding: '10px', margin: '10px 0', border: '1px solid #ddd' }}>
+        <Text size="b3" text={`Filters count: ${filters?.length || 0}`} />
+        <Text size="b3" text={`Sub-collection filters count: ${subCollectionFilters?.length || 0}`} />
+        <Text size="b3" text={`Product count: ${productCount}`} />
+      </div> */}
+
+      {/* {layoutType !== 'list' && (
         <Filters filters={filters} subCollectionFilters={subCollectionFilters} />
       )}
+       */}
+      <FiltersDrawer
+        filters={filters}
+        subCollectionFilters={subCollectionFilters}
+        productCount={productCount}
+      />
+
       {shopifyCollectionData?.products?.edges?.length === 0 && (
         <div className={styles.noProducts}>
           <Text text="No products found" size="b2" />

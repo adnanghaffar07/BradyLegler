@@ -39,6 +39,7 @@
   .button {
     position: sticky;
     top: 50%;
+    max-width: 200px;
     @include media-up(tablet) {
       top: 400px;
     }

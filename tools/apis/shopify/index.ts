@@ -819,11 +819,22 @@ export type GetCollectionFiltersByHandleResponse =
   | GetCollectionFiltersByHandleQueryResponse['collectionByHandle']['products']['filters']
   | null;
 
-export const getCollectionFiltersByHandle = async (handle: string): Promise<GetCollectionFiltersByHandleResponse> => {
-  const getCollectionFiltersByHandleQuery = gql`
-    query ($handle: String!) {
+export const getCollectionFiltersByHandle = async (
+  handle: string
+): Promise<GetCollectionFiltersByHandleResponse> => {
+  let allFilters: GetCollectionFiltersByHandleResponse = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+
+  const getCollectionFiltersQuery = gql`
+    query ($handle: String!, $cursor: String) {
       collectionByHandle(handle: $handle) {
-        products(first: 1) {
+        products(first: 50, after: $cursor) {
+          edges {
+            node {
+              id
+            }
+          }
           filters {
             id
             label
@@ -835,22 +846,52 @@ export const getCollectionFiltersByHandle = async (handle: string): Promise<GetC
               input
             }
           }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }
     }
   `;
-  const variables = { handle };
+
   try {
-    const response: GetCollectionFiltersByHandleQueryResponse = await client.request(
-      getCollectionFiltersByHandleQuery,
-      variables
-    );
-    return response?.collectionByHandle?.products?.filters;
+    while (hasNextPage) {
+      const variables = { handle, cursor };
+      const response: {
+        collectionByHandle: {
+          products: {
+            edges: { node: { id: string } }[];
+            filters: GetCollectionFiltersByHandleResponse;
+            pageInfo: { hasNextPage: boolean; endCursor: string | null };
+          };
+        };
+      } = await client.request(getCollectionFiltersQuery, variables);
+
+      const products = response.collectionByHandle?.products;
+      if (products) {
+        // Merge filters
+        const filters = products.filters || [];
+        filters.forEach(f => {
+          if (!allFilters.find(existing => existing.id === f.id)) {
+            allFilters.push(f);
+          }
+        });
+
+        hasNextPage = products.pageInfo.hasNextPage;
+        cursor = products.pageInfo.endCursor;
+      } else {
+        hasNextPage = false;
+      }
+    }
+
+    return allFilters.length > 0 ? allFilters : null;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching collection filters:', error);
     return null;
   }
 };
+
 
 /*=============================================>>>>>
 = GET COLLECTION SUB COLLECTION FILTERS BY ID =
