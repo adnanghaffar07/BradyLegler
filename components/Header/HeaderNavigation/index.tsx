@@ -299,136 +299,136 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     return false;
   };
 
-const renderContactSidebar = () => {
-  if (!contactSectionData) return null;
+  const renderContactSidebar = () => {
+    if (!contactSectionData) return null;
 
-  const { links = [], additionalLinks = {} } = contactSectionData;
+    const { links = [], additionalLinks = {} } = contactSectionData;
 
-  // Helper function to handle different types of links
-  const handleLinkClick = (link: any, label: string) => {
-    if (!link) return;
+    // Helper function to handle different types of links
+    const handleLinkClick = (link: any, label: string) => {
+      if (!link) return;
 
-    // Check if it's a phone number
-    const cleanLabel = label?.trim().toLowerCase();
-    const isPhoneNumber = /^[\d\s\+\-\(\)]{5,}$/.test(cleanLabel) || 
-                         cleanLabel.includes('phone') || 
-                         cleanLabel.includes('call') || 
-                         cleanLabel.includes('tel');
+      // Check if it's a phone number
+      const cleanLabel = label?.trim().toLowerCase();
+      const isPhoneNumber = /^[\d\s\+\-\(\)]{5,}$/.test(cleanLabel) ||
+        cleanLabel.includes('phone') ||
+        cleanLabel.includes('call') ||
+        cleanLabel.includes('tel');
 
-    // Check if it's an email
-    const isEmail = cleanLabel.includes('@') || 
-                   cleanLabel.includes('email') || 
-                   cleanLabel.includes('mail');
+      // Check if it's an email
+      const isEmail = cleanLabel.includes('@') ||
+        cleanLabel.includes('email') ||
+        cleanLabel.includes('mail');
 
-    if (isPhoneNumber) {
-      // Extract numbers from the label for phone calls
-      const phoneNumber = cleanLabel.replace(/[^\d\+]/g, '');
-      if (phoneNumber) {
-        window.location.href = `tel:${phoneNumber}`;
+      if (isPhoneNumber) {
+        // Extract numbers from the label for phone calls
+        const phoneNumber = cleanLabel.replace(/[^\d\+]/g, '');
+        if (phoneNumber) {
+          window.location.href = `tel:${phoneNumber}`;
+        }
+      } else if (isEmail) {
+        // Handle email links
+        const emailAddress = cleanLabel.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/)?.[0];
+        if (emailAddress) {
+          window.location.href = `mailto:${emailAddress}`;
+        }
+      } else {
+        // Regular link
+        const url = resolveLink(link, label);
+        if (url && url !== '#') {
+          window.open(url, '_blank');
+        }
       }
-    } else if (isEmail) {
-      // Handle email links
-      const emailAddress = cleanLabel.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/)?.[0];
-      if (emailAddress) {
-        window.location.href = `mailto:${emailAddress}`;
-      }
-    } else {
-      // Regular link
-      const url = resolveLink(link, label);
-      if (url && url !== '#') {
-        window.open(url, '_blank');
-      }
-    }
+    };
+
+    return (
+      <div className={styles.contactSidebarInner}>
+        {/* Header with cross button */}
+        <div className={styles.contactHeader}>
+          <h2 className={styles.contactHeading}>Contact Us</h2>
+          <button
+            className={styles.closeButton}
+            onClick={() => setContactSidebarOpen(false)}
+            aria-label="Close contact sidebar"
+          >
+            <Icon title="close" className={styles.closeIcon} />
+          </button>
+        </div>
+
+        <p className={styles.contactDescription}>
+          Our team of experts is available to answer all your questions from assistance with your orders to style
+          advice and gift ideas.
+        </p>
+
+        <div className={styles.linksWrapper}>
+          {links.map((group, i) => (
+            <div key={i} className={styles.contactGroup}>
+              {group.groupTitle && <h4 className={styles.groupTitle}>{group.groupTitle}</h4>}
+
+              {group.links?.map((item, idx) => (
+                <button
+                  key={idx}
+                  className={classNames(styles.contactRow, {
+                    [styles.phoneLink]: /phone|call|tel|\d{5,}/i.test(item.label),
+                    [styles.emailLink]: /@|email|mail/i.test(item.label)
+                  })}
+                  onClick={() => handleLinkClick(item.link, item.label)}
+                >
+                  <span>{item.label}</span>
+                  <Icon
+                    title="chevronRight"
+                    className={styles.navigationLinkIcon}
+                  />
+                </button>
+              ))}
+            </div>
+          ))}
+
+          {(additionalLinks?.links ?? []).length > 0 && (
+            <div className={styles.contactGroup}>
+              {additionalLinks.groupTitle && <h4 className={styles.groupTitle}>{additionalLinks.groupTitle}</h4>}
+
+              {(additionalLinks.links ?? []).map((item, idx) => (
+                <button
+                  key={idx}
+                  className={classNames(styles.contactRow, {
+                    [styles.phoneLink]: /phone|call|tel|\d{5,}/i.test(item.label),
+                    [styles.emailLink]: /@|email|mail/i.test(item.label)
+                  })}
+                  onClick={() => handleLinkClick(item.link, item.label)}
+                >
+                  <span>{item.label}</span>
+                  <Icon title="chevronRight" className={styles.navigationLinkIcon} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
-
-  return (
-    <div className={styles.contactSidebarInner}>
-      {/* Header with cross button */}
-      <div className={styles.contactHeader}>
-        <h2 className={styles.contactHeading}>Contact Us</h2>
-        <button 
-          className={styles.closeButton}
-          onClick={() => setContactSidebarOpen(false)}
-          aria-label="Close contact sidebar"
-        >
-          <Icon title="close" className={styles.closeIcon} />
-        </button>
-      </div>
-
-      <p className={styles.contactDescription}>
-        Our team of experts is available to answer all your questions from assistance with your orders to style
-        advice and gift ideas.
-      </p>
-
-      <div className={styles.linksWrapper}>
-        {links.map((group, i) => (
-          <div key={i} className={styles.contactGroup}>
-            {group.groupTitle && <h4 className={styles.groupTitle}>{group.groupTitle}</h4>}
-
-            {group.links?.map((item, idx) => (
-              <button
-                key={idx}
-                className={classNames(styles.contactRow, {
-                  [styles.phoneLink]: /phone|call|tel|\d{5,}/i.test(item.label),
-                  [styles.emailLink]: /@|email|mail/i.test(item.label)
-                })}
-                onClick={() => handleLinkClick(item.link, item.label)}
-              >
-                <span>{item.label}</span>
-                <Icon 
-                  title="chevronRight"  
-                  className={styles.navigationLinkIcon}  
-                />
-              </button>
-            ))}
-          </div>
-        ))}
-
-        {additionalLinks?.links?.length > 0 && (
-          <div className={styles.contactGroup}>
-            {additionalLinks.groupTitle && <h4 className={styles.groupTitle}>{additionalLinks.groupTitle}</h4>}
-
-            {additionalLinks.links.map((item, idx) => (
-              <button
-                key={idx}
-                className={classNames(styles.contactRow, {
-                  [styles.phoneLink]: /phone|call|tel|\d{5,}/i.test(item.label),
-                  [styles.emailLink]: /@|email|mail/i.test(item.label)
-                })}
-                onClick={() => handleLinkClick(item.link, item.label)}
-              >
-                <span>{item.label}</span>
-                <Icon title="chevronRight" className={styles.navigationLinkIcon} />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 
   return (
     <div className={classes}>
       {/* Top navigation */}
-<ul className={styles.navigationItems}>
-  {filteredLinks.map(navItem => (
-    <li
-      key={navItem.title}
-      className={classNames(styles.navigationItem, {
-        [styles.withSublinks]: navItem.navSublinks?.length,
-        [styles.active]: getCurrentLevel()?.parentTitle === navItem.title
-      })}
-    >
-      {navItem.title?.toLowerCase() === "contact" ? (
-        <button
-          className={styles.navigationLink}
-          onClick={async e => {
-            e.preventDefault();
-            e.stopPropagation();
+      <ul className={styles.navigationItems}>
+        {filteredLinks.map(navItem => (
+          <li
+            key={navItem.title}
+            className={classNames(styles.navigationItem, {
+              [styles.withSublinks]: navItem.navSublinks?.length,
+              [styles.active]: getCurrentLevel()?.parentTitle === navItem.title
+            })}
+          >
+            {navItem.title?.toLowerCase() === "contact" ? (
+              <button
+                className={styles.navigationLink}
+                onClick={async e => {
+                  e.preventDefault();
+                  e.stopPropagation();
 
-            const contactData = await client.fetch(`
+                  const contactData = await client.fetch(`
               *[_type == "page" && slug.current == "/contact/"][0]{
                 _id,
                 title,
@@ -450,44 +450,44 @@ const renderContactSidebar = () => {
               }
             `);
 
-            console.log('Fetched contact page data:', contactData);
-            const linksSection = contactData?.sections?.find((s: any) => s._type === 'linksSection');
-            console.log('Extracted linksSection:', linksSection);
+                  console.log('Fetched contact page data:', contactData);
+                  const linksSection = contactData?.sections?.find((s: any) => s._type === 'linksSection');
+                  console.log('Extracted linksSection:', linksSection);
 
-            setContactSectionData(linksSection || null);
-            setContactSidebarOpen(true);
-          }}
-        >
-          {/* Remove Text component and use plain text for Contact button */}
-          <span className={styles.navText}>{navItem.title}</span>
-        </button>
-      ) : (
-        <Link
-          variant="normal-sm"
-          href={navItem.dropdown ? '#' : resolveLink(navItem.link, navItem.title)}
-          className={styles.navigationLink}
-          onClick={e => {
-            if (navItem.navSublinks?.length) {
-              e.preventDefault();
-              e.stopPropagation();
-              openMenu(navItem);
-            }
-          }}
-        >
-          {/* Also use span for other links to match */}
-          <span className={styles.navText}>{navItem.title}</span>
-          {navItem.navSublinks?.length && <Icon title="chevronDown" className={styles.navigationLinkIcon} />}
-        </Link>
-      )}
-    </li>
-  ))}
+                  setContactSectionData(linksSection || null);
+                  setContactSidebarOpen(true);
+                }}
+              >
+                {/* Remove Text component and use plain text for Contact button */}
+                <span className={styles.navText}>{navItem.title}</span>
+              </button>
+            ) : (
+              <Link
+                variant="normal-sm"
+                href={navItem.dropdown ? '#' : resolveLink(navItem.link, navItem.title)}
+                className={styles.navigationLink}
+                onClick={e => {
+                  if (navItem.navSublinks?.length) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openMenu(navItem);
+                  }
+                }}
+              >
+                {/* Also use span for other links to match */}
+                <span className={styles.navText}>{navItem.title}</span>
+                {navItem.navSublinks?.length && <Icon title="chevronDown" className={styles.navigationLinkIcon} />}
+              </Link>
+            )}
+          </li>
+        ))}
 
-  {display === 'right' && (
-    <li>
-      <HeaderNavigationCart />
-    </li>
-  )}
-</ul>
+        {display === 'right' && (
+          <li>
+            <HeaderNavigationCart />
+          </li>
+        )}
+      </ul>
 
       {/* Overlay */}
       {sidebarOpen && <div className={styles.overlay} onClick={closeSidebar} />}
@@ -571,25 +571,25 @@ const renderContactSidebar = () => {
         </div>
       </div>
 
-  {/* Contact Sidebar */}
-{contactSidebarOpen && (
-  <>
-    <div 
-      className={classNames(styles.overlay, styles.contactOverlay)} 
-      onClick={() => setContactSidebarOpen(false)} 
-    />
-    
-    <div 
-      className={classNames(styles.sidebarRight, {
-        [styles.sidebarOpen]: contactSidebarOpen
-      })}
-    >
-      <div className={styles.sidebarContent}>
-        {renderContactSidebar()}
-      </div>
-    </div>
-  </>
-)}
+      {/* Contact Sidebar */}
+      {contactSidebarOpen && (
+        <>
+          <div
+            className={classNames(styles.overlay, styles.contactOverlay)}
+            onClick={() => setContactSidebarOpen(false)}
+          />
+
+          <div
+            className={classNames(styles.sidebarRight, {
+              [styles.sidebarOpen]: contactSidebarOpen
+            })}
+          >
+            <div className={styles.sidebarContent}>
+              {renderContactSidebar()}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
