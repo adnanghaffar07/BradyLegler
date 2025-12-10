@@ -65,7 +65,9 @@ $accent: var(--brand-ascension-blue, #0b66ff);
   background: rgba(0, 0, 0, 0);
   pointer-events: none;
   opacity: 0;
-  transition: background 0.25s ease, opacity 0.25s ease;
+  transition:
+    background 0.25s ease,
+    opacity 0.25s ease;
   z-index: 1198;
 }
 
@@ -83,7 +85,7 @@ $accent: var(--brand-ascension-blue, #0b66ff);
   /* 420px */
   height: 100vh;
   background: #fff;
-  transition: right 0.28s cubic-bezier(.2, .9, .2, 1);
+  transition: right 0.28s cubic-bezier(0.2, 0.9, 0.2, 1);
   z-index: 2000;
   /* higher than trigger */
   flex-direction: column;
@@ -185,7 +187,6 @@ $accent: var(--brand-ascension-blue, #0b66ff);
   height: 12px;
 }
 
-
 .chev.rotate {
   transform: rotate(180deg);
 }
@@ -224,7 +225,9 @@ $accent: var(--brand-ascension-blue, #0b66ff);
   padding: 8px;
   cursor: pointer;
   border-radius: 4px;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
   user-select: none;
   color: $text;
   font-size: 15px;
@@ -314,14 +317,13 @@ $accent: var(--brand-ascension-blue, #0b66ff);
     right: 0;
   }
 
-  .triggerText{
+  .triggerText {
     padding: 20px;
   }
   .triggerContainer {
     margin-bottom: 10px;
   }
 }
-
 
 /* Add these to your existing CSS */
 

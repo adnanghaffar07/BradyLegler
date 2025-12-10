@@ -10,7 +10,7 @@
   gap: 8px;
 
   @include media-up(tablet) {
-    gap: 16px;
+    gap: 24px;
   }
 
   @include media-up(desktop) {
@@ -22,7 +22,7 @@
   position: fixed;
   top: 0;
   left: -100%;
-  width: 28%;
+  width: 15%;
   height: 100vh;
   background: white;
   z-index: 1000; // Lower than navigation items
@@ -37,7 +37,6 @@
     transform: translateX(0);
   }
 }
-
 
 .navigationItem {
   position: relative;
@@ -97,12 +96,12 @@ button.navigationLink {
 }
 
 button.navigationLink::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
-  bottom: -2px;        /* gap between text and underline */
+  bottom: -2px; /* gap between text and underline */
   width: 100%;
-  height: 1px;         /* thinner line */
+  height: 1px; /* thinner line */
   background: var(--navigation-color-hover);
   transform: scaleX(0); /* start hidden */
   transform-origin: left;
@@ -116,8 +115,6 @@ button.navigationLink:hover {
 button.navigationLink:hover::after {
   transform: scaleX(1); /* animate line from left to right */
 }
-
-
 
 .navigationLinkWrapper {
   display: flex;
@@ -398,7 +395,6 @@ button.navigationLink:hover::after {
   border-radius: 8px;
 }
 
-
 // Contact SideBar
 
 // Ensure contact button is covered by overlay
@@ -458,7 +454,6 @@ button.navigationLink:hover::after {
 .phoneLink {
   color: #857f7f !important;
 
-
   &:hover {
     text-decoration: underline;
   }
@@ -492,7 +487,7 @@ button.navigationLink:hover::after {
 }
 
 // When sidebar is open, adjust overlay z-index if needed
-.sidebarOpen+.overlay {
+.sidebarOpen + .overlay {
   z-index: 999;
 }
 

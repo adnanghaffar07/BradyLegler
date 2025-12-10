@@ -12,7 +12,7 @@ import { IHeaderHeroSection } from '@/tools/sanity/schema/sections/shared/header
 import styles from './styles.module.scss';
 
 const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
-  const { addButton, button, image } = props;
+  const { addButton, button, image, tagline } = props;
 
   const [isHover, setIsHover] = useState(false);
 
@@ -28,6 +28,9 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
     >
       <Layout variant="fullWidth" className={styles.layout}>
         <div className={styles.containerSticky}>
+          {/* Show tagline above the button */}
+          {tagline && <Text text={tagline} className={styles.tagline} weight="regular" size="lg" />}
+
           {addButton && (
             <Link
               {...button?.link}

@@ -4,12 +4,17 @@ $button-thickness: 2px;
   z-index: 0;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   width: 100%;
+  position: relative;
 
   @include media-up(tablet) {
     display: none;
   }
 
+  .text {
+    font-size: 10px;
+  }
   &.show {
     color: var(--brand-white) !important;
 
@@ -25,13 +30,19 @@ $button-thickness: 2px;
         transform: scaleY(1);
         transition: transform 300ms ease;
       }
-      .links {
+      .contentWrapper {
+        // Updated to target contentWrapper
         opacity: 1;
         transition: opacity 300ms ease 300ms;
-        color: var(--brand-white-70);
       }
     }
   }
+}
+
+.cartContainer {
+  position: relative;
+  z-index: 99;
+  margin-right: 16px;
 }
 
 .buttonContainer {
@@ -55,7 +66,7 @@ $button-thickness: 2px;
       top: 0;
       left: 50%;
       width: $button-thickness;
-      height: 100%; // Makes the vertical line span the entire button height
+      height: 100%;
       background-color: var(--brand-black-70);
       transform: translateX(-50%);
     }
@@ -68,8 +79,12 @@ $button-thickness: 2px;
       right: 0;
       height: $button-thickness;
       background-color: var(--brand-black);
-      width: 100%; // Makes the horizontal line span the entire button width
+      width: 100%;
       transform: translateY(-50%);
+    }
+
+    &.buttonOpen {
+      transform: rotate(45deg);
     }
   }
 }
@@ -86,6 +101,8 @@ $button-thickness: 2px;
 
   .navigationContainer {
     height: 100%;
+    position: relative;
+    z-index: 3;
   }
 
   a {
@@ -102,20 +119,249 @@ $button-thickness: 2px;
     transform-origin: top center;
     transform: scaleY(0);
     transition: transform 300ms ease 100ms;
+    z-index: 1;
   }
 
-  .links {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 16px;
-    opacity: 0;
-    transition: opacity 300ms ease 0ms;
+  &.navigationOpen {
+    pointer-events: all;
 
-    .linkItem {
-      display: flex;
-      justify-content: center;
-      flex: 1;
+    &::before {
+      transform: scaleY(1);
+      transition: transform 300ms ease;
+    }
+  }
+}
+
+// Add this new class - CORRECT POSITION
+.contentWrapper {
+  opacity: 0;
+  transition: opacity 200ms ease;
+  position: relative;
+  z-index: 3;
+  height: 100%;
+
+  .navigationOpen & {
+    opacity: 1;
+    transition: opacity 300ms ease 300ms;
+  }
+}
+
+.menuLevel {
+  height: 100%;
+  position: relative;
+  z-index: 3;
+  padding: 10px;
+}
+
+.submenuHeader {
+  display: flex;
+  align-items: center;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--brand-black-20);
+}
+
+.backButton {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-black-70);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 0;
+
+  &:hover {
+    color: var(--brand-black);
+  }
+}
+
+.backIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--brand-black-70);
+}
+
+.submenuTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--brand-black);
+  margin-left: -40px;
+  flex: 1;
+  text-align: center;
+}
+
+.menuImageContainer {
+  margin-bottom: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 150px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.menuImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  height: 50%;
+  gap: 12px;
+  position: relative;
+  z-index: 4; // Increased z-index
+}
+
+.linkItem {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--brand-black-70);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 12px 0;
+  font-size: 12px;
+  gap: 2px;
+
+  &:hover {
+    color: var(--brand-black);
+  }
+}
+
+.navIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--brand-black-50);
+}
+
+// Contact Sidebar Styles
+.contactContainer {
+  .navigation {
+    &::before {
+      background-color: var(--brand-white);
+    }
+  }
+}
+
+.contactContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3;
+  padding: 10px;
+}
+
+.contactHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--brand-black-20);
+}
+
+.contactHeading {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--brand-black);
+  margin-left: -40px;
+  flex: 1;
+  text-align: center;
+  flex: 1;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--brand-black-70);
+
+  &:hover {
+    color: var(--brand-black);
+  }
+}
+
+.closeIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--brand-black-70);
+}
+
+.contactDescription {
+  color: var(--brand-black-70);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.linksWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.contactGroup {
+  .groupTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--brand-black);
+    margin-bottom: 12px;
+  }
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: #857f7f !important;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--brand-black-10);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    color: var(--brand-black);
+  }
+
+  &.phoneLink {
+    color: var(--brand-blue);
+
+    &:hover {
+      color: var(--brand-blue-dark);
+    }
+  }
+
+  &.emailLink {
+    color: var(--brand-orange);
+
+    &:hover {
+      color: var(--brand-orange-dark);
     }
   }
 }

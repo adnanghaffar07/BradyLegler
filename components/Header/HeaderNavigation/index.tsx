@@ -34,7 +34,6 @@ type ContactLinksSection = {
   additionalLinks?: ContactGroup;
 };
 
-
 const HeaderNavigation = ({ className, display }: { className?: string; display: 'left' | 'right' | 'all' }) => {
   const classes = classNames(styles.container, className);
   const [navItems, setNavItems] = useState<any[]>([]);
@@ -44,7 +43,6 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
   const [isAnimating, setIsAnimating] = useState(false);
   const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
   const [contactSectionData, setContactSectionData] = useState<ContactLinksSection | null>(null);
-
 
   // Fetch header nav via GROQ
   useEffect(() => {
@@ -310,15 +308,14 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
 
       // Check if it's a phone number
       const cleanLabel = label?.trim().toLowerCase();
-      const isPhoneNumber = /^[\d\s\+\-\(\)]{5,}$/.test(cleanLabel) ||
+      const isPhoneNumber =
+        /^[\d\s\+\-\(\)]{5,}$/.test(cleanLabel) ||
         cleanLabel.includes('phone') ||
         cleanLabel.includes('call') ||
         cleanLabel.includes('tel');
 
       // Check if it's an email
-      const isEmail = cleanLabel.includes('@') ||
-        cleanLabel.includes('email') ||
-        cleanLabel.includes('mail');
+      const isEmail = cleanLabel.includes('@') || cleanLabel.includes('email') || cleanLabel.includes('mail');
 
       if (isPhoneNumber) {
         // Extract numbers from the label for phone calls
@@ -356,8 +353,8 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
         </div>
 
         <p className={styles.contactDescription}>
-          Our team of experts is available to answer all your questions from assistance with your orders to style
-          advice and gift ideas.
+          Our team of experts is available to answer all your questions from assistance with your orders to style advice
+          and gift ideas.
         </p>
 
         <div className={styles.linksWrapper}>
@@ -375,10 +372,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                   onClick={() => handleLinkClick(item.link, item.label)}
                 >
                   <span>{item.label}</span>
-                  <Icon
-                    title="chevronRight"
-                    className={styles.navigationLinkIcon}
-                  />
+                  <Icon title="chevronRight" className={styles.navigationLinkIcon} />
                 </button>
               ))}
             </div>
@@ -408,7 +402,6 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     );
   };
 
-
   return (
     <div className={classes}>
       {/* Top navigation */}
@@ -421,7 +414,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
               [styles.active]: getCurrentLevel()?.parentTitle === navItem.title
             })}
           >
-            {navItem.title?.toLowerCase() === "contact" ? (
+            {navItem.title?.toLowerCase() === 'contact' ? (
               <button
                 className={styles.navigationLink}
                 onClick={async e => {
@@ -512,7 +505,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 className={classNames(styles.menuLevel, {
                   [styles.menuLevelActive]: levelIndex === subMenuStack.length - 1
                 })}
-                style={{ left: `${levelIndex * 250}px` }}
+                style={{ left: `${levelIndex * 140}px` }}
               >
                 <div className={styles.levelLayout}>
                   {/* LEFT: Links */}
@@ -584,9 +577,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
               [styles.sidebarOpen]: contactSidebarOpen
             })}
           >
-            <div className={styles.sidebarContent}>
-              {renderContactSidebar()}
-            </div>
+            <div className={styles.sidebarContent}>{renderContactSidebar()}</div>
           </div>
         </>
       )}

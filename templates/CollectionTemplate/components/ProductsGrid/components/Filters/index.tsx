@@ -46,8 +46,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
 
   const openDrawer = () => setDrawerOpen(true);
   const closeDrawer = () => setDrawerOpen(false);
-  const toggleSection = (key: string) =>
-    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleSection = (key: string) => setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   const toggleFilterParam = (filterKey: string, filterValue: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
@@ -103,11 +102,8 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
       <div className={classNames(styles.triggerContainer, { [styles.hidden]: drawerOpen })}>
         <div className={styles.triggerText} onClick={openDrawer}>
           <span>Filters & Sorting</span>
-          {(anyFilterActive || hasSubCollectionFilters) && (
-            <span className={styles.filterIndicator}>•</span>
-          )}
+          {(anyFilterActive || hasSubCollectionFilters) && <span className={styles.filterIndicator}>•</span>}
         </div>
-
       </div>
 
       {/* Overlay */}
@@ -135,7 +131,10 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
               aria-expanded={!!expandedSections['sort']}
             >
               <span>Sort By</span>
-              <Icon title="chevronDown" className={classNames(styles.chev, { [styles.rotate]: expandedSections['sort'] })} />
+              <Icon
+                title="chevronDown"
+                className={classNames(styles.chev, { [styles.rotate]: expandedSections['sort'] })}
+              />
             </button>
 
             {expandedSections['sort'] && (
@@ -149,8 +148,8 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
                     { value: 'title-ascending', label: 'A-Z' },
                     { value: 'title-descending', label: 'Z-A' },
                     { value: 'created-descending', label: 'Newest' },
-                    { value: 'created-ascending', label: 'Oldest' },
-                  ].map((option) => {
+                    { value: 'created-ascending', label: 'Oldest' }
+                  ].map(option => {
                     const currentSort = searchParams?.get('sort_by') || '';
                     const isActive = currentSort === option.value;
 
@@ -179,7 +178,10 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
                 aria-expanded={!!expandedSections['subcollections']}
               >
                 <span>Collections</span>
-                <Icon title="chevronDown" className={classNames(styles.chev, { [styles.rotate]: expandedSections['subcollections'] })} />
+                <Icon
+                  title="chevronDown"
+                  className={classNames(styles.chev, { [styles.rotate]: expandedSections['subcollections'] })}
+                />
               </button>
 
               {expandedSections['subcollections'] && (
@@ -199,7 +201,6 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
             </section>
           )}
 
-
           {/* Shopify Filters */}
           {hasFilters ? (
             filters.map(filter => {
@@ -218,7 +219,10 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
                     aria-expanded={!!expandedSections[sectionKey]}
                   >
                     <span>{filter.label}</span>
-                    <Icon title="chevronDown" className={classNames(styles.chev, { [styles.rotate]: expandedSections[sectionKey] })} />
+                    <Icon
+                      title="chevronDown"
+                      className={classNames(styles.chev, { [styles.rotate]: expandedSections[sectionKey] })}
+                    />
                   </button>
 
                   {expandedSections[sectionKey] && (
@@ -231,7 +235,10 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
                         const active = isFilterActive(filterKey, filterValue);
 
                         return (
-                          <label key={v.id} className={classNames(styles.checkboxLabel, { [styles.activeCheckbox]: active })}>
+                          <label
+                            key={v.id}
+                            className={classNames(styles.checkboxLabel, { [styles.activeCheckbox]: active })}
+                          >
                             <input
                               type="checkbox"
                               checked={active}
@@ -254,8 +261,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
             })
           ) : (
             // Show message if no filters available
-            <div className={styles.noFilters}>
-            </div>
+            <div className={styles.noFilters}></div>
           )}
         </div>
 

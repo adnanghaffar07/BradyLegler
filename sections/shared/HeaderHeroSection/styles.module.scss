@@ -11,6 +11,13 @@
   //}
 }
 
+.tagline {
+  margin-bottom: 2rem; // spacing between text and button
+  font-size: 1.5rem;
+  text-align: center;
+  color: #ffffff;
+}
+
 .layout {
   display: flex;
   flex-direction: column;
@@ -32,8 +39,12 @@
   }
 
   .containerSticky {
-    height: 100%;
-    position: relative;
+    position: relative; // or sticky, if needed
+    z-index: 10; // ensure it’s above background
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .button {

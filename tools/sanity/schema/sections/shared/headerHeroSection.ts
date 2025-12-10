@@ -34,6 +34,13 @@ const headerHeroSection = defineType({
       group: 'internal'
     },
     {
+      name: 'tagline', // ADD THIS FIELD
+      title: 'Tagline',
+      type: 'string',
+      description: 'Short text displayed above the button',
+      group: 'data' // Assuming you want it in the data group
+    },
+    {
       name: `image`,
       title: `Image`,
       type: `imageElementSimple`,

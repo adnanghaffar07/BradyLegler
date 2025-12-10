@@ -41,14 +41,14 @@ const ProductsGrid = ({
   console.log('ProductsGrid - filters:', filters);
   console.log('ProductsGrid - subCollectionFilters:', subCollectionFilters);
   console.log('ProductsGrid - initialData:', initialData);
-  
+
   const { shopifyCollectionData, productCount } = useCollectionFilters({
     initialData,
     initialProductCount,
     filters,
     collectionSlug: sanityCollectionData.store.slug.current
   });
-  
+
   const hasQuotes = sanityCollectionData?.quotes?.length > 0;
   const layoutType = sanityCollectionData?.layout || 'fluidAndGrid';
 
@@ -130,11 +130,7 @@ const ProductsGrid = ({
         <Filters filters={filters} subCollectionFilters={subCollectionFilters} />
       )}
        */}
-      <FiltersDrawer
-        filters={filters}
-        subCollectionFilters={subCollectionFilters}
-        productCount={productCount}
-      />
+      <FiltersDrawer filters={filters} subCollectionFilters={subCollectionFilters} productCount={productCount} />
 
       {shopifyCollectionData?.products?.edges?.length === 0 && (
         <div className={styles.noProducts}>

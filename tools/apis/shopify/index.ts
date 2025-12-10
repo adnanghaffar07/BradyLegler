@@ -819,9 +819,7 @@ export type GetCollectionFiltersByHandleResponse =
   | GetCollectionFiltersByHandleQueryResponse['collectionByHandle']['products']['filters']
   | null;
 
-export const getCollectionFiltersByHandle = async (
-  handle: string
-): Promise<GetCollectionFiltersByHandleResponse> => {
+export const getCollectionFiltersByHandle = async (handle: string): Promise<GetCollectionFiltersByHandleResponse> => {
   let allFilters: GetCollectionFiltersByHandleResponse = [];
   let hasNextPage = true;
   let cursor: string | null = null;
@@ -891,7 +889,6 @@ export const getCollectionFiltersByHandle = async (
     return null;
   }
 };
-
 
 /*=============================================>>>>>
 = GET COLLECTION SUB COLLECTION FILTERS BY ID =
