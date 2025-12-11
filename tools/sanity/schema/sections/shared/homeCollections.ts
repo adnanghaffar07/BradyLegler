@@ -1,5 +1,5 @@
 import { defineType } from 'sanity';
-import stripTitleTags from '@/tools/sanity/helpers/stripTitleTags';
+import stripTitleTags from '../../../../../tools/sanity/helpers/stripTitleTags';
 
 interface ICollectionItem {
   _key?: string; // for React key

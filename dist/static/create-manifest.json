@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "createdAt": "2025-12-11T16:34:04.644Z",
+  "workspaces": [
+    {
+      "name": "default",
+      "title": "Brady Legler",
+      "basePath": "/studio",
+      "projectId": "79j3g10q",
+      "dataset": "production",
+      "icon": null,
+      "mediaLibrary": {
+        "enabled": false
+      },
+      "schema": "60f1b3fb.create-schema.json",
+      "tools": "6f89a8e1.create-tools.json"
+    }
+  ]
+}

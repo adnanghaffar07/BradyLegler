@@ -7,7 +7,7 @@ import Cart from '@/components/Cart';
 import VisualEditing from '@/components/VisualEditing';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import {
-  COLLECTION_SLUGS_QUERY,
+  COLLECTION_SLUGS_QUERY, 
   FOOTER_QUERY,
   HEADER_QUERY,
   SOCIAL_MEDIA_QUERY,
@@ -45,3 +45,4 @@ const PageLayout: React.FC<PageLayoutProps> = async props => {
 };
 
 export default PageLayout;
+  

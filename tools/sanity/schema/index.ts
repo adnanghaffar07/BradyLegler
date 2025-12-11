@@ -39,7 +39,7 @@ import gallery from './objects/gallery';
 import collectionHeader from './objects/collectionHeader';
 import customMedia from './objects/customMedia';
 import alignMedia from './objects/alignMedia';
-import sizeGuideTable from '@/tools/sanity/schema/objects/sizeGuideTable';
+import sizeGuideTable from '../schema/objects/sizeGuideTable';
 
 // Shopify objects
 import inventory from './objects/shopify/inventory';
