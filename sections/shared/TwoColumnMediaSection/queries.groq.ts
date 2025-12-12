@@ -8,10 +8,12 @@ const twoColMediaSectionProjection = groq`
       
     imageSideA${imageProjection},
     addButtonSideA,
+    taglineSideA,
     buttonSideA${buttonProjection},
     
     imageSideB${imageProjection},
     addButtonSideB,
+    taglineSideB,
     buttonSideB${buttonProjection},
     
     invertLayout,

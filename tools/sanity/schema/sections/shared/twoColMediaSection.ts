@@ -10,9 +10,11 @@ interface ITwoColumnMediaSection {
   imageSideA: SanityImage;
   addButtonSideA: boolean;
   buttonSideA?: IButtonElement;
+  taglineSideA?: string; // ADD THIS
   imageSideB: SanityImage;
   addButtonSideB: boolean;
   buttonSideB?: IButtonElement;
+  taglineSideB?: string; // ADD THIS
   invertLayout: boolean;
   className?: string;
 }
@@ -49,6 +51,14 @@ const twoColMediaSection = defineType({
       initialValue: false
     },
     {
+      name: `taglineSideA`, // ADD THIS FIELD
+      title: `Side A - Tagline`,
+      type: `string`,
+      description: 'Short tagline or text to display above the button',
+      group: 'data',
+      hidden: ({ parent }) => !parent?.addButtonSideA
+    },
+    {
       name: `buttonSideA`,
       title: `Side A - Button`,
       type: `buttonElement`,
@@ -67,6 +77,14 @@ const twoColMediaSection = defineType({
       type: `boolean`,
       group: 'data',
       initialValue: false
+    },
+    {
+      name: `taglineSideB`, // ADD THIS FIELD
+      title: `Side B - Tagline`,
+      type: `string`,
+      description: 'Short tagline or text to display above the button',
+      group: 'data',
+      hidden: ({ parent }) => !parent?.addButtonSideB
     },
     {
       name: `buttonSideB`,

@@ -12,13 +12,7 @@
     transition: opacity 150ms ease-out;
   }
 
-  //&.hover {
-  //  .image {
-  //    opacity: 0;
-  //  }
-  //}
-
-  .buttonContainer {
+  .overlayContent {
     position: absolute;
     top: 0;
     right: 0;
@@ -26,9 +20,22 @@
     bottom: 0;
     pointer-events: none;
     padding: var(--layout-container-spacing);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
   }
 
-  .button {
+  .tagline {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+  }
+
+  .buttonContainer {
+    pointer-events: auto;
     position: sticky;
     top: 360px;
     max-width: 200px;
@@ -46,8 +53,6 @@
   transition: background-color 150ms ease-out;
 
   &.hover {
-    //background-color: var(--brand-ascension-blue);
-
     .button {
       color: var(--brand-ascension-blue);
     }
@@ -57,5 +62,19 @@
     width: 100%;
     max-width: 360px;
     height: auto;
+  }
+
+  .sideBContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .tagline {
+    color: var(--brand-ascension-blue);
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 0;
   }
 }

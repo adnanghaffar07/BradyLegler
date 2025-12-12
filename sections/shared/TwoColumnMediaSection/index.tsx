@@ -11,8 +11,18 @@ import { ITwoColumnMediaSection } from '@/tools/sanity/schema/sections/shared/tw
 import styles from './styles.module.scss';
 
 const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
-  const { imageSideA, addButtonSideA, buttonSideA, imageSideB, addButtonSideB, buttonSideB, invertLayout, className } =
-    props;
+  const {
+    imageSideA,
+    addButtonSideA,
+    taglineSideA,
+    buttonSideA,
+    imageSideB,
+    addButtonSideB,
+    taglineSideB,
+    buttonSideB,
+    invertLayout,
+    className
+  } = props;
 
   const layoutVariant = invertLayout ? 'rightLargeFullWidth' : 'leftLargeFullWidth';
 
@@ -29,21 +39,26 @@ const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
       className={className}
     >
       <Layout variant={layoutVariant} className={styles.container}>
+        {/* Side A */}
         <div className={classNames(styles.sideA, { [styles.hover]: sideAHover })}>
           <Image {...imageSideA} key="imageSideA" className={styles.image} />
-          {addButtonSideA && buttonSideA?.link && (
-            <div className={styles.buttonContainer}>
-              <div
-                className={styles.button}
-                onMouseOver={() => setSideAHover(true)}
-                onMouseLeave={() => setSideAHover(false)}
-              >
-                <Link {...buttonSideA?.link} variant="square-overlay-light" text={buttonSideA?.label} />
-              </div>
+          {(addButtonSideA && (buttonSideA?.link || taglineSideA)) && (
+            <div className={styles.overlayContent}>
+              {taglineSideA && <p className={styles.tagline}>{taglineSideA}</p>}
+              {buttonSideA?.link && (
+                <div
+                  className={styles.buttonContainer}
+                  onMouseOver={() => setSideAHover(true)}
+                  onMouseLeave={() => setSideAHover(false)}
+                >
+                  <Link {...buttonSideA?.link} variant="square-overlay-light" text={buttonSideA?.label} />
+                </div>
+              )}
             </div>
           )}
         </div>
 
+        {/* Side B */}
         <div className={classNames(styles.sideB, { [styles.hover]: sideBHover })}>
           <div onMouseOver={() => setSideBHover(true)} onMouseLeave={() => setSideBHover(false)}>
             {addButtonSideB && buttonSideB?.link ? (
@@ -54,9 +69,17 @@ const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
               <Image {...imageSideB} key="imageSideB" className={styles.image} />
             )}
           </div>
-          {addButtonSideB && (
-            <div onMouseOver={() => setSideBHover(true)} onMouseLeave={() => setSideBHover(false)}>
-              <Link {...buttonSideB?.link} className={styles.button} variant="normal-sm" text={buttonSideB?.label} />
+          
+          {(addButtonSideB && (buttonSideB?.link || taglineSideB)) && (
+            <div 
+              className={styles.sideBContent}
+              onMouseOver={() => setSideBHover(true)}
+              onMouseLeave={() => setSideBHover(false)}
+            >
+              {taglineSideB && <p className={styles.tagline}>{taglineSideB}</p>}
+              {buttonSideB?.link && (
+                <Link {...buttonSideB?.link} className={styles.button} variant="normal-sm" text={buttonSideB?.label} />
+              )}
             </div>
           )}
         </div>
