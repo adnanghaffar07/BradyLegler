@@ -5,7 +5,6 @@ import CollectionHiddenInput from '../../components/inputs/CollectionHidden';
 import ShopifyDocumentStatus from '../../components/media/ShopifyDocumentStatus';
 import { IShopifyCollectionObject } from '../objects/shopify/shopifyCollection';
 import { SectionLibrary } from '../../components/SectionLibrary';
-
 import ShopifyIcon from '../../components/icons/Shopify';
 import { ISeoObject } from '../objects/seo';
 import { ICollectionHeader } from '../objects/collectionHeader';

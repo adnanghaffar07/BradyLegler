@@ -64,7 +64,7 @@ const Media: React.FC<{
 
 const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDocument }) => {
   const { collectionHeader } = sanityCollectionData || {};
-  const { mediaOne, mediaTwo, addButton, button, layout, logoTheme, quote } = collectionHeader || {};
+  const { mediaOne, mediaTwo, addButton, tagline, button, layout, logoTheme, quote } = collectionHeader || {};
 
   return (
     <>
@@ -102,11 +102,16 @@ const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDoc
           )}
         </Layout>
 
-        {addButton && button?.link && (
-          <div className={styles.buttonContainer}>
-            <Link {...button?.link} variant={'square-overlay'} text={button?.label} />
-          </div>
-        )}
+        {/* Wrapper for tagline + button in a column */}
+        <div className={styles.overlayContent}>
+          {tagline && <p className={styles.tagline}>{tagline}</p>}
+          {addButton && button?.link && (
+            <div className={styles.buttonContainer}>
+              <Link {...button.link} variant="square-overlay" text={button.label} />
+            </div>
+          )}
+        </div>
+
       </Section>
       <Section className={styles.spacer} theme={logoTheme || 'dark'}>
         <div />

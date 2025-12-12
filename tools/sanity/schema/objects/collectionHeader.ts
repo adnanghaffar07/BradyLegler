@@ -10,6 +10,7 @@ interface ICollectionHeader {
   addButton: boolean;
   button: IButtonElement;
   quote: any[];
+  tagline: string;
 }
 
 const collectionHeader = defineType({
@@ -58,6 +59,12 @@ const collectionHeader = defineType({
       title: `Add Button`,
       type: `boolean`,
       hidden: ({ parent }) => parent?.layout === 'text'
+    },
+       {
+      name: 'tagline', // ADD THIS FIELD
+      title: 'Tagline',
+      type: 'string',
+      description: 'Short tagline or subtitle for the collection',
     },
     {
       name: `button`,

@@ -35,6 +35,7 @@ const collectionProjection = groq`{
       image${imageProjection},
       video${fileProjection},
     },
+    tagline,
     addButton,
     button${buttonProjection},
     layout,
