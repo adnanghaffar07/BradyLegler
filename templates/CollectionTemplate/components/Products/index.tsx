@@ -64,11 +64,8 @@ const Products = async ({
   const productCount = await getCollectionProductCountByHandle(sanityCollectionData?.store?.slug?.current);
   const filters = await getCollectionFiltersByHandle(sanityCollectionData?.store?.slug?.current);
   const subCollectionFilters = await getCollectionSubCollectionFiltersById(initialData?.id);
-
   const tempTheme = params?.slug?.[0] === 'jewelry' ? 'dark' : 'dark';
-
   const currency = initialData?.products?.edges?.[0]?.node?.priceRange?.minVariantPrice?.currencyCode;
-
   const sectionsMiddleData = sanityCollectionData?.sectionsMiddle;
   const sectionsMiddle = <Sections sections={sectionsMiddleData} />;
 

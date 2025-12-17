@@ -9,15 +9,37 @@ type PriceProps = {
 };
 
 const Price: React.FC<PriceProps> = props => {
-  const { price, compareAtPrice = '100' } = props;
-  const priceFormatted = !!price && formatCurrency({ amount: price });
-  const compareAtPriceFormatted =
-    !!compareAtPrice && compareAtPrice !== '0' && formatCurrency({ amount: compareAtPrice });
+  const { price, compareAtPrice } = props;
+  
+  // Debug what's coming in
+  console.log('Price component received:', { price, compareAtPrice });
+  
+  // Convert empty strings or invalid values
+  const priceValue = price && price !== '0' ? price : '0';
+  const compareAtPriceValue = compareAtPrice && compareAtPrice !== '0' ? compareAtPrice : undefined;
+  
+  // Format the currency
+  const priceFormatted = formatCurrency({ amount: priceValue });
+  const compareAtPriceFormatted = compareAtPriceValue 
+    ? formatCurrency({ amount: compareAtPriceValue })
+    : null;
 
   return (
     <div className={styles.price}>
-      <Text as="span" size="b2" className={styles.price} text={priceFormatted} />
-      <Text as="span" size="b2" className={styles.compareAtPrice} text={compareAtPriceFormatted} />
+      {compareAtPriceFormatted && (
+        <Text 
+          as="span" 
+          size="b2" 
+          className={styles.compareAtPrice} 
+          text={compareAtPriceFormatted} 
+        />
+      )}
+      <Text 
+        as="span" 
+        size="b2" 
+        className={styles.price} 
+        text={priceFormatted} 
+      />
     </div>
   );
 };

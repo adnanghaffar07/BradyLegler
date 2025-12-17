@@ -664,7 +664,7 @@ export const getCollectionByHandle = async (
               title
               handle
                 productType
-              images(first: 1) {
+              images(first: 10) {
                 edges {
                   node {
                     src

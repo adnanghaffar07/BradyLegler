@@ -32,6 +32,8 @@ const ProductCard = ({
 }) => {
   const { trackSelectItem } = useAnalytics();
   const [active, setActive] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const isList = layoutType === 'list';
 
   const onProductClick = useCallback(() => {
@@ -51,6 +53,14 @@ const ProductCard = ({
     }
   }, [collectionId, collectionTitle, shopifyProduct]);
 
+  const nextImage = (imagesLength: number) => {
+    setCurrentImageIndex((prev) => (prev + 1) % imagesLength);
+  };
+
+  const prevImage = (imagesLength: number) => {
+    setCurrentImageIndex((prev) => (prev === 0 ? imagesLength - 1 : prev - 1));
+  };
+
   const ListLink = ({ title, url }: { title: string; url: string }) => {
     if (!isList) return null;
 
@@ -65,45 +75,120 @@ const ProductCard = ({
     );
   };
 
+  // Image navigation arrows component
+  const ImageNavigation = ({ 
+    imagesLength, 
+    onPrev, 
+    onNext,
+    showDots = false
+  }: { 
+    imagesLength: number; 
+    onPrev: () => void; 
+    onNext: () => void;
+    showDots?: boolean;
+  }) => {
+    if (imagesLength <= 1) return null;
+
+    return (
+      <>
+        <button
+          className={styles.navArrowLeft}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onPrev();
+          }}
+          aria-label="Previous image"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <button
+          className={styles.navArrowRight}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onNext();
+          }}
+          aria-label="Next image"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        
+        {showDots && imagesLength > 1 && (
+          <div className={styles.imageDots}>
+            {Array.from({ length: imagesLength }).map((_, index) => (
+              <button
+                key={index}
+                className={`${styles.imageDot} ${index === currentImageIndex ? styles.active : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCurrentImageIndex(index);
+                }}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
+
   if (sanityProduct) {
+    const sanityImages = sanityProduct.images || [];
+    const hasMultipleImages = sanityImages.length > 1;
+    const currentImage = sanityImages[currentImageIndex] || sanityProduct.previewImageUrl;
+
     return (
       <div
         key={sanityProduct.gid}
         className={classNames(styles.productCard, className, {
           [styles.active]: active,
           [styles.list]: isList,
-          [styles.overlayDetailsOnMobile]: overlayDetailsOnMobile
+          [styles.alwaysShowDetails]: true // Add this class
         })}
       >
-        {sanityProduct.previewImageUrl && (
+        {currentImage && (
           <Link onClick={onProductClick} href={`/${sanityProduct.slug.current}/`} className={styles.imageLink}>
             <Image
-              src={sanityProduct.previewImageUrl}
+              src={typeof currentImage === 'string' ? currentImage : currentImage.url}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt=""
             />
+            {hasMultipleImages && (
+              <ImageNavigation
+                imagesLength={sanityImages.length}
+                onPrev={() => prevImage(sanityImages.length)}
+                onNext={() => nextImage(sanityImages.length)}
+                showDots={true}
+              />
+            )}
           </Link>
         )}
 
-        {!isList && (
-          <div className={styles.productDetails}>
-            <Text text={sanityProduct.title} size="b3" />
-            <Text
-              text={formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
-              className={styles.productPrice}
-              size="b3"
-            />
-            <Link
-              onClick={onProductClick}
-              className={styles.overlayButton}
-              href={`/${sanityProduct.slug.current}/`}
-              variant="square-overlay-light"
-            >
-              View
-            </Link>
-          </div>
-        )}
+        {/* Always show product details - no overlay */}
+        <div className={styles.productDetails}>
+          <Text text={sanityProduct.title} size="b3" className={styles.productTitle} />
+          <Text
+            text={formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
+            className={styles.productPrice}
+            size="b3"
+          />
+          {/* Remove the "View" button if not needed */}
+          {/* <Link
+            onClick={onProductClick}
+            className={styles.overlayButton}
+            href={`/${sanityProduct.slug.current}/`}
+            variant="square-overlay-light"
+          >
+            View
+          </Link> */}
+        </div>
 
         <ListLink url={`/${sanityProduct.slug.current}/`} title={sanityProduct.title} />
       </div>
@@ -111,6 +196,10 @@ const ProductCard = ({
   }
 
   if (shopifyProduct) {
+    const shopifyImages = shopifyProduct.images?.edges || [];
+    const hasMultipleImages = shopifyImages.length > 1;
+    const currentShopifyImage = shopifyImages[currentImageIndex]?.node?.src;
+
     const ShopifyProductMedia = () => {
       const isSanityCollectionMediaEnabled = shopifyProduct?.collectionMedia?.enable;
 
@@ -137,15 +226,14 @@ const ProductCard = ({
         }
       }
 
-      // Fallback to Shopify product image
-      return (
+      return currentShopifyImage ? (
         <Image
-          src={shopifyProduct.images?.edges?.[0]?.node?.src}
+          src={currentShopifyImage}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           alt=""
         />
-      );
+      ) : null;
     };
 
     return (
@@ -154,35 +242,41 @@ const ProductCard = ({
         className={classNames(styles.productCard, className, {
           [styles.active]: active,
           [styles.list]: isList,
-          [styles.overlayDetailsOnMobile]: overlayDetailsOnMobile
+          [styles.alwaysShowDetails]: true // Add this class
         })}
       >
-        {shopifyProduct.images?.edges?.[0]?.node?.src && (
+        {currentShopifyImage && (
           <Link onClick={onProductClick} href={`/${shopifyProduct.handle}/`} className={styles.imageLink}>
             <ShopifyProductMedia />
+            {hasMultipleImages && (
+              <ImageNavigation
+                imagesLength={shopifyImages.length}
+                onPrev={() => prevImage(shopifyImages.length)}
+                onNext={() => nextImage(shopifyImages.length)}
+                showDots={true}
+              />
+            )}
           </Link>
         )}
 
-        {!isList && (
-          <div className={styles.productDetails}>
-            <div className={styles.productDetailsContainer}>
-              <Text text={shopifyProduct.title} size="b3" />
-              <Text
-                text={formatCurrency({ amount: shopifyProduct.priceRange?.minVariantPrice?.amount || 0 })}
-                className={styles.productPrice}
-                size="b3"
-              />
-              <Link
-                onClick={onProductClick}
-                className={styles.overlayButton}
-                href={`/${shopifyProduct.handle}/`}
-                variant="square-overlay-light"
-              >
-                View
-              </Link>
-            </div>
-          </div>
-        )}
+        {/* Always show product details - no overlay */}
+        <div className={styles.productDetails}>
+          <Text text={shopifyProduct.title} size="b3" className={styles.productTitle} />
+          <Text
+            text={formatCurrency({ amount: shopifyProduct.priceRange?.minVariantPrice?.amount || 0 })}
+            className={styles.productPrice}
+            size="b3"
+          />
+          {/* Remove the "View" button if not needed */}
+          {/* <Link
+            onClick={onProductClick}
+            className={styles.overlayButton}
+            href={`/${shopifyProduct.handle}/`}
+            variant="square-overlay-light"
+          >
+            View
+          </Link> */}
+        </div>
 
         <ListLink url={`/${shopifyProduct.handle}/`} title={shopifyProduct.title} />
       </div>
