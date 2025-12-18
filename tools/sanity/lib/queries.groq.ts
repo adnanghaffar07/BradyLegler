@@ -111,14 +111,36 @@ export const SIZE_GUIDE_QUERY = groq`
   }
 `;
 
+// CORRECTED PRODUCTS_QUERY - Matches your gallery structure
 export const PRODUCTS_QUERY = groq`
-*[_type == "product" && store.gid in $productIds && collectionMedia.enable == true] {
+  *[_type == "product" && store.gid in $productIds] {
     "id": store.gid,
-    collectionMedia {
-      enable,
-      mediaType,
-      video${fileProjection},
-      image${imageProjection}
-    }
-}
+    "title": store.title,
+    "handle": store.slug.current,
+    "productType": store.productType,
+    // Get gallery images - CORRECT STRUCTURE
+    "gallery": gallery[] {
+      _type,
+      _type == 'galleryImage' => {
+        "src": asset->url,
+        "altText": altText,
+        "width": asset->metadata.dimensions.width,
+        "height": asset->metadata.dimensions.height
+      },
+      _type == 'galleryVideo' => {
+        "videoUrl": asset->url
+      }
+    },
+    // Keep collectionMedia for backward compatibility
+ collectionMedia {
+  enable,
+  mediaItems[] {
+    mediaType,
+    alt,
+    video${fileProjection},
+    image${imageProjection}
+  }
+},
+    "priceRange": store.priceRange
+  }
 `;

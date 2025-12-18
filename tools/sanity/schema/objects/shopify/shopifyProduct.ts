@@ -4,6 +4,7 @@ import { IOptionObject } from './option';
 import { IProductVariantDocument } from '../../documents/productVariant';
 
 interface IShopifyProductObject {
+  images: never[];
   createdAt: string;
   updatedAt: string;
   status: string;

@@ -24,15 +24,15 @@ type DetailsProps = {
 const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData, sanitySizeGuide }) => {
   // Get all variants
   const variants = shopifyProductData?.variants?.edges?.map(({ node }) => node) || [];
-  
+
   // Set first variant as default
   const defaultVariant = variants[0];
   const [selectedVariant, setSelectedVariant] = useState<any>(defaultVariant);
 
   // Get price values as NUMBERS
-  const priceAmount = selectedVariant?.priceV2?.amount || 
-                     shopifyProductData?.priceRange?.minVariantPrice?.amount;
-  
+  const priceAmount = selectedVariant?.priceV2?.amount ||
+    shopifyProductData?.priceRange?.minVariantPrice?.amount;
+
   const compareAtPriceAmount = selectedVariant?.compareAtPriceV2?.amount;
 
   // Convert to STRINGS for Price component
@@ -72,17 +72,17 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
 
                 {/* Title + Price */}
                 <div className={styles.header}>
-                  <Text size="b2" text={sanityProductData.store.title} />                  
-                  <Price 
+                  <Text size="b2" text={sanityProductData.store.title} />
+                  {/* <Price 
                     price={price} 
                     compareAtPrice={compareAtPrice} 
-                  />
+                  /> */}
                 </div>
 
                 {/* Description + Size guide */}
                 <Description
                   title={sanityProductData.store.title}
-                  descriptionHtml={shopifyProductData?.descriptionHtml || '<p>No description available</p>'}
+                  descriptionHtml={shopifyProductData?.descriptionHtml}
                   sanitySizeGuide={sanitySizeGuide}
                   collections={shopifyProductData?.collections}
                 />

@@ -5,7 +5,7 @@ import imageProjection from '../common/image.groq';
 import fileProjection from '../common/file.groq';
 
 const productProjection = groq`{
-  _id,
+   _id,
   store {
     createdAt,
     updatedAt,
@@ -29,10 +29,14 @@ const productProjection = groq`{
   },
   featureMedia {
     enable,
-    mediaType,
-    video${fileProjection},
-    image${imageProjection},
+    mediaItems[] {
+      mediaType,
+      alt,
+      image${imageProjection},
+      video${fileProjection},
+    },
   },
+
   gallery[]{
     "type": _type,
     size,
