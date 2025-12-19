@@ -1,5 +1,9 @@
 .container {
   position: relative;
+    margin: 0;
+    padding-left: 0; 
+    padding-right:0; 
+      max-width: 100% !important;
 }
 
 .logos {
@@ -37,7 +41,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: var(--layout-container-spacing);
+  // padding: var(--layout-container-spacing);
 
   position: absolute !important;
   top: 0;
@@ -65,12 +69,12 @@
   }
 }
 
-.layout {
-  position: absolute;
-  z-index: 10;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-}
+// .layout {
+//   position: absolute;
+//   z-index: 10;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   width: 100%;
+// }
