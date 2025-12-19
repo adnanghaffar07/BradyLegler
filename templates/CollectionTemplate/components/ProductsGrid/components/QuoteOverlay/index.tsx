@@ -11,7 +11,6 @@ type QuoteOverlayProps = {
 
 const QuoteOverlay: React.FC<QuoteOverlayProps> = props => {
   const { quote, show = true, itemsCount } = props;
-
   if (!show) return null;
 
   return (

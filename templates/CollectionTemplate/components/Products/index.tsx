@@ -35,21 +35,28 @@ const Products = async ({
   let sanityProductData: any[] = [];
 
   if (Array.isArray(productIds) && productIds.length > 0) {
+    // IMPORTANT: Make sure PRODUCTS_QUERY includes gallery
     sanityProductData = await sanityFetch({
       query: PRODUCTS_QUERY,
       params: { productIds }
     });
   }
 
-  // ---- MERGE SANITY MEDIA ----
+  // ---- MERGE SANITY GALLERY IMAGES WITH SHOPIFY DATA ----
   const enrichedInitialDataEdges = initialData?.products?.edges?.map(edge => {
     const sanityProduct = sanityProductData.find(p => p.id === edge?.node?.id);
+    
+    // Create merged product object
+    const mergedProduct = {
+      ...(edge?.node || {}),
+      // Add collectionMedia if it exists
+      ...(sanityProduct?.collectionMedia ? { collectionMedia: sanityProduct.collectionMedia } : {}),
+      // ADD THIS: Merge gallery images from Sanity
+      ...(sanityProduct?.gallery ? { gallery: sanityProduct.gallery } : {})
+    };
 
     return {
-      node: {
-        ...(edge?.node || {}),
-        ...(sanityProduct?.collectionMedia ? { collectionMedia: sanityProduct.collectionMedia } : {})
-      }
+      node: mergedProduct
     };
   });
 
@@ -60,15 +67,17 @@ const Products = async ({
     }
   };
 
+  // Log to verify merging worked
+  console.log('🔍 Products - Sanity data count:', sanityProductData.length);
+  console.log('🔍 Products - First product gallery:', sanityProductData[0]?.gallery);
+  console.log('🔍 Products - Merged edges count:', enrichedInitialDataEdges?.length);
+
   // ---- OTHER SHOPIFY FILTERS ----
   const productCount = await getCollectionProductCountByHandle(sanityCollectionData?.store?.slug?.current);
   const filters = await getCollectionFiltersByHandle(sanityCollectionData?.store?.slug?.current);
   const subCollectionFilters = await getCollectionSubCollectionFiltersById(initialData?.id);
-
   const tempTheme = params?.slug?.[0] === 'jewelry' ? 'dark' : 'dark';
-
   const currency = initialData?.products?.edges?.[0]?.node?.priceRange?.minVariantPrice?.currencyCode;
-
   const sectionsMiddleData = sanityCollectionData?.sectionsMiddle;
   const sectionsMiddle = <Sections sections={sectionsMiddleData} />;
 
@@ -92,7 +101,7 @@ const Products = async ({
       <Section className={styles.products} full removeTopSpacing removeBottomSpacing theme={tempTheme}>
         <ProductsGrid
           sanityCollectionData={sanityCollectionData}
-          initialData={enrichedInitialData}
+          initialData={enrichedInitialData} // This now contains gallery images!
           initialProductCount={productCount}
           filters={filters}
           subCollectionFilters={subCollectionFilters}
