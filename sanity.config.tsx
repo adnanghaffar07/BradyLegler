@@ -18,6 +18,7 @@ export default defineConfig({
   title: "Brady Legler",
   projectId: "79j3g10q",
   dataset: "production",
+    apiVersion: "2021-03-25",
   name: 'default',
   basePath: '/studio',
   theme,

@@ -20,6 +20,7 @@ export default defineConfig({
   title: SANITY_STUDIO_PROJECT_NAME,
   projectId: SANITY_STUDIO_PROJECT_ID || '',
   dataset: SANITY_STUDIO_PROJECT_DATASET || '',
+      apiVersion: "2021-03-25",
   name: 'default',
   basePath: '/studio',
   theme,

@@ -11,7 +11,7 @@ const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   useCdn: true, // set to `false` to bypass the edge cache
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
+  apiVersion: "2024-01-01",
   token: process.env.SANITY_WRITE_TOKEN // Only if you want to update content with the client
 });
 
