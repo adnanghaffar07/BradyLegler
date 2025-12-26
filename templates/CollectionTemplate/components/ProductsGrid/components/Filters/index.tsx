@@ -102,7 +102,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
       <div className={classNames(styles.triggerContainer, { [styles.hidden]: drawerOpen })}>
         <div className={styles.triggerText} onClick={openDrawer}>
           <span>Filters & Sorting</span>
-          {(anyFilterActive || hasSubCollectionFilters) && <span className={styles.filterIndicator}>•</span>}
+          {/* {(anyFilterActive || hasSubCollectionFilters) && <span className={styles.filterIndicator}>•</span>} */}
         </div>
       </div>
 
@@ -124,7 +124,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
 
         <div className={styles.content}>
           {/* Sort By Section */}
-          <section className={styles.section}>
+          {/* <section className={styles.section}>
             <button
               className={styles.sectionHeader}
               onClick={() => toggleSection('sort')}
@@ -167,7 +167,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
                 </div>
               </div>
             )}
-          </section>
+          </section> */}
 
           {/* Sub-collection Filters */}
           {hasSubCollectionFilters && (
@@ -263,23 +263,19 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
             // Show message if no filters available
             <div className={styles.noFilters}></div>
           )}
-        </div>
 
-        {/* <div className={styles.footer}>
+           <div className={styles.footer}>
           <div className={styles.footerRow}>
             {anyFilterActive && (
               <button className={styles.clearBtn} onClick={clearAllFilters}>
                 Clear Filters
               </button>
             )}
-            <button
-              className={styles.displayBtn}
-              onClick={closeDrawer}
-            >
-              VIEW {productCount} RESULTS
-            </button>
           </div>
-        </div> */}
+        </div>
+        </div>
+
+       
       </aside>
     </>
   );
