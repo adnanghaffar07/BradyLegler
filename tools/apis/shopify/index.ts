@@ -3,10 +3,11 @@ import { gql, GraphQLClient } from 'graphql-request';
 const endpoint = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_API_URL!;
 const client = new GraphQLClient(endpoint, {
   headers: {
-    'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
+    'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
     'Content-Type': 'application/json'
   }
 });
+
 
 /*=============================================>>>>>
 = CREATE CART =

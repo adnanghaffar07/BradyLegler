@@ -1,30 +1,40 @@
 import { defineType } from 'sanity';
-import stripTitleTags from '../../../../../tools/sanity/helpers/stripTitleTags';
+import stripTitleTags from '@/tools/sanity/helpers/stripTitleTags';
+import { FiGrid } from 'react-icons/fi';
+import defaultSectionGroups from '../../common/defaultSectionGroups';
 
-interface ICollectionItem {
-  _key?: string; // for React key
-  name: string;
-  href: string;
+// In your collectionItem schema file
+export interface ICollectionItem {
+  _key?: string;
   image: {
     asset: {
       _ref: string;
       _type: 'reference';
-      url: string;
     };
     alt?: string;
   };
+  collection?: {
+    store?: {
+      title?: string;
+      slug?: {
+        current?: string;
+      };
+    };
+  };
 }
-
 export const collectionItem = defineType({
   name: 'collectionItem',
   title: 'Collection Item',
   type: 'object',
+  icon: FiGrid,
   fields: [
     {
-      name: 'name',
-      title: 'Name',
-      type: 'string',
-      validation: Rule => Rule.required()
+      name: 'collection',
+      title: 'Collection',
+      type: 'reference',
+      to: [{ type: 'collection' }],
+      validation: Rule => Rule.required(),
+      description: 'Select a collection to link to'
     },
     {
       name: 'image',
@@ -32,20 +42,21 @@ export const collectionItem = defineType({
       type: 'image',
       options: { hotspot: true },
       validation: Rule => Rule.required()
-    },
-    {
-      name: 'href',
-      title: 'Link',
-      type: 'url',
-      validation: Rule => Rule.required()
     }
   ],
   preview: {
-    select: { title: 'name', media: 'image' },
-    prepare: ({ title, media }) => ({
-      title: title ? stripTitleTags(title) : 'Collection Item',
-      media
-    })
+    select: {
+      title: 'collection->titleProxy',  // Changed from store.title
+      subtitle: 'collection->slugProxy', // Changed from store.slug.current
+      media: 'image'
+    },
+    prepare({ title, subtitle, media }) {
+      return {
+        title: title ? stripTitleTags(title) : 'Collection Item',
+        subtitle: subtitle ? `/${subtitle}` : '',
+        media
+      };
+    }
   }
 });
 
@@ -53,6 +64,8 @@ export const homeCollections = defineType({
   name: 'homeCollections',
   title: 'Home Collections Section',
   type: 'document',
+  icon: FiGrid,
+  groups: defaultSectionGroups,
   fields: [
     {
       name: 'title',
@@ -67,5 +80,3 @@ export const homeCollections = defineType({
     }
   ]
 });
-
-export type { ICollectionItem };

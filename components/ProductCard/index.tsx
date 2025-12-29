@@ -140,15 +140,14 @@ const ProductCard = ({
     );
   };
 
-  // Image navigation arrows component
-  const ImageNavigation = ({ 
-    imagesLength, 
-    onPrev, 
+  const ImageNavigation = ({
+    imagesLength,
+    onPrev,
     onNext,
     showDots = false
-  }: { 
-    imagesLength: number; 
-    onPrev: () => void; 
+  }: {
+    imagesLength: number;
+    onPrev: () => void;
     onNext: () => void;
     showDots?: boolean;
   }) => {
@@ -166,7 +165,7 @@ const ProductCard = ({
           aria-label="Previous image"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
         <button
@@ -179,10 +178,10 @@ const ProductCard = ({
           aria-label="Next image"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        
+
         {showDots && imagesLength > 1 && (
           <div className={styles.imageDots}>
             {Array.from({ length: imagesLength }).map((_, index) => (
@@ -255,7 +254,7 @@ const ProductCard = ({
     console.log('='.repeat(50));
     console.log('🔍 PRODUCT CARD START - Product:', shopifyProduct.title);
     console.log('='.repeat(50));
-    
+
     // STEP 1: Log all incoming data
     console.log('📦 STEP 1 - All incoming data:', {
       title: shopifyProduct.title,
@@ -270,7 +269,7 @@ const ProductCard = ({
     // STEP 2: Check collection media
     const isCollectionMediaEnabled = shopifyProduct?.collectionMedia?.enable;
     const collectionMediaItems = shopifyProduct?.collectionMedia?.mediaItems || [];
-    
+
     console.log('🔍 STEP 2 - Collection Media Analysis:', {
       isCollectionMediaEnabled,
       collectionMediaItemsCount: collectionMediaItems.length,
@@ -285,7 +284,7 @@ const ProductCard = ({
     const galleryImages = shopifyProduct.gallery?.media || shopifyProduct.galleryImages || [];
     const sanityImages = galleryImages.filter((img: any) => img._type === 'image' && img.src);
     const shopifyImages = shopifyProduct.images?.edges || [];
-    
+
     console.log('🔍 STEP 3 - Other Image Sources:', {
       sanityImagesCount: sanityImages.length,
       shopifyImagesCount: shopifyImages.length,
@@ -307,10 +306,10 @@ const ProductCard = ({
       useCollectionMedia = true;
       source = 'collectionMedia (multiple)';
       images = collectionMediaItems;
-      
+
       const currentMedia = images[currentImageIndex];
       console.log('📸 Current collection media item:', currentMedia);
-      
+
       if (currentMedia?.mediaType === 'image' && currentMedia.image?.asset?.url) {
         currentImageSrc = currentMedia.image.asset.url;
         currentImageAlt = currentMedia.alt;
@@ -327,7 +326,7 @@ const ProductCard = ({
       console.log('✅ STEP 4 - Using COLLECTION MEDIA single item (backward compatibility)');
       useCollectionMedia = true;
       source = 'collectionMedia (single)';
-      
+
       const singleMediaItem = {
         mediaType: shopifyProduct.collectionMedia.mediaType,
         alt: shopifyProduct.title,
@@ -335,7 +334,7 @@ const ProductCard = ({
         video: shopifyProduct.collectionMedia.video
       };
       images = [singleMediaItem];
-      
+
       if (shopifyProduct.collectionMedia.mediaType === 'image' && shopifyProduct.collectionMedia.image?.asset?.url) {
         currentImageSrc = shopifyProduct.collectionMedia.image.asset.url;
         currentImageAlt = shopifyProduct.title;
@@ -369,7 +368,7 @@ const ProductCard = ({
 
     // STEP 5: Final state
     const hasMultipleImages = images.length > 1;
-    
+
     console.log('📊 STEP 5 - Final Decision:', {
       source,
       useCollectionMedia,
@@ -395,16 +394,16 @@ const ProductCard = ({
       if (useCollectionMedia && images[currentImageIndex]) {
         const currentMedia = images[currentImageIndex];
         console.log('🎯 Rendering collection media item:', currentMedia);
-        
+
         if (currentMedia?.mediaType === 'video' && currentMedia.video?.asset?.url) {
           console.log('▶️  Rendering VIDEO:', currentMedia.video.asset.url);
           return (
             <>
-              <Video 
-                url={currentMedia.video.asset.url} 
-                className={styles.video} 
-                objectFit="contain" 
-                controls={false} 
+              <Video
+                url={currentMedia.video.asset.url}
+                className={styles.video}
+                objectFit="contain"
+                controls={false}
               />
               {!isVideoPlaying && (
                 <div className={styles.videoOverlay} />
@@ -412,7 +411,7 @@ const ProductCard = ({
             </>
           );
         }
-        
+
         if (currentMedia?.mediaType === 'image' && currentMedia.image?.asset?.url) {
           console.log('🖼️  Rendering IMAGE:', {
             url: currentMedia.image.asset.url,
@@ -437,7 +436,7 @@ const ProductCard = ({
             />
           );
         }
-        
+
         console.log('⚠️ Collection media item is invalid');
       }
 
@@ -490,7 +489,7 @@ const ProductCard = ({
         {images.length > 0 && (
           <Link onClick={onProductClick} href={`/${shopifyProduct.handle}/`} className={styles.imageLink}>
             <ShopifyProductMedia />
-                       
+
             {hasMultipleImages && (
               <ImageNavigation
                 imagesLength={images.length}
@@ -505,8 +504,8 @@ const ProductCard = ({
         <div className={styles.productDetails}>
           <Text text={shopifyProduct.title} size="b3" className={styles.productTitle} />
           <Text
-            text={formatCurrency({ 
-              amount: parseFloat(shopifyProduct.priceRange?.minVariantPrice?.amount || '0') 
+            text={formatCurrency({
+              amount: parseFloat(shopifyProduct.priceRange?.minVariantPrice?.amount || '0')
             })}
             className={styles.productPrice}
             size="b3"
@@ -517,7 +516,7 @@ const ProductCard = ({
       </div>
     );
   }
-  
+
   console.log('❌ PRODUCT CARD - No product data provided');
   return null;
 };

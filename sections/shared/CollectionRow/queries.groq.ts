@@ -1,16 +1,22 @@
 import { groq } from 'next-sanity';
 import imageProjection from '@/tools/sanity/projections/common/image.groq';
 
-const homeCollectionsSectionProjection = groq`
+const homeCollectionsProjection = groq`
   _type == 'homeCollections' => {
     title,
-    items[]{
+    items[] {
       _key,
-      name,
-      href,
-      image${imageProjection}
+      image ${imageProjection},
+      collection->{
+        store {
+          title,
+          slug {
+            current
+          }
+        }
+      }
     }
-  }
+  },
 `;
 
-export default homeCollectionsSectionProjection;
+export default homeCollectionsProjection;

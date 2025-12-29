@@ -17,6 +17,7 @@ import productsSectionProjection from '@/sections/shared/ProductsSection/queries
 import viewedProductsSectionProjection from '@/sections/product/ViewedProductsSection/queries.groq';
 import twoColTextSectionProjection from '@/sections/shared/TwoColumnTextSection/queries.groq';
 import linksSectionProjection from '@/sections/shared/LinksSection/queries.groq';
+import homeCollectionsProjection from '@/sections/shared/CollectionRow/queries.groq';
 
 const sectionsProjection = groq`{
   _type,
@@ -34,7 +35,7 @@ const sectionsProjection = groq`{
   ${discoverMoreSectionProjection}
   ${announcementSectionProjection}
   ${fullscreenImageSectionProjection}
-
+${homeCollectionsProjection}
   sectionFields {
     spacingOptions {
       removeTopSpacing,
