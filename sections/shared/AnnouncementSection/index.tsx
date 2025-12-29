@@ -4,16 +4,14 @@ import Text from '@/components/Text';
 import Link from '@/components/Link';
 import TextBlock from '@/components/TextBlock';
 import Layout from '@/components/Layout';
-
 import { getSectionSpacingProps } from '@/tools/helpers/section';
 import { IAnnouncementSection } from '@/tools/sanity/schema/sections/shared/announcementSection';
 import classNames from '@/helpers/classNames';
-
 import styles from './styles.module.scss';
+
 
 const AnnouncementSection: React.FC<IAnnouncementSection> = props => {
   const { title, content, align = 'left', addButton = false, button, addDownloadButton = false, downloadFile } = props;
-
   const layoutVariant = align === 'left' ? 'rightLarge' : 'leftLarge';
 
   return (

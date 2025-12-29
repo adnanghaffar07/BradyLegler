@@ -273,9 +273,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
             )}
           </div>
         </div>
-        </div>
-
-       
+        </div>      
       </aside>
     </>
   );
