@@ -1,5 +1,4 @@
 import { defineType } from 'sanity';
-import stripTitleTags from '@/tools/sanity/helpers/stripTitleTags';
 import { FiGrid } from 'react-icons/fi';
 import defaultSectionGroups from '../../common/defaultSectionGroups';
 
@@ -52,7 +51,7 @@ export const collectionItem = defineType({
     },
     prepare({ title, subtitle, media }) {
       return {
-        title: title ? stripTitleTags(title) : 'Collection Item',
+        title: title ? (title) : 'Collection Item',
         subtitle: subtitle ? `/${subtitle}` : '',
         media
       };
