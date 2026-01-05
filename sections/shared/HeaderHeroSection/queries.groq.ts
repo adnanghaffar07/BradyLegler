@@ -1,6 +1,8 @@
+// headerHeroSection.groq
 import { groq } from 'next-sanity';
 import buttonProjection from '@/tools/sanity/projections/common/button.groq';
 import imageProjection from '@/tools/sanity/projections/common/image.groq';
+import fileProjection from '@/tools/sanity/projections/common/file.groq'; // Add this import
 import blockContentProjection from '@/tools/sanity/projections/common/blockContent.groq';
 
 const headerHeroSectionProjection = groq`
@@ -10,7 +12,17 @@ const headerHeroSectionProjection = groq`
     content[]${blockContentProjection},
     addButton,
     button${buttonProjection},
-    image${imageProjection}
+    mediaType,
+    image${imageProjection},
+    videoType,
+    videoFile${fileProjection},
+    videoUrl,
+    thumbnail {
+      asset->{
+        ...,
+        metadata
+      }
+    }
   },
 `;
 

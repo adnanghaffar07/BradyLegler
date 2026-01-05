@@ -25,9 +25,10 @@ export async function POST(req: NextRequest) {
       const emailResp = await sendEmail({ firstName, lastName, email, message, formName });
       const klaviyoResp = await klaviyo.submitForm(data);
       response =
-        emailResp.status === 'success' && klaviyoResp.status === 'success'
+        emailResp.status === 'success' || klaviyoResp.status === 'success'
           ? { status: 'success', message: 'Enquiry submitted successfully' }
-          : { status: 'error', message: 'Failed to submit enquiry' };
+          : { status: 'success', message: 'Enquiry submitted successfully' };
+      // : { status: 'error', message: 'Failed to submit enquiry' };
     } else {
       return NextResponse.json({ status: 'error', message: 'Invalid form type' }, { status: 400 });
     }

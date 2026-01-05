@@ -3,9 +3,9 @@
   top: 50%;
   right: var(--layout-container-spacing);
   display: flex;
-  flex-direction: column;  // stack tagline above button
-  align-items: flex-end;   // right-align
-  gap: 1rem;               // spacing between tagline and button
+  flex-direction: column; // stack tagline above button
+  align-items: flex-end; // right-align
+  gap: 1rem; // spacing between tagline and button
   z-index: 2;
   transform: translateY(-50%);
 
@@ -25,7 +25,7 @@
   color: #ffffff;
   position: relative;
   z-index: 3;
-  
+
   @include media-down(tablet) {
     margin-bottom: 1rem; // Reduce spacing for mobile
     font-size: 1.2rem; // Smaller font for mobile
@@ -40,7 +40,8 @@
   height: 100vh;
   color: var(--brand-white);
 
-  &.layout_fullWidth {}
+  &.layout_fullWidth {
+  }
 
   &.layout_split {
     @include media-down(tablet) {
@@ -89,15 +90,15 @@
 }
 
 .buttonContainer {
-  width: auto;      // ensure it takes natural width
+  width: auto; // ensure it takes natural width
   min-width: 200px; // optional: prevent it from being too small
-  display: flex;    // allows internal content (text) to layout naturally
+  display: flex; // allows internal content (text) to layout naturally
   justify-content: flex-end; // keep text inside aligned if needed
 
   @include media-down(tablet) {
     justify-content: center; // center button on mobile
   }
-  
+
   // Remove these conflicting mobile styles - they should be on the parent .overlayContent
   // left: 50%;
   // right: auto;

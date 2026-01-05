@@ -40,7 +40,7 @@
     width: 100% !important;
     height: auto !important;
     margin-top: 12px !important;
-    
+
     .overlayButton {
       display: none !important;
     }
@@ -76,20 +76,20 @@
   margin-top: 12px;
   color: #333;
   text-align: left;
-  
+
   .productTitle {
     color: #333;
     font-weight: 400;
-    padding: 0px 4px ;
+    padding: 0px 4px;
     line-height: 1.4;
     margin-bottom: 4px;
     font-size: 12px;
   }
-  
+
   .productPrice {
     color: #666;
     font-weight: 400;
-        padding: 0px 4px ;
+    padding: 0px 4px;
     font-size: 12px;
   }
 }
@@ -115,33 +115,33 @@
   z-index: 20;
   box-shadow: none !important; // No shadow
   backdrop-filter: none !important; // No blur effect
-  
+
   svg {
     width: 32px !important; // Larger arrows
     height: 32px !important;
     transition: all 0.3s ease;
     // filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); // Shadow on arrow only
   }
-  
+
   &:hover {
     background-color: transparent !important; // Stay transparent
     box-shadow: none !important;
     transform: translateY(-50%) scale(1);
-    
+
     svg {
       transform: scale(1.2);
       // filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7)); // Stronger shadow on hover
     }
   }
-  
+
   &:active {
     transform: translateY(-50%) scale(0.95);
-    
+
     svg {
       filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)); // Lighter shadow on click
     }
   }
-  
+
   &:focus {
     outline: none !important; // No focus outline
   }
@@ -149,7 +149,7 @@
 
 .navArrowLeft {
   left: 8px !important; // Closer to edge
-  
+
   &:hover {
     svg {
       transform: translateX(-3px) scale(1.2); // Slight movement on hover
@@ -159,7 +159,7 @@
 
 .navArrowRight {
   right: 8px !important; // Closer to edge
-  
+
   &:hover {
     svg {
       transform: translateX(3px) scale(1.2); // Slight movement on hover
@@ -184,7 +184,7 @@
 //   z-index: 20;
 //   font-size: 24px;
 //   font-weight: 300;
-//   
+//
 //   &:hover {
 //     color: white;
 //     opacity: 1;
@@ -213,14 +213,14 @@
   padding: 0;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &.active {
     background-color: white !important;
     transform: scale(1.2);
     border-color: white !important;
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
   }
-  
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.6) !important;
     transform: scale(1.1);
@@ -235,18 +235,18 @@
     transform: translateY(-50%) scale(0.9);
     width: 36px;
     height: 36px;
-    
+
     svg {
       width: 28px !important;
       height: 28px !important;
     }
-    
+
     &:active {
       opacity: 1 !important;
       transform: translateY(-50%) scale(0.85);
     }
   }
-  
+
   .imageDot {
     width: 10px;
     height: 10px;
@@ -259,25 +259,25 @@
   .navArrowRight {
     width: 48px;
     height: 48px;
-    
+
     svg {
       width: 36px !important;
       height: 36px !important;
     }
   }
-  
+
   .navArrowLeft {
     left: 16px !important;
   }
-  
+
   .navArrowRight {
     right: 16px !important;
   }
-  
+
   .imageDots {
     bottom: 28px;
   }
-  
+
   .imageDot {
     width: 10px;
     height: 10px;

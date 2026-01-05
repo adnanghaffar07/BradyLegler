@@ -42,7 +42,7 @@ const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
         {/* Side A */}
         <div className={classNames(styles.sideA, { [styles.hover]: sideAHover })}>
           <Image {...imageSideA} key="imageSideA" className={styles.image} />
-          {(addButtonSideA && (buttonSideA?.link || taglineSideA)) && (
+          {addButtonSideA && (buttonSideA?.link || taglineSideA) && (
             <div className={styles.overlayContent}>
               {taglineSideA && <p className={styles.tagline}>{taglineSideA}</p>}
               {buttonSideA?.link && (
@@ -69,9 +69,9 @@ const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
               <Image {...imageSideB} key="imageSideB" className={styles.image} />
             )}
           </div>
-          
-          {(addButtonSideB && (buttonSideB?.link || taglineSideB)) && (
-            <div 
+
+          {addButtonSideB && (buttonSideB?.link || taglineSideB) && (
+            <div
               className={styles.sideBContent}
               onMouseOver={() => setSideBHover(true)}
               onMouseLeave={() => setSideBHover(false)}

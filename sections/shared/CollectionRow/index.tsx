@@ -71,23 +71,15 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ title, item
             const store = item.collection!.store!;
             const slug = store.slug!.current!;
             const titleText = store.title!;
-            
+
             return (
               <div key={item._key} className={styles.item}>
                 <div className={styles.imageWrapper}>
-                  <Link 
-                    href={`/${slug}`} 
-                    variant="content" 
-                    className={styles.link}
-                  >
-                    <Image 
-                      {...item.image} 
-                      className={styles.img} 
-                      alt={item.image?.alt || titleText}
-                    />
+                  <Link href={`/${slug}`} variant="content" className={styles.link}>
+                    <Image {...item.image} className={styles.img} alt={item.image?.alt || titleText} />
                   </Link>
                 </div>
-                <h3 className={styles.name}>{titleText}</h3>
+                <h4 className={styles.name}>{titleText}</h4>
               </div>
             );
           })}

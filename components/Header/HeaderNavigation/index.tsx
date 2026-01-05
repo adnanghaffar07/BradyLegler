@@ -10,6 +10,7 @@ import Image from 'next/image';
 import styles from './styles.module.scss';
 import { groq } from 'next-sanity';
 import { client } from '@/tools/sanity/lib/client';
+import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 
 type SubMenuState = {
   level: number;
@@ -17,21 +18,6 @@ type SubMenuState = {
   items: any[];
   activeItem?: any;
   image?: any;
-};
-type ContactLink = {
-  label: string;
-  link: any; // keep `any` or type more strictly if you know the shape
-};
-
-type ContactGroup = {
-  groupTitle?: string;
-  links?: ContactLink[];
-};
-
-type ContactLinksSection = {
-  layout?: string;
-  links?: ContactGroup[];
-  additionalLinks?: ContactGroup;
 };
 
 const HeaderNavigation = ({ className, display }: { className?: string; display: 'left' | 'right' | 'all' }) => {
@@ -42,67 +28,66 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
-  const [contactSectionData, setContactSectionData] = useState<ContactLinksSection | null>(null);
 
   // Fetch header nav via GROQ
   useEffect(() => {
     const fetchNav = async () => {
       const query = groq`
-  *[_type == "headerDocument"][0]{
-    header{
-      navItems[]{
-        title,
-        side,
-        dropdown,
-
-        link{
-          ...,
-          internalLink->{
-            _type,
-            title,
-            pathname,
-            "slug": slug.current
-          }
-        },
-
-        navSublinks[]{
-          title,
-
-          link{
-            ...,
-            internalLink->{
-              _type,
+        *[_type == "headerDocument"][0]{
+          header{
+            navItems[]{
               title,
-              pathname,
-              "slug": slug.current
-            }
-          },
+              side,
+              dropdown,
 
-          image{ 
-            asset->{
-              _id,
-              url
-            },
-            alt
-          },
+              link{
+                ...,
+                internalLink->{
+                  _type,
+                  title,
+                  pathname,
+                  "slug": slug.current
+                }
+              },
 
-          navSublinks[]{
-            title,
-            link{
-              ...,
-              internalLink->{
-                _type,
+              navSublinks[]{
                 title,
-                pathname,
-                "slug": slug.current
+
+                link{
+                  ...,
+                  internalLink->{
+                    _type,
+                    title,
+                    pathname,
+                    "slug": slug.current
+                  }
+                },
+
+                image{ 
+                  asset->{
+                    _id,
+                    url
+                  },
+                  alt
+                },
+
+                navSublinks[]{
+                  title,
+                  link{
+                    ...,
+                    internalLink->{
+                      _type,
+                      title,
+                      pathname,
+                      "slug": slug.current
+                    }
+                  }
+                }
               }
             }
           }
         }
-      }
-    }
-  }
-`;
+      `;
 
       const data = await client.fetch(query);
       console.log('Fetched nav items:', data);
@@ -144,7 +129,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
         level: parentLevel + 1,
         parentTitle: sublink.title,
         items: sublink.navSublinks,
-        image: sublink.image // <-- include image here
+        image: sublink.image
       });
       return updated;
     });
@@ -280,128 +265,6 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     return '#';
   };
 
-  // Better validation function
-  const hasValidLink = (item: any) => {
-    if (!item?.link) return false;
-
-    const link = item.link;
-
-    if (link.linkType === 'external' && link.href) return true;
-
-    if (link.linkType === 'internal' && link.internalLink) {
-      const internal = link.internalLink;
-      // Check if internal link has at least some identifying data
-      return !!(internal.pathname || internal.slug || internal._type);
-    }
-
-    return false;
-  };
-
-  const renderContactSidebar = () => {
-    if (!contactSectionData) return null;
-
-    const { links = [], additionalLinks = {} } = contactSectionData;
-
-    // Helper function to handle different types of links
-    const handleLinkClick = (link: any, label: string) => {
-      if (!link) return;
-
-      // Check if it's a phone number
-      const cleanLabel = label?.trim().toLowerCase();
-      const isPhoneNumber =
-        /^[\d\s\+\-\(\)]{5,}$/.test(cleanLabel) ||
-        cleanLabel.includes('phone') ||
-        cleanLabel.includes('call') ||
-        cleanLabel.includes('tel');
-
-      // Check if it's an email
-      const isEmail = cleanLabel.includes('@') || cleanLabel.includes('email') || cleanLabel.includes('mail');
-
-      if (isPhoneNumber) {
-        // Extract numbers from the label for phone calls
-        const phoneNumber = cleanLabel.replace(/[^\d\+]/g, '');
-        if (phoneNumber) {
-          window.location.href = `tel:${phoneNumber}`;
-        }
-      } else if (isEmail) {
-        // Handle email links
-        const emailAddress = cleanLabel.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/)?.[0];
-        if (emailAddress) {
-          window.location.href = `mailto:${emailAddress}`;
-        }
-      } else {
-        // Regular link
-        const url = resolveLink(link, label);
-        if (url && url !== '#') {
-          window.open(url, '_blank');
-        }
-      }
-    };
-
-    return (
-      <div className={styles.contactSidebarInner}>
-        {/* Header with cross button */}
-        <div className={styles.contactHeader}>
-          <h2 className={styles.contactHeading}>Contact Us</h2>
-          <button
-            className={styles.closeButton}
-            onClick={() => setContactSidebarOpen(false)}
-            aria-label="Close contact sidebar"
-          >
-            <Icon title="close" className={styles.closeIcon} />
-          </button>
-        </div>
-
-        <p className={styles.contactDescription}>
-          Our team of experts is available to answer all your questions from assistance with your orders to style advice
-          and gift ideas.
-        </p>
-
-        <div className={styles.linksWrapper}>
-          {links.map((group, i) => (
-            <div key={i} className={styles.contactGroup}>
-              {group.groupTitle && <h4 className={styles.groupTitle}>{group.groupTitle}</h4>}
-
-              {group.links?.map((item, idx) => (
-                <button
-                  key={idx}
-                  className={classNames(styles.contactRow, {
-                    [styles.phoneLink]: /phone|call|tel|\d{5,}/i.test(item.label),
-                    [styles.emailLink]: /@|email|mail/i.test(item.label)
-                  })}
-                  onClick={() => handleLinkClick(item.link, item.label)}
-                >
-                  <span>{item.label}</span>
-                  <Icon title="chevronRight" className={styles.navigationLinkIcon} />
-                </button>
-              ))}
-            </div>
-          ))}
-
-          {(additionalLinks?.links ?? []).length > 0 && (
-            <div className={styles.contactGroup}>
-              {additionalLinks.groupTitle && <h4 className={styles.groupTitle}>{additionalLinks.groupTitle}</h4>}
-
-              {(additionalLinks.links ?? []).map((item, idx) => (
-                <button
-                  key={idx}
-                  className={classNames(styles.contactRow, {
-                    [styles.phoneLink]: /phone|call|tel|\d{5,}/i.test(item.label),
-                    [styles.emailLink]: /@|email|mail/i.test(item.label)
-                  })}
-                  onClick={() => handleLinkClick(item.link, item.label)}
-                >
-                  <span>{item.label}</span>
-                  <Icon title="chevronRight" className={styles.navigationLinkIcon} />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className={classes}>
       {/* Top navigation */}
@@ -417,41 +280,12 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
             {navItem.title?.toLowerCase() === 'contact' ? (
               <button
                 className={styles.navigationLink}
-                onClick={async e => {
+                onClick={e => {
                   e.preventDefault();
                   e.stopPropagation();
-
-                  const contactData = await client.fetch(`
-              *[_type == "page" && slug.current == "/contact/"][0]{
-                _id,
-                title,
-                slug,
-                sections[]{
-                  _type,
-                  _type == "linksSection" => {
-                    layout,
-                    links[]{
-                      groupTitle,
-                      links[]{ label, link }
-                    },
-                    additionalLinks{
-                      groupTitle,
-                      links[]{ label, link }
-                    }
-                  }
-                }
-              }
-            `);
-
-                  console.log('Fetched contact page data:', contactData);
-                  const linksSection = contactData?.sections?.find((s: any) => s._type === 'linksSection');
-                  console.log('Extracted linksSection:', linksSection);
-
-                  setContactSectionData(linksSection || null);
                   setContactSidebarOpen(true);
                 }}
               >
-                {/* Remove Text component and use plain text for Contact button */}
                 <span className={styles.navText}>{navItem.title}</span>
               </button>
             ) : (
@@ -467,7 +301,6 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                   }
                 }}
               >
-                {/* Also use span for other links to match */}
                 <span className={styles.navText}>{navItem.title}</span>
                 {navItem.navSublinks?.length && <Icon title="chevronDown" className={styles.navigationLinkIcon} />}
               </Link>
@@ -493,7 +326,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
           [styles.sidebarAnimating]: isAnimating
         })}
         style={{
-          width: `${15 + subMenuStack.length * 15}%` // base 28% + 25% per nested menu
+          width: `${15 + subMenuStack.length * 15}%`
         }}
       >
         <div className={styles.sidebarContent}>
@@ -547,7 +380,6 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                         [styles.imageAnimating]: sidebarOpen
                       })}
                     >
-                      {' '}
                       <Image
                         src={menuLevel.image.asset.url}
                         alt={menuLevel.image.alt || menuLevel.parentTitle || 'Menu image'}
@@ -565,22 +397,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
       </div>
 
       {/* Contact Sidebar */}
-      {contactSidebarOpen && (
-        <>
-          <div
-            className={classNames(styles.overlay, styles.contactOverlay)}
-            onClick={() => setContactSidebarOpen(false)}
-          />
-
-          <div
-            className={classNames(styles.sidebarRight, {
-              [styles.sidebarOpen]: contactSidebarOpen
-            })}
-          >
-            <div className={styles.sidebarContent}>{renderContactSidebar()}</div>
-          </div>
-        </>
-      )}
+      <ContactSidebar isOpen={contactSidebarOpen} onClose={() => setContactSidebarOpen(false)} />
     </div>
   );
 };

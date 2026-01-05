@@ -117,12 +117,12 @@ const ProductCard = ({
   }, [collectionId, collectionTitle, shopifyProduct]);
 
   const nextImage = (imagesLength: number) => {
-    setCurrentImageIndex((prev) => (prev + 1) % imagesLength);
+    setCurrentImageIndex(prev => (prev + 1) % imagesLength);
     setIsVideoPlaying(false);
   };
 
   const prevImage = (imagesLength: number) => {
-    setCurrentImageIndex((prev) => (prev === 0 ? imagesLength - 1 : prev - 1));
+    setCurrentImageIndex(prev => (prev === 0 ? imagesLength - 1 : prev - 1));
     setIsVideoPlaying(false);
   };
 
@@ -157,7 +157,7 @@ const ProductCard = ({
       <>
         <button
           className={styles.navArrowLeft}
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             onPrev();
@@ -165,12 +165,18 @@ const ProductCard = ({
           aria-label="Previous image"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
         <button
           className={styles.navArrowRight}
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             onNext();
@@ -178,7 +184,13 @@ const ProductCard = ({
           aria-label="Next image"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M9 18L15 12L9 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
 
@@ -188,7 +200,7 @@ const ProductCard = ({
               <button
                 key={index}
                 className={`${styles.imageDot} ${index === currentImageIndex ? styles.active : ''}`}
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   e.stopPropagation();
                   setCurrentImageIndex(index);
@@ -339,7 +351,10 @@ const ProductCard = ({
         currentImageSrc = shopifyProduct.collectionMedia.image.asset.url;
         currentImageAlt = shopifyProduct.title;
         console.log('🖼️ Found single image URL:', currentImageSrc);
-      } else if (shopifyProduct.collectionMedia.mediaType === 'video' && shopifyProduct.collectionMedia.video?.asset?.url) {
+      } else if (
+        shopifyProduct.collectionMedia.mediaType === 'video' &&
+        shopifyProduct.collectionMedia.video?.asset?.url
+      ) {
         currentImageSrc = shopifyProduct.collectionMedia.video.asset.url;
         console.log('🎬 Found single video URL:', currentImageSrc);
       }
@@ -361,8 +376,7 @@ const ProductCard = ({
       images = shopifyImages;
       currentImageSrc = (images[currentImageIndex] as any)?.node?.src;
       console.log('🖼️ Found Shopify image URL:', currentImageSrc);
-    }
-    else {
+    } else {
       console.log('❌ STEP 4 - NO IMAGE SOURCES FOUND');
     }
 
@@ -399,15 +413,8 @@ const ProductCard = ({
           console.log('▶️  Rendering VIDEO:', currentMedia.video.asset.url);
           return (
             <>
-              <Video
-                url={currentMedia.video.asset.url}
-                className={styles.video}
-                objectFit="contain"
-                controls={false}
-              />
-              {!isVideoPlaying && (
-                <div className={styles.videoOverlay} />
-              )}
+              <Video url={currentMedia.video.asset.url} className={styles.video} objectFit="contain" controls={false} />
+              {!isVideoPlaying && <div className={styles.videoOverlay} />}
             </>
           );
         }
@@ -427,7 +434,7 @@ const ProductCard = ({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt={currentMedia.alt || shopifyProduct.title || ''}
               quality={90}
-              onError={(e) => {
+              onError={e => {
                 console.error('❌ IMAGE LOAD ERROR:', e);
               }}
               onLoad={() => {

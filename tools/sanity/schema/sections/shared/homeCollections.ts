@@ -46,7 +46,7 @@ export const collectionItem = defineType({
   ],
   preview: {
     select: {
-      title: 'collection->titleProxy',  // Changed from store.title
+      title: 'collection->titleProxy', // Changed from store.title
       subtitle: 'collection->slugProxy', // Changed from store.slug.current
       media: 'image'
     },

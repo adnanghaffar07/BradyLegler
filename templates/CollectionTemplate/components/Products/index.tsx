@@ -45,7 +45,7 @@ const Products = async ({
   // ---- MERGE SANITY GALLERY IMAGES WITH SHOPIFY DATA ----
   const enrichedInitialDataEdges = initialData?.products?.edges?.map(edge => {
     const sanityProduct = sanityProductData.find(p => p.id === edge?.node?.id);
-    
+
     // Create merged product object
     const mergedProduct = {
       ...(edge?.node || {}),
