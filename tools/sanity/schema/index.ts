@@ -78,7 +78,7 @@ import fullScreenImageSection from './sections/shared/fullScreenImageSection';
 // Product Sections
 import viewedProductsSection from './sections/product/viewedProductsSection';
 import productReviewsSection from './sections/product/productReviewsSection';
-import { collectionItem, homeCollections } from './sections/shared/homeCollections';
+import { homeCollections } from './sections/shared/homeCollections';
 
 const schema: SchemaTypeDefinition[] = [
   // Documents
@@ -93,6 +93,7 @@ const schema: SchemaTypeDefinition[] = [
   settings,
   socialMediaDocument,
   sizeGuideDocument,
+  homeCollections,
 
   // Global Components
   // globalLogos,
@@ -157,9 +158,6 @@ const schema: SchemaTypeDefinition[] = [
   discoverMoreSection,
   announcementSection,
   fullScreenImageSection,
-  homeCollections,
-  collectionItem,
-
   // Product Sections
   viewedProductsSection,
   productReviewsSection

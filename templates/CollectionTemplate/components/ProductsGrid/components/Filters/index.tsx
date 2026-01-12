@@ -264,16 +264,16 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
             <div className={styles.noFilters}></div>
           )}
 
-           <div className={styles.footer}>
-          <div className={styles.footerRow}>
-            {anyFilterActive && (
-              <button className={styles.clearBtn} onClick={clearAllFilters}>
-                Clear Filters
-              </button>
-            )}
+          <div className={styles.footer}>
+            <div className={styles.footerRow}>
+              {anyFilterActive && (
+                <button className={styles.clearBtn} onClick={clearAllFilters}>
+                  Clear Filters
+                </button>
+              )}
+            </div>
           </div>
         </div>
-        </div>      
       </aside>
     </>
   );

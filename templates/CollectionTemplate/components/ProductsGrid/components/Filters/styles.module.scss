@@ -68,7 +68,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   margin-bottom: 20px;
   display: flex;
   justify-content: flex-end;
-  
+
   &.hidden {
     opacity: 0;
     pointer-events: none;
@@ -77,13 +77,26 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   }
 }
 
-.triggerText { font-size: 20px; /* Your original size */ font-weight: $font-weight-medium; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; color: $color-text-primary; padding: 50px; /* Your original padding */ &:hover { text-decoration: underline; } }
+.triggerText {
+  font-size: 18px; /* Your original size */
+  font-weight: $font-weight-medium;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #272727;
+  padding: 50px; /* Your original padding */
+  &:hover {
+    text-decoration: underline;
+  }
+}
 .triggerIcon {
   width: 16px;
   height: 16px;
   transition: transform $transition-fast;
   stroke: currentColor;
-  
+
   .triggerText:hover & {
     transform: translateX(2px);
   }
@@ -94,7 +107,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   height: 16px;
   transition: transform $transition-smooth;
   stroke: currentColor;
-  
+
   .triggerText:hover & {
     transform: translateX(2px) rotate(-5deg);
   }
@@ -110,7 +123,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   transition: all $transition-smooth;
   z-index: 1198;
   backdrop-filter: blur(0px);
-  
+
   &.open {
     background: $color-overlay;
     pointer-events: auto;
@@ -135,7 +148,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  
+
   &.open {
     transform: translateX(0);
     right: 0;
@@ -160,7 +173,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   background: $color-background;
   flex-shrink: 0;
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -168,12 +181,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      $color-border 20%, 
-      $color-border 80%, 
-      transparent 100%
-    );
+    background: linear-gradient(90deg, transparent 0%, $color-border 20%, $color-border 80%, transparent 100%);
   }
 }
 
@@ -195,28 +203,28 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     background: $color-background-hover;
     transform: rotate(90deg);
   }
-  
+
   &:active {
     transform: rotate(90deg) scale(0.95);
   }
-  
+
   &:focus-visible {
     outline: none;
     box-shadow: $shadow-focus;
   }
-  
+
   svg {
     width: 20px;
     height: 20px;
     stroke: $color-text-secondary;
     transition: stroke $transition-fast;
   }
-  
+
   &:hover svg {
     stroke: $color-text-primary;
   }
@@ -231,20 +239,20 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-  
+
   /* Custom scrollbar */
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: $color-border;
     border-radius: $radius-sm;
-    
+
     &:hover {
       background: $color-border-hover;
     }
@@ -256,11 +264,11 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   padding: 0 $spacing-xxl;
   border-bottom: 1px solid $color-border-light;
   transition: border-color $transition-fast;
-  
+
   &:hover {
     border-bottom-color: $color-border;
   }
-  
+
   &:last-of-type {
     border-bottom: none;
   }
@@ -284,16 +292,16 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   margin: 0 -$spacing-sm;
   padding-left: $spacing-sm;
   padding-right: $spacing-sm;
-  
+
   &:hover {
     color: $color-primary;
-    
+
     .chev {
       stroke: $color-primary;
       transform: translateY(2px);
     }
   }
-  
+
   &:focus-visible {
     outline: none;
     box-shadow: $shadow-focus;
@@ -306,7 +314,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   transition: transform $transition-smooth;
   stroke: $color-text-tertiary;
   flex-shrink: 0;
-  
+
   &.rotate {
     transform: rotate(180deg);
   }
@@ -318,7 +326,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   flex-direction: column;
   gap: $spacing-sm;
   animation: slideDown 200ms ease-out;
-  
+
   &.collapsing {
     animation: slideUp 200ms ease-in;
   }
@@ -368,7 +376,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   transition: all $transition-fast;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -380,33 +388,33 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     transform: scaleX(0);
     transition: transform $transition-fast;
   }
-  
+
   &:hover {
     background: $color-background-hover;
     border-color: $color-border-hover;
     transform: translateX(4px);
-    
+
     &::before {
       transform: scaleX(1);
     }
   }
-  
+
   &.activeSort {
     border-color: $color-primary;
     background: $color-primary-light;
     color: $color-primary !important;
     font-weight: $font-weight-semibold;
-    
+
     &::before {
       transform: scaleX(1);
     }
-    
+
     .checkIcon {
       opacity: 1;
       transform: scale(1);
     }
   }
-  
+
   &:focus-visible {
     outline: none;
     box-shadow: $shadow-focus;
@@ -433,7 +441,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   border-radius: $radius-sm;
   transition: all $transition-fast;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -444,27 +452,27 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     z-index: -1;
     transition: background $transition-fast;
   }
-  
+
   &:hover {
     color: $color-primary;
     padding-left: $spacing-md;
-    
+
     &::before {
       background: $color-background-hover;
     }
   }
-  
+
   &.activeLink {
     color: $color-primary;
     font-weight: $font-weight-semibold;
-    
+
     &::before {
       background: $color-primary-light;
       border-left: 3px solid $color-primary;
     }
-    
+
     padding-left: $spacing-lg;
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -478,10 +486,10 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
       animation: pulse 2s infinite;
     }
   }
-  
+
   &:focus-visible {
     outline: none;
-    
+
     &::before {
       box-shadow: $shadow-focus;
     }
@@ -489,7 +497,8 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: translateY(-50%) scale(1);
   }
@@ -510,13 +519,15 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   font-size: $font-size-base;
   border-radius: $radius-lg;
   background: $color-background;
-  transition: background $transition-fast, transform $transition-fast;
+  transition:
+    background $transition-fast,
+    transform $transition-fast;
   position: relative;
 
   &:hover {
     background: rgba($color-primary, 0.05);
     transform: translateX(1px);
-    
+
     .checkboxFake {
       border-color: $color-primary;
       box-shadow: 0 0 0 3px rgba($color-primary, 0.2);
@@ -584,7 +595,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   border-radius: 12px;
   min-width: 28px;
   text-align: center;
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
   font-variant-numeric: tabular-nums;
   transition: all $transition-fast;
 }
@@ -624,7 +635,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   gap: $spacing-md;
   flex-shrink: 0;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -642,7 +653,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   flex-direction: row;
   gap: $spacing-md;
   width: 100%;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -664,7 +675,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   visibility: visible !important;
   position: relative !important;
   z-index: 1 !important;
-  
+
   &:focus-visible {
     outline: none;
     box-shadow: $shadow-focus;
@@ -675,23 +686,23 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   background: $color-background;
   border: 2px solid $color-border;
   color: $color-text-secondary;
-  
+
   &:hover {
     background: $color-background-hover;
     border-color: $color-border-hover;
     color: $color-text-primary;
     transform: translateY(-1px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
-  
+
   &:disabled {
     opacity: 0.5 !important;
     cursor: not-allowed;
     pointer-events: none;
-    
+
     &:hover {
       transform: none;
     }
@@ -705,7 +716,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   font-weight: $font-weight-semibold;
   position: relative;
   overflow: hidden;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -713,26 +724,21 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     transition: left 0.6s ease;
   }
-  
+
   &:hover {
     background: $color-primary-hover;
     border-color: $color-primary-hover;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba($color-primary, 0.3);
-    
+
     &::after {
       left: 100%;
     }
   }
-  
+
   &:active {
     transform: translateY(0);
     background: $color-primary-active;
@@ -768,7 +774,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   border-radius: $radius-lg;
   margin: 0 $spacing-xxl;
   border: 1px dashed $color-border;
-  
+
   svg {
     width: 48px;
     height: 48px;
@@ -784,7 +790,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   .linkButton {
     position: relative;
     overflow: hidden;
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -792,12 +798,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-      );
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
       animation: loading 1.5s infinite;
     }
   }
@@ -823,55 +824,67 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     padding: 0;
     border-radius: $radius-xl 0 0 $radius-xl;
     box-shadow: -8px 0 40px rgba(0, 0, 0, 0.2);
-    
+
     &.open {
       right: 0;
     }
   }
-  
+
   .header {
     padding: $spacing-lg $spacing-xl;
   }
-  
+
   .content {
     padding: $spacing-lg 0;
   }
-  
+
   .section {
     padding: 0 $spacing-xl;
   }
-  
+
   .footer {
     padding: $spacing-lg;
     padding-bottom: calc($spacing-lg + env(safe-area-inset-bottom));
   }
-  
+
   .footerRow {
     flex-direction: column;
     gap: $spacing-md;
   }
-  
+
   .clearBtn,
   .applyBtn {
     width: 100%;
     min-height: 48px;
   }
-  
+
   .triggerText {
     padding: $spacing-md $spacing-lg;
     font-size: $font-size-sm;
+    font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Open Sans',
+      'Helvetica Neue',
+      sans-serif;
   }
-  
+
   /* Larger touch targets for mobile */
   .checkboxLabel {
     min-height: 48px;
     padding: $spacing-md 0;
   }
-  
+
   .sortOption {
     min-height: 52px;
   }
-  
+
   .linkButton {
     min-height: 44px;
     display: flex;

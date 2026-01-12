@@ -30,8 +30,7 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
   const [selectedVariant, setSelectedVariant] = useState<any>(defaultVariant);
 
   // Get price values as NUMBERS
-  const priceAmount = selectedVariant?.priceV2?.amount ||
-    shopifyProductData?.priceRange?.minVariantPrice?.amount;
+  const priceAmount = selectedVariant?.priceV2?.amount || shopifyProductData?.priceRange?.minVariantPrice?.amount;
 
   const compareAtPriceAmount = selectedVariant?.compareAtPriceV2?.amount;
 
@@ -54,7 +53,6 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
   return (
     <Section theme="dark" spacing="none" full>
       <div className={styles.section}>
-
         {/* LEFT – Gallery */}
         <div className={styles.gallery}>
           <Gallery
@@ -69,7 +67,6 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
           <div className={styles.containerSticky}>
             <Container>
               <div id="details" className={styles.detailsRight}>
-
                 {/* Title + Price */}
                 <div className={styles.header}>
                   <Text size="b2" text={sanityProductData.store.title} />
@@ -89,9 +86,7 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
 
                 {/* Purchase */}
                 <Form
-                  currencyCode={
-                    shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || "USD"
-                  }
+                  currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
                   variants={variants}
                   sanityProductData={sanityProductData}
                   setSelectedVariant={setSelectedVariant}
@@ -101,7 +96,6 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
             </Container>
           </div>
         </div>
-
       </div>
     </Section>
   );

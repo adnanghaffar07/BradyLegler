@@ -60,11 +60,11 @@ const collectionHeader = defineType({
       type: `boolean`,
       hidden: ({ parent }) => parent?.layout === 'text'
     },
-       {
+    {
       name: 'tagline', // ADD THIS FIELD
       title: 'Tagline',
       type: 'string',
-      description: 'Short tagline or subtitle for the collection',
+      description: 'Short tagline or subtitle for the collection'
     },
     {
       name: `button`,

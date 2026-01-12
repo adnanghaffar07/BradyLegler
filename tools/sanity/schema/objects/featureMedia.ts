@@ -77,12 +77,12 @@ const featureMedia = defineType({
               video: 'video.asset'
             },
             prepare(selection) {
-              const { title, mediaType, image, video } = selection
+              const { title, mediaType, image, video } = selection;
               return {
                 title: title || `Media (${mediaType})`,
                 subtitle: mediaType,
                 media: mediaType === 'image' ? image : video
-              }
+              };
             }
           }
         }

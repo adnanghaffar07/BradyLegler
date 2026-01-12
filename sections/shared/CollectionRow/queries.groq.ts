@@ -1,21 +1,13 @@
 import { groq } from 'next-sanity';
+import productPreviewProjection from '@/tools/sanity/projections/documents/productPreview.groq';
 import imageProjection from '@/tools/sanity/projections/common/image.groq';
 
 const homeCollectionsProjection = groq`
   _type == 'homeCollections' => {
     title,
-    items[] {
-      _key,
-      image ${imageProjection},
-      collection->{
-        store {
-          title,
-          slug {
-            current
-          }
-        }
-      }
-    }
+    products[]->${productPreviewProjection},
+          images[]${imageProjection}
+
   },
 `;
 

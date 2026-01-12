@@ -1,0 +1,634 @@
+// Contact SideBar
+.contactOverlay {
+  position: fixed; // Change from absolute to fixed
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); // Add a semi-transparent background
+  z-index: 1000; // Ensure this is below sidebar but above page content
+  animation: fadeIn 0.3s ease forwards;
+  cursor: pointer;
+}
+
+// Contact sidebar specific styles
+.sidebarRight {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 28%;
+  height: 100vh;
+  background: white;
+  z-index: 1001; // Higher than overlay
+  transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+
+  &.sidebarOpen {
+    right: 0;
+  }
+}
+.sidebarContent {
+  padding: 2rem;
+  height: 100%;
+  overflow-y: auto;
+  margin-top: 80px; // Add space for the header navigation
+}
+
+// Contact header with cross button
+.contactHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.contactHeading {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0;
+  color: #222;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 150ms ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.closeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.contactDescription {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+// Updated contact actions styles
+.contactActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.inquirySection {
+  padding: 24px 0;
+  margin-bottom: 12px;
+}
+
+.inquiryTitle {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.messageButton {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  border: 1px solid #222;
+  border-radius: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #222;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-transform: none;
+
+  &:hover {
+    background: #222;
+    color: white;
+  }
+}
+
+.contactOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.contactOptionBtn {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 16px 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 13px;
+  color: #222;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  margin-top: -1px; // Prevent double borders
+
+  &:hover {
+    background: #f9f9f9;
+  }
+
+  // Remove bottom border from last child
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.optionMainText {
+  font-size: 13px;
+  color: #222;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.optionSubText {
+  font-size: 11px;
+  color: #666;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+// Press section - updated to match your requirements
+.pressSection {
+  padding: 24px 0;
+  border-top: 1px solid #eee;
+  // Removed border-bottom: 1px solid #eee; // No bottom border as requested
+  margin-top: 24px;
+}
+
+.pressContent {
+  width: 100%;
+}
+
+.pressTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pressText {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+.emailLink {
+  color: #666 !important;
+  text-decoration: underline;
+  margin-left: 4px;
+  font-weight: 400;
+
+  &:hover {
+    text-decoration: none;
+    color: #222 !important;
+  }
+}
+
+// Remove or comment out old styles that conflict with the new design
+// .contactActionBtn {
+//   display: block;
+//   width: 100%;
+//   padding: 14px 20px;
+//   background: #f5f5f5;
+//   border: 1px solid #e0e0e0;
+//   border-radius: 4px;
+//   text-align: center;
+//   font-size: 14px;
+//   color: #333;
+//   cursor: pointer;
+//   transition: all 150ms ease;
+
+//   &:hover {
+//     background: #e8e8e8;
+//     border-color: #ccc;
+//   }
+// }
+
+// .phoneBtn {
+//   background: #f9f9f9;
+//   line-height: 1.4;
+// }
+
+// .phoneHours {
+//   font-size: 12px;
+//   color: #666;
+//   display: block;
+//   margin-top: 4px;
+// }
+
+// Duplicate pressSection - removing this duplicate
+// .pressSection {
+//   margin-top: 24px;
+//   padding-top: 20px;
+//   border-top: 1px solid #eee;
+
+//   strong {
+//     display: block;
+//     margin-bottom: 8px;
+//     font-size: 16px;
+//   }
+
+//   p {
+//     font-size: 14px;
+//     color: #666;
+//     line-height: 1.5;
+//   }
+// }
+
+// Duplicate emailLink - removing this duplicate
+// .emailLink {
+//   color: #857f7f !important;
+//   text-decoration: underline;
+//   margin-left: 4px;
+
+//   &:hover {
+//     text-decoration: none;
+//   }
+// }
+
+// Enquiry Form
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 10px;
+
+  &:hover {
+    color: var(--text-color-primary);
+  }
+}
+
+.backIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.formHeading {
+  font-size: 16px;
+  font-weight: 400;
+  color: #333;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.statusMessage {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+
+  &.success {
+    background: #f0f9f0;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+
+  &.error {
+    background: #fdecea;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+}
+
+.enquiryForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Update the form input styles in your ContactSidebar.module.scss
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+
+  label {
+    font-size: 12px;
+    color: #222;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  background: transparent;
+  border-radius: 0;
+  letter-spacing: 0.03em;
+  transition: border-color 150ms ease;
+
+  &:focus {
+    outline: none;
+    border-bottom-color: #222;
+  }
+
+  &:disabled {
+    background: transparent;
+    color: #999;
+    cursor: not-allowed;
+    border-bottom-color: #eee;
+  }
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+// Optional: Add a subtle placeholder style
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: #999;
+  font-weight: 300;
+}
+
+// Optional: Add focus animation
+.formInput:focus + .formUnderline,
+.formTextarea:focus + .formUnderline {
+  transform: scaleX(1);
+}
+
+// Optional: If you want an animated underline
+.formGroup {
+  position: relative;
+
+  .formUnderline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #222;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+}
+
+// Contact Method Section - Simple text options like in the image
+.contactMethodGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px 0 10px 0;
+  padding-top: 4px;
+}
+
+.contactMethodLabel {
+  font-size: 14px;
+  color: #222;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.contactMethodOptions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.contactMethodBtn {
+  min-width: 100px;
+  padding: 12px 20px;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: #f9f9f9;
+    border-color: #bbb;
+    color: #222;
+  }
+
+  &.active {
+    background: #222;
+    color: white;
+    border-color: #222;
+    font-weight: 400;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr; // Two equal columns
+  gap: 1rem; // Space between columns
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; // Stack on mobile
+    gap: 1.5rem;
+  }
+}
+
+// Alternative: If you want it to look exactly like the image with minimal styling
+.contactMethodGroup.minimal {
+  margin: 24px 0;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+
+  .contactMethodLabel {
+    margin-bottom: 16px;
+    font-size: 11px;
+    color: #666;
+  }
+
+  .contactMethodOptions {
+    gap: 8px;
+  }
+
+  .contactMethodBtn {
+    min-width: 80px;
+    padding: 10px 16px;
+    font-size: 11px;
+    border: 1px solid #eee;
+    color: #666;
+
+    &:hover:not(:disabled) {
+      border-color: #ddd;
+      background: #fafafa;
+    }
+
+    &.active {
+      background: #f5f5f5;
+      color: #222;
+      border-color: #ddd;
+      font-weight: 400;
+    }
+  }
+}
+
+// Another alternative: Text-only buttons without borders (like in some minimal designs)
+.contactMethodGroup.textOnly {
+  border: none;
+  padding-top: 0;
+
+  .contactMethodLabel {
+    text-align: left;
+    margin-bottom: 12px;
+  }
+
+  .contactMethodOptions {
+    justify-content: flex-start;
+    gap: 20px;
+  }
+
+  .contactMethodBtn {
+    min-width: auto;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: 13px;
+    color: #666;
+    border-radius: 0;
+
+    &:hover:not(:disabled) {
+      background: transparent;
+      color: #222;
+    }
+
+    &.active {
+      background: transparent;
+      color: #222;
+      border-bottom: 2px solid #222;
+      font-weight: 500;
+    }
+  }
+}
+
+// For the image style: Simple rectangular buttons with clean borders
+.contactMethodGroup.imageStyle {
+  .contactMethodOptions {
+    gap: 10px;
+  }
+
+  .contactMethodBtn {
+    min-width: 90px;
+    padding: 12px 16px;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    border: 1px solid #e0e0e0;
+
+    &:hover:not(:disabled) {
+      border-color: #222;
+    }
+
+    &.active {
+      border-color: #222;
+      background: #222;
+      color: white;
+    }
+  }
+}
+
+// Update form styles to center align when showing
+.enquiryFormSection {
+  .formHeading {
+    text-align: left;
+    margin: 0 0 32px 0;
+  }
+
+  .enquiryForm {
+    max-width: 100%;
+  }
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 16px 24px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  margin-top: 10px;
+
+  &:hover:not(:disabled) {
+    background: #222;
+  }
+
+  &:disabled {
+    background: #999;
+    cursor: not-allowed;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
