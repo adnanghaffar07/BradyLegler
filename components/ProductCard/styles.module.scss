@@ -1,6 +1,9 @@
+// styles.module.scss - UPDATED
+
 .productCard {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 100%;
 
   .video {
@@ -56,45 +59,51 @@
   height: auto;
   aspect-ratio: 1/1; // Keep square aspect ratio
   overflow: hidden;
+  margin-bottom: 8px; // Add spacing between image and details
 
   img {
     display: block;
     margin: 0;
     padding: 0;
-    object-fit: contain;
+    object-fit: contain; // Changed from cover to contain to show full product
     width: 100%;
     height: 100%;
     transition: opacity 0.3s ease;
   }
 }
 
-// Product details - always visible, simple styling
+// Product details - CENTERED and better spacing
 .productDetails {
   display: flex;
   flex-direction: column;
+  align-items: center; // CENTER content horizontally
+  text-align: center; // CENTER text
   gap: 4px;
-  margin-top: 12px;
+  margin-top: 8px; // Reduced from 12px
   color: #333;
-  text-align: left;
+  width: 100%;
+  padding: 0 8px; // Add horizontal padding
 
   .productTitle {
     color: #333;
     font-weight: 400;
-    padding: 0px 4px;
     line-height: 1.4;
-    margin-bottom: 4px;
+    margin-bottom: 2px; // Reduced
     font-size: 12px;
+    width: 100%;
+    text-align: center; // Ensure text is centered
   }
 
   .productPrice {
     color: #666;
     font-weight: 400;
-    padding: 0px 4px;
     font-size: 12px;
+    width: 100%;
+    text-align: center; // Ensure text is centered
   }
 }
 
-// Transparent arrow styling - NO BACKGROUND
+// Transparent arrow styling - SMALLER on mobile
 .navArrowLeft,
 .navArrowRight {
   position: absolute;
@@ -102,94 +111,97 @@
   transform: translateY(-50%) scale(0.9);
   width: 40px;
   height: 40px;
-  background-color: transparent !important; // Transparent background
-  border: none !important; // No border
-  border-radius: 0 !important; // No rounded corners
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: rgb(163, 163, 163) !important; // White arrows for visibility
+  color: rgb(163, 163, 163) !important;
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 20;
-  box-shadow: none !important; // No shadow
-  backdrop-filter: none !important; // No blur effect
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 
   svg {
-    width: 32px !important; // Larger arrows
+    width: 32px !important;
     height: 32px !important;
     transition: all 0.3s ease;
-    // filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); // Shadow on arrow only
   }
 
   &:hover {
-    background-color: transparent !important; // Stay transparent
+    background-color: transparent !important;
     box-shadow: none !important;
     transform: translateY(-50%) scale(1);
 
     svg {
       transform: scale(1.2);
-      // filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7)); // Stronger shadow on hover
     }
   }
 
   &:active {
     transform: translateY(-50%) scale(0.95);
-
-    svg {
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)); // Lighter shadow on click
-    }
   }
 
   &:focus {
-    outline: none !important; // No focus outline
+    outline: none !important;
   }
 }
 
 .navArrowLeft {
-  left: 8px !important; // Closer to edge
+  left: 8px !important;
 
   &:hover {
     svg {
-      transform: translateX(-3px) scale(1.2); // Slight movement on hover
+      transform: translateX(-3px) scale(1.2);
     }
   }
 }
 
 .navArrowRight {
-  right: 8px !important; // Closer to edge
+  right: 8px !important;
 
   &:hover {
     svg {
-      transform: translateX(3px) scale(1.2); // Slight movement on hover
+      transform: translateX(3px) scale(1.2);
     }
   }
 }
 
-// Alternative: If you want more subtle arrows, use this style instead:
-// .navArrowLeft,
-// .navArrowRight {
-//   position: absolute;
-//   top: 50%;
-//   transform: translateY(-50%);
-//   width: 24px;
-//   height: 24px;
-//   background: transparent;
-//   border: none;
-//   cursor: pointer;
-//   color: rgba(255, 255, 255, 0.8);
-//   opacity: 0;
-//   transition: opacity 0.3s ease;
-//   z-index: 20;
-//   font-size: 24px;
-//   font-weight: 300;
-//
-//   &:hover {
-//     color: white;
-//     opacity: 1;
-//   }
-// }
+// SMALLER ARROWS ON MOBILE
+@include media-down(large-tablet) {
+  .navArrowLeft,
+  .navArrowRight {
+    width: 30px !important; // Smaller on mobile
+    height: 30px !important;
+    opacity: 0.7 !important;
+
+    svg {
+      width: 20px !important; // Smaller SVG on mobile
+      height: 20px !important;
+    }
+
+    &:active {
+      transform: translateY(-50%) scale(0.85);
+    }
+  }
+  
+  // Even smaller on very small screens
+  @include media-down(tablet) {
+    .navArrowLeft,
+    .navArrowRight {
+      width: 28px !important;
+      height: 28px !important;
+      
+      svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+  }
+}
 
 // Image dots indicator - also make transparent
 .imageDots {
@@ -208,8 +220,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.4) !important; // More transparent
-  border: 1px solid rgba(255, 255, 255, 0.3) !important; // Border for definition
+  background-color: rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
   padding: 0;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -227,29 +239,16 @@
   }
 }
 
-// Touch devices: always show arrows with subtle style
+// Smaller dots on mobile
 @include media-down(large-tablet) {
-  .navArrowLeft,
-  .navArrowRight {
-    opacity: 0.7 !important; // More visible on mobile
-    transform: translateY(-50%) scale(0.9);
-    width: 36px;
-    height: 36px;
-
-    svg {
-      width: 28px !important;
-      height: 28px !important;
-    }
-
-    &:active {
-      opacity: 1 !important;
-      transform: translateY(-50%) scale(0.85);
-    }
+  
+  .imageDots {
+    bottom: 16px; // Move dots up slightly on mobile
   }
-
+  
   .imageDot {
-    width: 10px;
-    height: 10px;
+    width: 6px; // Smaller dots on mobile
+    height: 6px;
   }
 }
 
@@ -281,6 +280,20 @@
   .imageDot {
     width: 10px;
     height: 10px;
+  }
+  
+  // For list layout on mobile
+  @include media-down(large-tablet) {
+    .navArrowLeft,
+    .navArrowRight {
+      width: 36px !important;
+      height: 36px !important;
+      
+      svg {
+        width: 24px !important;
+        height: 24px !important;
+      }
+    }
   }
 }
 
@@ -314,3 +327,65 @@
     pointer-events: all;
   }
 }
+
+// Additional fixes for spacing and layout
+.productCard {
+  // Ensure consistent spacing
+  padding-bottom: 4px; // Add bottom padding
+  
+  // Better image containment
+  .imageLink {
+    
+    img {
+      max-width: 100%; // Don't let image touch edges
+      max-height: 100%;
+    }
+  }
+}
+
+// If product titles are wrapping unevenly, add min-height
+.productTitle {
+  min-height: 1.8em; // Ensure consistent height for 2 lines
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // Limit to 2 lines
+  -webkit-box-orient: vertical;
+}
+
+// Ensure price stays on one line
+.productPrice {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Container fixes for product grid
+@media (min-width: 768px) {
+  .productCard {
+    .productDetails {
+      padding: 0 4px; // Less padding on desktop
+    }
+  }
+}
+
+
+// Extra small phones (320px - 375px)
+@media (max-width: 475px) {
+  .productCard {
+    .imageLink {
+      max-width: 240px;
+    }
+    
+    .productDetails {
+      max-width: 220px;
+      
+      .productTitle {
+        font-size: 10px;
+      }
+      
+      .productPrice {
+        font-size: 10px;
+      }
+    }
+  }}

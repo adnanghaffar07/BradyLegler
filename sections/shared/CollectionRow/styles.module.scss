@@ -59,20 +59,22 @@
     left: 0;
     right: 0;
     bottom: 0;
-    // background: rgba(0, 0, 0, 0.02);
     z-index: 1;
     transition: background 0.3s ease;
   }
 
   &:hover {
-    &::before {
-      // background: rgba(0, 0, 0, 0.05);
-    }
-
     .img {
       transform: scale(1.02);
     }
   }
+}
+
+.imageContainer {
+  position: relative;
+  aspect-ratio: 1 / 1.5;
+  width: 100%;
+  overflow: hidden;
 }
 
 .img {
@@ -82,11 +84,137 @@
   display: block;
   transition: transform 0.3s ease;
   aspect-ratio: 1 / 1.5;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Simple grey arrows - no background, no border */
+.navArrowLeft,
+.navArrowRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10;
+  background: transparent;
+  border: none;
+  padding: 0;
+  
+  // Remove all backgrounds and borders
+  &:hover {
+    background: transparent;
+    
+    svg {
+      color: #333; // Darker on hover
+    }
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #666; // Medium grey
+    stroke-width: 2px;
+    transition: color 0.2s ease;
+  }
+  
+  // Desktop: Show on hover
+  @media (min-width: 769px) {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    
+    .imageContainer:hover &,
+    .link:hover & {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+  
+  // Mobile: Always show if product has multiple images
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 24px;
+    opacity: 1;
+    visibility: visible;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2px;
+    }
+  }
+}
+
+.navArrowLeft {
+  left: 8px;
+  
+  @media (max-width: 768px) {
+    left: 4px;
+  }
+}
+
+.navArrowRight {
+  right: 8px;
+  
+  @media (max-width: 768px) {
+    right: 4px;
+  }
+}
+
+/* Image dots */
+.imageDots {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 10;
+  padding: 4px;
+  
+  @media (max-width: 768px) {
+    bottom: 8px;
+    gap: 4px;
+  }
+}
+
+.imageDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+  
+  &.active {
+    background: white;
+    transform: scale(1.2);
+  }
+  
+  @media (max-width: 768px) {
+    width: 5px;
+    height: 5px;
+  }
 }
 
 .name {
   margin-top: 0;
-  font-size: 14px;
+  font-size: 12.5px;
   font-family:
     system-ui,
     -apple-system,
@@ -100,8 +228,23 @@
     'Helvetica Neue',
     sans-serif;
   text-align: center;
-  color: #5a5959;
+  color: #5f5f61;
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: 0.5px;
+}
+
+.price {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+}
+
+.noItems {
+  text-align: center;
+  padding: 60px 0;
+  color: #666;
+  font-size: 16px;
 }
