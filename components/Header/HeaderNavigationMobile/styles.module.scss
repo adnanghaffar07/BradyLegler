@@ -1,4 +1,6 @@
 $button-thickness: 2px;
+$mobile-breakpoint: 768px;
+$transition-speed: 300ms;
 
 .container {
   z-index: 0;
@@ -8,41 +10,39 @@ $button-thickness: 2px;
   width: 100%;
   position: relative;
 
-  @include media-up(tablet) {
+  @media (min-width: #{$mobile-breakpoint}) {
     display: none;
   }
 
   .text {
     font-size: 10px;
   }
+
   &.show {
     color: var(--brand-white) !important;
 
     .button {
       transform: rotate(45deg);
     }
+
     .navigation {
       pointer-events: all;
+
       a {
         pointer-events: all;
       }
+
       &::before {
         transform: scaleY(1);
-        transition: transform 300ms ease;
+        transition: transform #{$transition-speed} ease;
       }
+
       .contentWrapper {
-        // Updated to target contentWrapper
         opacity: 1;
-        transition: opacity 300ms ease 300ms;
+        transition: opacity #{$transition-speed} ease #{$transition-speed};
       }
     }
   }
-}
-
-.cartContainer {
-  position: relative;
-  z-index: 99;
-  margin-right: 16px;
 }
 
 .buttonContainer {
@@ -98,6 +98,7 @@ $button-thickness: 2px;
   pointer-events: none;
   padding: 80px 0 80px 0;
   z-index: 2;
+  overflow-y: auto;
 
   .navigationContainer {
     height: 100%;
@@ -107,6 +108,9 @@ $button-thickness: 2px;
 
   a {
     pointer-events: none;
+    text-decoration: none;
+    display: block;
+    width: 100%;
   }
 
   &::before {
@@ -118,7 +122,7 @@ $button-thickness: 2px;
     background-color: var(--brand-white);
     transform-origin: top center;
     transform: scaleY(0);
-    transition: transform 300ms ease 100ms;
+    transition: transform #{$transition-speed} ease 100ms;
     z-index: 1;
   }
 
@@ -127,38 +131,42 @@ $button-thickness: 2px;
 
     &::before {
       transform: scaleY(1);
-      transition: transform 300ms ease;
+      transition: transform #{$transition-speed} ease;
     }
   }
 }
 
-// Add this new class - CORRECT POSITION
 .contentWrapper {
   opacity: 0;
   transition: opacity 200ms ease;
   position: relative;
   z-index: 3;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .navigationOpen & {
     opacity: 1;
-    transition: opacity 300ms ease 300ms;
+    transition: opacity #{$transition-speed} ease #{$transition-speed};
   }
 }
 
 .menuLevel {
-  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   position: relative;
   z-index: 3;
-  padding: 10px;
+  padding: 0 16px;
 }
 
 .submenuHeader {
   display: flex;
   align-items: center;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  padding: 16px 0;
+  margin-bottom: 16px;
   border-bottom: 1px solid var(--brand-black-20);
+  flex-shrink: 0;
 }
 
 .backButton {
@@ -171,6 +179,8 @@ $button-thickness: 2px;
   cursor: pointer;
   font-size: 14px;
   padding: 8px 0;
+  font-family: inherit;
+  flex-shrink: 0;
 
   &:hover {
     color: var(--brand-black);
@@ -186,19 +196,27 @@ $button-thickness: 2px;
 .submenuTitle {
   font-size: 16px;
   font-weight: 500;
-  color: var(--brand-black);
-  margin-left: -40px;
+  color: rgb(107, 106, 106);
   flex: 1;
   text-align: center;
+margin-left: -60px;
+  line-height: 1.2;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .menuImageContainer {
-  margin-bottom: 20px;
+  margin: 16px auto;
   border-radius: 4px;
   overflow: hidden;
   max-width: 150px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 }
 
 .menuImage {
@@ -208,21 +226,28 @@ $button-thickness: 2px;
 }
 
 .links {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 50%;
-  gap: 12px;
+  gap: 0;
   position: relative;
-  z-index: 4; // Increased z-index
+  z-index: 4;
+  overflow-y: auto;
+  padding: 8px 0;
 }
 
 .linkItem {
   display: flex;
-  justify-content: center;
-  flex: 1;
+  width: 100%;
+  border-bottom: 1px solid var(--brand-black-10);
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
-.navButton {
+.navButton,
+.navLink {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -233,12 +258,31 @@ $button-thickness: 2px;
   color: var(--brand-black-70);
   cursor: pointer;
   transition: color 0.2s ease;
-  padding: 12px 0;
-  font-size: 12px;
-  gap: 2px;
+  padding: 16px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  font-family: inherit;
+  text-decoration: none;
+  min-height: 48px;
 
   &:hover {
     color: var(--brand-black);
+  }
+}
+
+.navLink {
+  span {
+    flex: 1;
+    text-align: center;
+    font-weight: 500;
+  }
+}
+
+.navButton {
+  span {
+    flex: 1;
+    text-align: left;
+    font-weight: 500;
   }
 }
 
@@ -246,122 +290,45 @@ $button-thickness: 2px;
   width: 16px;
   height: 16px;
   color: var(--brand-black-50);
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
-// Contact Sidebar Styles
-.contactContainer {
+// Responsive adjustments
+@media (max-width: 480px) {
   .navigation {
-    &::before {
-      background-color: var(--brand-white);
-    }
+    padding: 70px 0 70px 0;
+  }
+
+  .menuLevel {
+    padding: 0 12px;
+  }
+
+  .navButton,
+  .navLink {
+    padding: 14px 0;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .submenuTitle {
+    font-size: 15px;
   }
 }
 
-.contactContent {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 3;
-  padding: 10px;
-}
-
-.contactHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--brand-black-20);
-}
-
-.contactHeading {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--brand-black);
-  margin-left: -40px;
-  flex: 1;
-  text-align: center;
-  flex: 1;
-}
-
-.closeButton {
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  color: var(--brand-black-70);
-
-  &:hover {
-    color: var(--brand-black);
-  }
-}
-
-.closeIcon {
-  width: 20px;
-  height: 20px;
-  color: var(--brand-black-70);
-}
-
-.contactDescription {
-  color: var(--brand-black-70);
-  line-height: 1.5;
-  margin-bottom: 24px;
-  font-size: 14px;
-}
-
-.linksWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.contactGroup {
-  .groupTitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--brand-black);
-    margin-bottom: 12px;
-  }
-}
-
-.contactRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 12px 0;
-  background: none;
-  border: none;
-  text-align: left;
-  color: #857f7f !important;
-  font-size: 14px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--brand-black-10);
-
-  &:last-child {
-    border-bottom: none;
+// Tablet adjustments
+@media (min-width: 481px) and (max-width: 767px) {
+  .navigation {
+    padding: 90px 0 90px 0;
   }
 
-  &:hover {
-    color: var(--brand-black);
+  .menuLevel {
+    padding: 0 24px;
   }
 
-  &.phoneLink {
-    color: var(--brand-blue);
-
-    &:hover {
-      color: var(--brand-blue-dark);
-    }
-  }
-
-  &.emailLink {
-    color: var(--brand-orange);
-
-    &:hover {
-      color: var(--brand-orange-dark);
-    }
+  .navButton,
+  .navLink {
+    padding: 18px 0;
+    font-size: 15px;
   }
 }

@@ -61,7 +61,9 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          message: `Contact Method: ${formData.contactMethod}\nPhone: ${formData.phone}\n\nEnquiry:\n${formData.enquiry}`,
+          phone: formData.phone, // Make sure this is included
+          contactMethod: formData.contactMethod, // Make sure this is included
+          message: formData.enquiry, // This should map to the enquiry field
           formName: 'Contact Sidebar Form'
         })
       });
@@ -141,9 +143,9 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay */}
-        {isOpen && (
-      <div className={classNames(styles.overlay, styles.contactOverlay)} onClick={handleClose} />
-    )}
+      {isOpen && (
+        <div className={classNames(styles.overlay, styles.contactOverlay)} onClick={handleClose} />
+      )}
       {/* Sidebar */}
       <div
         className={classNames(styles.sidebarRight, {
@@ -184,9 +186,9 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                       <span className={styles.optionSubText}>Monday to Saturday 10am to 6pm</span>
                     </button>
 
-                    <button className={styles.contactOptionBtn} onClick={() => handleContactButtonClick('find-store')}>
+                    {/* <button className={styles.contactOptionBtn} onClick={() => handleContactButtonClick('find-store')}>
                       <span className={styles.optionMainText}>Find a Store</span>
-                    </button>
+                    </button> */}
 
                     <button className={styles.contactOptionBtn} onClick={() => handleContactButtonClick('press')}>
                       <div className={styles.pressTitle}>Press Enquiries</div>
@@ -292,7 +294,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                       placeholder="Let us know how we can help..."
                       required
                       className={styles.formTextarea}
-                      rows={4}
+                      rows={1}
                       disabled={isSubmitting}
                     />
                   </div>

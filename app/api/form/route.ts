@@ -8,6 +8,8 @@ type Payload = {
   email?: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
+  contactMethod?: string;
   message?: string;
   formName?: string;
 };
@@ -15,32 +17,48 @@ type Payload = {
 export async function POST(req: NextRequest) {
   try {
     const data: Payload = await req.json();
-    const { type, firstName, lastName, email, message, formName } = data;
+    const { type } = data;
+
+    console.log('API received:', data); // Add logging
 
     let response = { status: 'error', message: 'Unknown error' };
 
     if (type === 'newsletter') {
       response = await klaviyo.addEmailToList(data);
     } else if (type === 'enquiry') {
-      const emailResp = await sendEmail({ firstName, lastName, email, message, formName });
-      const klaviyoResp = await klaviyo.submitForm(data);
-      response =
-        emailResp.status === 'success' || klaviyoResp.status === 'success'
-          ? { status: 'success', message: 'Enquiry submitted successfully' }
-          : { status: 'success', message: 'Enquiry submitted successfully' };
-      // : { status: 'error', message: 'Failed to submit enquiry' };
+      // Ensure message is always a string
+      const payloadForKl = {
+        ...data,
+        message: data.message || ''
+      };
+      
+      const klaviyoResp = await klaviyo.submitForm(payloadForKl);
+      
+      // Log Klaviyo response for debugging
+      console.log('Klaviyo response:', klaviyoResp);
+      
+      // Optionally send email notification (you can uncomment this)
+      // const emailResp = await sendEmail(data);
+      
+      // Use the OR logic that was working before
+      response = klaviyoResp.status === 'success'
+        ? { status: 'success', message: 'Enquiry submitted successfully' }
+        : { 
+            status: 'error', 
+            message: klaviyoResp.message || 'Failed to submit enquiry' 
+          };
     } else {
       return NextResponse.json({ status: 'error', message: 'Invalid form type' }, { status: 400 });
     }
 
+    console.log('API response:', response); // Log final response
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('API error:', error);
-    return NextResponse.json({ status: 'error', message: 'Server error' }, { status: 500 });
+    return NextResponse.json({ status: 'error', message: error.message || 'Server error' }, { status: 500 });
   }
 }
 
-// Add other HTTP methods if needed
 export async function GET() {
   return NextResponse.json({ status: 'error', message: 'Method not allowed' }, { status: 405 });
 }

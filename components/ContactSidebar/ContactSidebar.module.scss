@@ -1,14 +1,37 @@
+// ContactSidebar.module.scss
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1025px) {
+    @content;
+  }
+}
+
 // Contact SideBar
 .contactOverlay {
-  position: fixed; // Change from absolute to fixed
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5); // Add a semi-transparent background
-  z-index: 1000; // Ensure this is below sidebar but above page content
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
   animation: fadeIn 0.3s ease forwards;
   cursor: pointer;
+  
+  @include mobile {
+    background: rgba(0, 0, 0, 0.7);
+  }
 }
 
 // Contact sidebar specific styles
@@ -19,20 +42,69 @@
   width: 28%;
   height: 100vh;
   background: white;
-  z-index: 1001; // Higher than overlay
+  z-index: 1001;
   transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
   &.sidebarOpen {
     right: 0;
   }
+
+  @include tablet {
+    width: 40%;
+  }
+
+  @include mobile {
+    width: 100%;
+    right: -100%;
+    box-shadow: none;
+    top: 60px; // Height of navbar on mobile
+    height: calc(100vh - 60px); // Remaining height after navbar
+    
+    &.sidebarOpen {
+      right: 0;
+    }
+  }
 }
+
+// Adjust overlay height for mobile to leave navbar visible
+@include mobile {
+  .contactOverlay {
+    top: 80px; // Start overlay below navbar
+    height: calc(100vh - 80px); // Cover only the area below navbar
+  }
+}
+
+.contactSidebarInner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
 .sidebarContent {
   padding: 2rem;
   height: 100%;
-  overflow-y: auto;
-  margin-top: 80px; // Add space for the header navigation
+  display: flex;
+  flex-direction: column;
+
+  // Remove the margin-top since we're positioning the sidebar below navbar
+  @include mobile {
+    padding: 1.5rem;
+    // No margin-top needed now
+  }
+
+  @include desktop {
+    // Keep desktop spacing as before
+    margin-top: 80px;
+  }
+
+  @include tablet {
+    margin-top: 80px;
+  }
 }
 
 // Contact header with cross button
@@ -43,6 +115,11 @@
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;
+
+  @include mobile {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
 }
 
 .contactHeading {
@@ -50,6 +127,11 @@
   font-weight: 400;
   margin: 0;
   color: #222;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  @include mobile {
+    font-size: 18px;
+  }
 }
 
 .closeButton {
@@ -65,11 +147,20 @@
   &:hover {
     opacity: 0.7;
   }
+
+  @include mobile {
+    padding: 8px;
+  }
 }
 
 .closeIcon {
   width: 16px;
   height: 16px;
+
+  @include mobile {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .contactDescription {
@@ -77,6 +168,13 @@
   line-height: 1.6;
   color: #666;
   margin-bottom: 2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  @include mobile {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
 }
 
 // Updated contact actions styles
@@ -84,21 +182,31 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  flex: 1;
 }
 
 .inquirySection {
   padding: 24px 0;
   margin-bottom: 12px;
+
+  @include mobile {
+    padding: 20px 0;
+    margin-bottom: 8px;
+  }
 }
 
 .inquiryTitle {
   display: block;
   font-size: 14px;
-  font-weight: 500;
   font-weight: 600;
   color: #222;
   margin-bottom: 16px;
   letter-spacing: 0.05em;
+
+  @include mobile {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
 }
 
 .messageButton {
@@ -122,6 +230,11 @@
     background: #222;
     color: white;
   }
+
+  @include mobile {
+    padding: 16px 20px;
+    font-size: 14px;
+  }
 }
 
 .contactOptions {
@@ -129,6 +242,11 @@
   flex-direction: column;
   gap: 0;
   margin-bottom: 24px;
+  flex: 1;
+
+  @include mobile {
+    margin-bottom: 20px;
+  }
 }
 
 .contactOptionBtn {
@@ -148,15 +266,19 @@
   font-weight: 400;
   letter-spacing: 0.03em;
   line-height: 1.4;
-  margin-top: -1px; // Prevent double borders
+  margin-top: -1px;
 
   &:hover {
     background: #f9f9f9;
   }
 
-  // Remove bottom border from last child
   &:last-child {
     border-bottom: none;
+  }
+
+  @include mobile {
+    padding: 18px 0;
+    font-size: 14px;
   }
 }
 
@@ -165,6 +287,10 @@
   color: #222;
   font-weight: 400;
   margin-bottom: 4px;
+
+  @include mobile {
+    font-size: 14px;
+  }
 }
 
 .optionSubText {
@@ -172,18 +298,10 @@
   color: #666;
   font-weight: 300;
   letter-spacing: 0.03em;
-}
 
-// Press section - updated to match your requirements
-.pressSection {
-  padding: 24px 0;
-  border-top: 1px solid #eee;
-  // Removed border-bottom: 1px solid #eee; // No bottom border as requested
-  margin-top: 24px;
-}
-
-.pressContent {
-  width: 100%;
+  @include mobile {
+    font-size: 12px;
+  }
 }
 
 .pressTitle {
@@ -193,6 +311,11 @@
   margin-bottom: 8px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+
+  @include mobile {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
 }
 
 .pressText {
@@ -201,6 +324,11 @@
   line-height: 1.5;
   margin: 0;
   letter-spacing: 0.03em;
+
+  @include mobile {
+    font-size: 11px;
+    line-height: 1.4;
+  }
 }
 
 .emailLink {
@@ -213,71 +341,20 @@
     text-decoration: none;
     color: #222 !important;
   }
+
+  @include mobile {
+    margin-left: 4px;
+  }
 }
 
-// Remove or comment out old styles that conflict with the new design
-// .contactActionBtn {
-//   display: block;
-//   width: 100%;
-//   padding: 14px 20px;
-//   background: #f5f5f5;
-//   border: 1px solid #e0e0e0;
-//   border-radius: 4px;
-//   text-align: center;
-//   font-size: 14px;
-//   color: #333;
-//   cursor: pointer;
-//   transition: all 150ms ease;
-
-//   &:hover {
-//     background: #e8e8e8;
-//     border-color: #ccc;
-//   }
-// }
-
-// .phoneBtn {
-//   background: #f9f9f9;
-//   line-height: 1.4;
-// }
-
-// .phoneHours {
-//   font-size: 12px;
-//   color: #666;
-//   display: block;
-//   margin-top: 4px;
-// }
-
-// Duplicate pressSection - removing this duplicate
-// .pressSection {
-//   margin-top: 24px;
-//   padding-top: 20px;
-//   border-top: 1px solid #eee;
-
-//   strong {
-//     display: block;
-//     margin-bottom: 8px;
-//     font-size: 16px;
-//   }
-
-//   p {
-//     font-size: 14px;
-//     color: #666;
-//     line-height: 1.5;
-//   }
-// }
-
-// Duplicate emailLink - removing this duplicate
-// .emailLink {
-//   color: #857f7f !important;
-//   text-decoration: underline;
-//   margin-left: 4px;
-
-//   &:hover {
-//     text-decoration: none;
-//   }
-// }
-
-// Enquiry Form
+// Enquiry Form Styles
+.enquiryFormSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
 
 .backButton {
   display: flex;
@@ -285,56 +362,76 @@
   gap: 8px;
   background: none;
   border: none;
-  color: var(--text-color-secondary);
+  color: #666;
   font-size: 14px;
   cursor: pointer;
   padding: 8px 0;
   margin-bottom: 10px;
+  align-self: flex-start;
 
   &:hover {
-    color: var(--text-color-primary);
+    color: #222;
+  }
+
+  @include mobile {
+    font-size: 13px;
+    padding: 10px 0;
   }
 }
 
 .backIcon {
   width: 16px;
   height: 16px;
+
+  @include mobile {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .formHeading {
-  font-size: 16px;
+  font-size: 12.5px;
   font-weight: 400;
   color: #333;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   line-height: 1.5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  @include mobile {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
 }
 
 .statusMessage {
-  padding: 12px 16px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  font-size: 14px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   &.success {
-    background: #f0f9f0;
     color: #2e7d32;
-    border: 1px solid #c8e6c9;
   }
 
   &.error {
-    background: #fdecea;
     color: #c62828;
-    border: 1px solid #ffcdd2;
+  }
+
+  @include mobile {
+    font-size: 11px;
+    margin-bottom: 8px;
   }
 }
 
 .enquiryForm {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-}
+  gap: 16px;
+  flex: 1;
 
-// Update the form input styles in your ContactSidebar.module.scss
+  @include mobile {
+    gap: 16px;
+  }
+}
 
 .formGroup {
   display: flex;
@@ -348,6 +445,10 @@
     font-weight: 400;
     letter-spacing: 0.05em;
     margin-bottom: 4px;
+
+    @include mobile {
+      font-size: 11px;
+    }
   }
 }
 
@@ -356,11 +457,12 @@
   width: 100%;
   border: none;
   border-bottom: 1px solid #ddd;
-  font-size: 14px;
+  font-size: 12px;
   background: transparent;
   border-radius: 0;
   letter-spacing: 0.03em;
   transition: border-color 150ms ease;
+  padding: 3px 0;
 
   &:focus {
     outline: none;
@@ -373,61 +475,65 @@
     cursor: not-allowed;
     border-bottom-color: #eee;
   }
+
+  @include mobile {
+    font-size: 11px;
+    padding: 6px 0;
+  }
 }
 
 .formTextarea {
   resize: vertical;
   min-height: 80px;
-  padding: 4px 0;
   line-height: 1.5;
+
+  @include mobile {
+    min-height: 60px;
+  }
 }
 
-// Optional: Add a subtle placeholder style
 .formInput::placeholder,
 .formTextarea::placeholder {
   color: #999;
   font-weight: 300;
 }
 
-// Optional: Add focus animation
-.formInput:focus + .formUnderline,
-.formTextarea:focus + .formUnderline {
-  transform: scaleX(1);
-}
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 
-// Optional: If you want an animated underline
-.formGroup {
-  position: relative;
-
-  .formUnderline {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #222;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
-// Contact Method Section - Simple text options like in the image
 .contactMethodGroup {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 10px 0 10px 0;
+  gap: 4px;
+  margin: 6px 0 6px 0;
   padding-top: 4px;
+
+  @include mobile {
+    margin: 10px 0;
+  }
 }
 
 .contactMethodLabel {
-  font-size: 14px;
+  font-size: 12.5px;
   color: #222;
   font-weight: 400;
   letter-spacing: 0.05em;
   text-align: center;
   margin-bottom: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  @include mobile {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
 }
 
 .contactMethodOptions {
@@ -436,16 +542,20 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+
+  @include mobile {
+    gap: 8px;
+  }
 }
 
 .contactMethodBtn {
   min-width: 100px;
-  padding: 12px 20px;
+  padding: 6px 6px;
   background: transparent;
   border: 1px solid #ddd;
   border-radius: 0;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
   cursor: pointer;
   transition: all 150ms ease;
@@ -474,128 +584,11 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
-}
 
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr; // Two equal columns
-  gap: 1rem; // Space between columns
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr; // Stack on mobile
-    gap: 1.5rem;
-  }
-}
-
-// Alternative: If you want it to look exactly like the image with minimal styling
-.contactMethodGroup.minimal {
-  margin: 24px 0;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
-
-  .contactMethodLabel {
-    margin-bottom: 16px;
-    font-size: 11px;
-    color: #666;
-  }
-
-  .contactMethodOptions {
-    gap: 8px;
-  }
-
-  .contactMethodBtn {
+  @include mobile {
     min-width: 80px;
-    padding: 10px 16px;
-    font-size: 11px;
-    border: 1px solid #eee;
-    color: #666;
-
-    &:hover:not(:disabled) {
-      border-color: #ddd;
-      background: #fafafa;
-    }
-
-    &.active {
-      background: #f5f5f5;
-      color: #222;
-      border-color: #ddd;
-      font-weight: 400;
-    }
-  }
-}
-
-// Another alternative: Text-only buttons without borders (like in some minimal designs)
-.contactMethodGroup.textOnly {
-  border: none;
-  padding-top: 0;
-
-  .contactMethodLabel {
-    text-align: left;
-    margin-bottom: 12px;
-  }
-
-  .contactMethodOptions {
-    justify-content: flex-start;
-    gap: 20px;
-  }
-
-  .contactMethodBtn {
-    min-width: auto;
-    padding: 8px 0;
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-size: 13px;
-    color: #666;
-    border-radius: 0;
-
-    &:hover:not(:disabled) {
-      background: transparent;
-      color: #222;
-    }
-
-    &.active {
-      background: transparent;
-      color: #222;
-      border-bottom: 2px solid #222;
-      font-weight: 500;
-    }
-  }
-}
-
-// For the image style: Simple rectangular buttons with clean borders
-.contactMethodGroup.imageStyle {
-  .contactMethodOptions {
-    gap: 10px;
-  }
-
-  .contactMethodBtn {
-    min-width: 90px;
-    padding: 12px 16px;
-    font-size: 12px;
-    letter-spacing: 0.03em;
-    border: 1px solid #e0e0e0;
-
-    &:hover:not(:disabled) {
-      border-color: #222;
-    }
-
-    &.active {
-      border-color: #222;
-      background: #222;
-      color: white;
-    }
-  }
-}
-
-// Update form styles to center align when showing
-.enquiryFormSection {
-  .formHeading {
-    text-align: left;
-    margin: 0 0 32px 0;
-  }
-
-  .enquiryForm {
-    max-width: 100%;
+    padding: 8px;
+    font-size: 10px;
   }
 }
 
@@ -620,6 +613,36 @@
     background: #999;
     cursor: not-allowed;
   }
+
+  @include mobile {
+    padding: 18px 24px;
+    font-size: 14px;
+    margin-top: 20px;
+  }
+}
+
+// Mobile-specific improvements
+@include mobile {
+  .contactSidebarInner {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebarContent {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  // Improve touch targets for mobile
+  .messageButton,
+  .contactOptionBtn,
+  .contactMethodBtn,
+  .submitBtn {
+    min-height: 44px;
+  }
+
+  .formInput,
+  .formTextarea {
+    font-size: 16px;
+  }
 }
 
 // Animations
@@ -627,8 +650,20 @@
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
+  }
+}
+
+// Optional: Add slide up animation for mobile
+@include mobile {
+  .sidebarRight {
+    transition: transform 0.3s ease-out;
+    right: 0;
+    transform: translateX(100%);
+    
+    &.sidebarOpen {
+      transform: translateX(0);
+    }
   }
 }
