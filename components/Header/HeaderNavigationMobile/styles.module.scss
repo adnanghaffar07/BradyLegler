@@ -8,7 +8,10 @@ $button-thickness: 2px;
   width: 100%;
   position: relative;
 
-  @include media-up(tablet) {
+  // @include media-up(tablet) {
+  //   display: none;
+  // }
+  @include media-up-desktop {
     display: none;
   }
 
