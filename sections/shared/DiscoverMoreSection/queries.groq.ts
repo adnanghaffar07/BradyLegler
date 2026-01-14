@@ -10,7 +10,6 @@ const discoverMoreSectionProjection = groq`
      links[]->{
       _type,
       pathname,
-
       title,
       status,
       featureImage${imageProjection},      
@@ -18,7 +17,16 @@ const discoverMoreSectionProjection = groq`
       store {
         title,
         status,
-        priceRange,
+        priceRange {
+          minVariantPrice {
+            amount,
+            currencyCode
+          },
+          maxVariantPrice {
+            amount,
+            currencyCode
+          }
+        },
         previewImageUrl,
         slug {
           current
@@ -35,3 +43,4 @@ const discoverMoreSectionProjection = groq`
 `;
 
 export default discoverMoreSectionProjection;
+

@@ -78,8 +78,8 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 }
 
 .triggerText {
-  font-size: 18px; /* Your original size */
-  font-weight: $font-weight-medium;
+  font-size: 17px; /* Your original size */
+  font-weight: 500;
   font-family:
     system-ui,
     -apple-system,
@@ -96,7 +96,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #272727;
+  color: #222222;
   padding: 50px; /* Your original padding */
   &:hover {
     text-decoration: underline;
