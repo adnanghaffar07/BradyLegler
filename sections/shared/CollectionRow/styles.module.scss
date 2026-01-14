@@ -109,16 +109,16 @@
   background: transparent;
   border: none;
   padding: 0;
-  
+
   // Remove all backgrounds and borders
   &:hover {
     background: transparent;
-    
+
     svg {
       color: #333; // Darker on hover
     }
   }
-  
+
   svg {
     width: 20px;
     height: 20px;
@@ -126,25 +126,27 @@
     stroke-width: 2px;
     transition: color 0.2s ease;
   }
-  
+
   // Desktop: Show on hover
   @media (min-width: 769px) {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+
     .imageContainer:hover &,
     .link:hover & {
       opacity: 1;
       visibility: visible;
     }
   }
-  
+
   // Mobile: Always show if product has multiple images
   @media (max-width: 768px) {
     width: 24px;
     height: 24px;
     opacity: 1;
     visibility: visible;
-    
+
     svg {
       width: 16px;
       height: 16px;
@@ -155,7 +157,7 @@
 
 .navArrowLeft {
   left: 8px;
-  
+
   @media (max-width: 768px) {
     left: 4px;
   }
@@ -163,7 +165,7 @@
 
 .navArrowRight {
   right: 8px;
-  
+
   @media (max-width: 768px) {
     right: 4px;
   }
@@ -180,7 +182,7 @@
   gap: 6px;
   z-index: 10;
   padding: 4px;
-  
+
   @media (max-width: 768px) {
     bottom: 8px;
     gap: 4px;
@@ -196,16 +198,16 @@
   cursor: pointer;
   padding: 0;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.8);
   }
-  
+
   &.active {
     background: white;
     transform: scale(1.2);
   }
-  
+
   @media (max-width: 768px) {
     width: 5px;
     height: 5px;
@@ -214,7 +216,7 @@
 
 .name {
   margin-top: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   font-family:
     system-ui,
     -apple-system,
@@ -247,4 +249,24 @@
   padding: 60px 0;
   color: #666;
   font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .name {
+    font-size: 11px;
+  }
+
+  .img {
+    width: 90%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.3s ease;
+    aspect-ratio: 0.5 / 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }

@@ -187,14 +187,14 @@
       transform: translateY(-50%) scale(0.85);
     }
   }
-  
+
   // Even smaller on very small screens
   @include media-down(tablet) {
     .navArrowLeft,
     .navArrowRight {
       width: 28px !important;
       height: 28px !important;
-      
+
       svg {
         width: 18px !important;
         height: 18px !important;
@@ -213,45 +213,45 @@
   justify-content: center;
   gap: 8px;
   z-index: 20;
-  background: transparent !important;
 }
 
 .imageDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.4) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(180, 180, 180, 0.6) !important; // Light grey for better visibility
+  border: 1px solid rgba(255, 255, 255, 0.4) !important; // Subtle border for definition
   padding: 0;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &.active {
-    background-color: white !important;
-    transform: scale(1.2);
-    border-color: white !important;
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+    background-color: rgba(122, 122, 122, 0.95) !important; // Solid dark grey/black
+    transform: scale(1.1); // Slightly larger
   }
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.6) !important;
-    transform: scale(1.1);
+  &:hover:not(.active) {
+    background-color: rgba(140, 140, 140, 0.8) !important; // Slightly darker on hover
+    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.6) !important;
   }
 }
 
 // Smaller dots on mobile
 @include media-down(large-tablet) {
-  
   .imageDots {
     bottom: 16px; // Move dots up slightly on mobile
   }
-  
+
   .imageDot {
     width: 6px; // Smaller dots on mobile
     height: 6px;
+
+    &.active {
+      transform: scale(1.4); // Slightly larger relative scale
+    }
   }
 }
-
 // Adjust for list layout
 .productCard.list {
   .navArrowLeft,
@@ -281,14 +281,14 @@
     width: 10px;
     height: 10px;
   }
-  
+
   // For list layout on mobile
   @include media-down(large-tablet) {
     .navArrowLeft,
     .navArrowRight {
       width: 36px !important;
       height: 36px !important;
-      
+
       svg {
         width: 24px !important;
         height: 24px !important;
@@ -332,10 +332,9 @@
 .productCard {
   // Ensure consistent spacing
   padding-bottom: 4px; // Add bottom padding
-  
+
   // Better image containment
   .imageLink {
-    
     img {
       max-width: 100%; // Don't let image touch edges
       max-height: 100%;
@@ -369,23 +368,23 @@
   }
 }
 
-
 // Extra small phones (320px - 375px)
 @media (max-width: 475px) {
   .productCard {
     .imageLink {
       max-width: 240px;
     }
-    
+
     .productDetails {
       max-width: 220px;
-      
+
       .productTitle {
         font-size: 10px;
       }
-      
+
       .productPrice {
         font-size: 10px;
       }
     }
-  }}
+  }
+}

@@ -55,7 +55,7 @@ const Media: React.FC<MediaProps> = props => {
     );
   }
 
-  return <div>MEDIA</div>;
+  // return <div>MEDIA</div>;
 };
 
 export default Media;

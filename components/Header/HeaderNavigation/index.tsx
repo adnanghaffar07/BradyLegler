@@ -277,7 +277,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
               [styles.active]: getCurrentLevel()?.parentTitle === navItem.title
             })}
           >
-            {navItem.title?.toLowerCase() === 'contact' ? (
+            {navItem.title?.toLowerCase() === 'concierge' ? (
               <button
                 className={styles.navigationLink}
                 onClick={e => {
