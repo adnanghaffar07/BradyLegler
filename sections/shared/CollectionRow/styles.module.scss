@@ -129,7 +129,9 @@
 
   // Desktop: Show on hover
   @media (min-width: 769px) {
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
 
     .imageContainer:hover &,
     .link:hover & {

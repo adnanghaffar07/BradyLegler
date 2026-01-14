@@ -345,9 +345,9 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                             <Icon title="chevronRight" className={styles.navIcon} />
                           </button>
                         ) : (
-                          <Link 
-                            variant="normal-sm" 
-                            href={resolveLink(item.link, item.title)} 
+                          <Link
+                            variant="normal-sm"
+                            href={resolveLink(item.link, item.title)}
                             onClick={closeAllMenus}
                             className={styles.navLink}
                           >
@@ -365,10 +365,13 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
       </div>
 
       {/* Contact Sidebar - Using the same component as desktop */}
-      <ContactSidebar isOpen={contactSidebarOpen} onClose={() => {
-        setContactSidebarOpen(false);
-        setMobileNavOpen(false);
-      }} />
+      <ContactSidebar
+        isOpen={contactSidebarOpen}
+        onClose={() => {
+          setContactSidebarOpen(false);
+          setMobileNavOpen(false);
+        }}
+      />
     </>
   );
 };

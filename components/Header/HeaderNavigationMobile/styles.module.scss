@@ -199,9 +199,20 @@ $transition-speed: 300ms;
   color: rgb(107, 106, 106);
   flex: 1;
   text-align: center;
-margin-left: -60px;
+  margin-left: -60px;
   line-height: 1.2;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Open Sans',
+    'Helvetica Neue',
+    sans-serif;
 }
 
 .menuImageContainer {

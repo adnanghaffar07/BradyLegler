@@ -17,15 +17,7 @@ const submitForm = async (data: {
   formName?: string;
 }): Promise<SubmitFormResponse> => {
   try {
-    const {
-      email,
-      firstName,
-      lastName,
-      phone,
-      contactMethod,
-      message = '',
-      formName
-    } = data || {};
+    const { email, firstName, lastName, phone, contactMethod, message = '', formName } = data || {};
 
     if (!email || !firstName || !lastName || !formName) {
       throw new Error('Missing required fields.');
@@ -35,7 +27,7 @@ const submitForm = async (data: {
 
     // Clean and validate List ID
     let cleanListId = KLAVIYO_LIST_ID;
-    
+
     // Remove URL prefix if present
     if (cleanListId.includes('klaviyo.com')) {
       const match = cleanListId.match(/list\/([^\/]+)/);
@@ -43,7 +35,7 @@ const submitForm = async (data: {
         cleanListId = match[1];
       }
     }
-    
+
     console.log('Cleaned List ID:', cleanListId);
 
     // 1️⃣ Create or update profile
@@ -96,26 +88,23 @@ const submitForm = async (data: {
     // 2️⃣ Subscribe profile to the list (FIXED CONDITION)
     if (cleanListId && cleanListId.trim() !== '') {
       console.log('Subscribing profile to list:', cleanListId);
-      
+
       try {
-        const subscribeResp = await fetch(
-          `https://a.klaviyo.com/api/lists/${cleanListId}/relationships/profiles/`,
-          {
-            method: 'POST',
-            headers: {
-              accept: 'application/json',
-              'content-type': 'application/json',
-              revision: KLAVIYO_API_REVISION,
-              Authorization: `Klaviyo-API-Key ${KLAVIYO_PRIVATE_API_KEY}`
-            },
-            body: JSON.stringify({
-              data: [{ type: 'profile', id: profileId }]
-            })
-          }
-        );
+        const subscribeResp = await fetch(`https://a.klaviyo.com/api/lists/${cleanListId}/relationships/profiles/`, {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'content-type': 'application/json',
+            revision: KLAVIYO_API_REVISION,
+            Authorization: `Klaviyo-API-Key ${KLAVIYO_PRIVATE_API_KEY}`
+          },
+          body: JSON.stringify({
+            data: [{ type: 'profile', id: profileId }]
+          })
+        });
 
         console.log('Subscription response status:', subscribeResp.status);
-        
+
         // Get response for debugging
         let responseText = '';
         try {
@@ -127,7 +116,7 @@ const submitForm = async (data: {
         } catch (e) {
           // Response might be empty or non-JSON
         }
-        
+
         if (subscribeResp.status === 204 || subscribeResp.status === 200) {
           console.log('Successfully subscribed profile to list');
         } else {

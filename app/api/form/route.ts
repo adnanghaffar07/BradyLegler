@@ -31,22 +31,23 @@ export async function POST(req: NextRequest) {
         ...data,
         message: data.message || ''
       };
-      
+
       const klaviyoResp = await klaviyo.submitForm(payloadForKl);
-      
+
       // Log Klaviyo response for debugging
       console.log('Klaviyo response:', klaviyoResp);
-      
+
       // Optionally send email notification (you can uncomment this)
       // const emailResp = await sendEmail(data);
-      
+
       // Use the OR logic that was working before
-      response = klaviyoResp.status === 'success'
-        ? { status: 'success', message: 'Enquiry submitted successfully' }
-        : { 
-            status: 'error', 
-            message: klaviyoResp.message || 'Failed to submit enquiry' 
-          };
+      response =
+        klaviyoResp.status === 'success'
+          ? { status: 'success', message: 'Enquiry submitted successfully' }
+          : {
+              status: 'error',
+              message: klaviyoResp.message || 'Failed to submit enquiry'
+            };
     } else {
       return NextResponse.json({ status: 'error', message: 'Invalid form type' }, { status: 400 });
     }

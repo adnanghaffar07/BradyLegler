@@ -93,8 +93,7 @@ const headerHeroSection = defineType({
         accept: 'video/*'
       },
       group: 'data',
-      hidden: ({ parent }) => 
-        parent?.mediaType !== 'video' || parent?.videoType !== 'file'
+      hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.videoType !== 'file'
     },
     {
       name: 'videoUrl',
@@ -109,16 +108,14 @@ const headerHeroSection = defineType({
           thumbnailField: 'thumbnail'
         }
       },
-      hidden: ({ parent }) => 
-        parent?.mediaType !== 'video' || parent?.videoType !== 'url'
+      hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.videoType !== 'url'
     },
     {
       name: 'thumbnail',
       title: 'Thumbnail',
       type: 'image',
       group: 'data',
-      hidden: ({ parent }) => 
-        parent?.mediaType !== 'video' || parent?.videoType !== 'url'
+      hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.videoType !== 'url'
     },
     {
       name: 'addButton',
