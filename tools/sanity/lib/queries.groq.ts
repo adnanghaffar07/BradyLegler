@@ -144,3 +144,18 @@ export const PRODUCTS_QUERY = groq`
     "priceRange": store.priceRange
   }
 `;
+
+// Add this to your queries.groq file
+export const PRODUCT_COLLECTIONS_QUERY = groq`
+  *[_type == "collection" && defined(store.id) && store.id in $shopifyCollectionIds]{
+    store {
+      title,
+      collectionStory,
+      slug {
+        current
+      },
+      imageUrl,
+      id
+    }
+  } | order(_updatedAt desc)
+`;

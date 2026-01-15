@@ -43,4 +43,3 @@ const discoverMoreSectionProjection = groq`
 `;
 
 export default discoverMoreSectionProjection;
-

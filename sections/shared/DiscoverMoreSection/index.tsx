@@ -73,10 +73,13 @@ type ExtendedProduct = {
       height?: number;
     }>;
     priceRange?: {
-      minVariantPrice: number | string | {
-        amount: string | number;
-        currencyCode?: string;
-      };
+      minVariantPrice:
+        | number
+        | string
+        | {
+            amount: string | number;
+            currencyCode?: string;
+          };
     };
     slug?: {
       current: string;
@@ -116,57 +119,55 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   const [isHovering, setIsHovering] = useState(false);
 
   const { _type, pathname, store, title, status, featureImage = {}, featureMedia = {} } = item;
-  
+
   // Determine media sources based on ProductCard logic
   const isCollectionMediaEnabled = store?.collectionMedia?.enable;
   const collectionMediaItems = store?.collectionMedia?.mediaItems || [];
   const featureMediaEnabled = featureMedia?.enable;
-  
+
   const slug = store?.slug?.current ? `/${store?.slug?.current}/` : pathname || '#';
   const itemTitle = _type === 'artwork' ? title : store?.title || title;
-  
+
   // FIXED: Proper price extraction and formatting
   let secondaryText = '';
-  
+
   if (_type === 'product') {
     let priceAmount: number | null = null;
     let currencyCode = 'USD';
-    
+
     // Handle different price structures
     const minVariantPrice = store?.priceRange?.minVariantPrice;
-    
+
     // Case 1: Price is an object with amount and currencyCode
     if (minVariantPrice && typeof minVariantPrice === 'object' && 'amount' in minVariantPrice) {
-      priceAmount = typeof minVariantPrice.amount === 'string' 
-        ? parseFloat(minVariantPrice.amount) 
-        : Number(minVariantPrice.amount);
+      priceAmount =
+        typeof minVariantPrice.amount === 'string'
+          ? parseFloat(minVariantPrice.amount)
+          : Number(minVariantPrice.amount);
       currencyCode = minVariantPrice.currencyCode || 'USD';
     }
     // Case 2: Price is a direct number or string
     else if (minVariantPrice !== undefined && minVariantPrice !== null) {
-      priceAmount = typeof minVariantPrice === 'string' 
-        ? parseFloat(minVariantPrice) 
-        : Number(minVariantPrice);
+      priceAmount = typeof minVariantPrice === 'string' ? parseFloat(minVariantPrice) : Number(minVariantPrice);
     }
-    
+
     // Format the price if we have a valid amount
     if (priceAmount !== null && !isNaN(priceAmount)) {
-      secondaryText = formatCurrency({ 
+      secondaryText = formatCurrency({
         amount: priceAmount,
         currencyCode
       });
     } else {
       secondaryText = '$0.00';
     }
-  } 
-  else if (_type === 'artwork') {
+  } else if (_type === 'artwork') {
     secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
   }
 
   // Priority 1: collectionMedia with mediaItems array
   let images: any[] = [];
   let currentMedia: any = null;
-  
+
   if (isCollectionMediaEnabled && collectionMediaItems.length > 0) {
     images = collectionMediaItems;
     currentMedia = images[currentImageIndex];
@@ -231,12 +232,10 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
     }
   };
 
-  const handleTouchStart = () => {
-  };
+  const handleTouchStart = () => {};
 
   const handleTouchEnd = () => {
-    setTimeout(() => {
-    }, 3000);
+    setTimeout(() => {}, 3000);
   };
 
   // Render media based on type
@@ -250,18 +249,10 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
     if (mediaType === 'video') {
       const videoUrl = currentMedia.video?.asset?.url || currentMedia.video?.url;
       if (!videoUrl) return null;
-      
+
       return (
         <>
-          <Video
-            url={videoUrl}
-            className={styles.media}
-            objectFit="contain"
-            controls={false}
-            autoPlay
-            muted
-            loop
-          />
+          <Video url={videoUrl} className={styles.media} objectFit="contain" controls={false} autoPlay muted loop />
         </>
       );
     }
@@ -269,13 +260,12 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
     // Handle images
     const imageUrl = currentMedia.image?.asset?.url || currentMedia.src || currentMedia.url;
     const imageAlt = currentMedia.alt || currentMedia.altText || itemTitle || '';
-    
+
     if (!imageUrl) return null;
 
     // Get dimensions if available
-    const dimensions = currentMedia.image?.asset?.metadata?.dimensions || 
-                      currentMedia.image?.metadata?.dimensions || 
-                      { width: 800, height: 800 };
+    const dimensions = currentMedia.image?.asset?.metadata?.dimensions ||
+      currentMedia.image?.metadata?.dimensions || { width: 800, height: 800 };
 
     return (
       <Image
@@ -291,9 +281,9 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   };
 
   return (
-    <Link 
-      href={slug} 
-      key={index} 
+    <Link
+      href={slug}
+      key={index}
       className={styles.item}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -303,13 +293,13 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
       {/* Media Container */}
       <div className={styles.mediaContainer}>
         {renderMedia()}
-        
+
         {/* Navigation Arrows (for multiple images within the product) */}
         {hasMultipleImages && (
           <>
             <button
               className={classNames(styles.navArrow, styles.navArrowLeft)}
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 e.stopPropagation();
                 prevImage();
@@ -328,7 +318,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
             </button>
             <button
               className={classNames(styles.navArrow, styles.navArrowRight)}
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 e.stopPropagation();
                 nextImage();
@@ -352,7 +342,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
                 <button
                   key={idx}
                   className={classNames(styles.imageDot, { [styles.active]: idx === currentImageIndex })}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.preventDefault();
                     e.stopPropagation();
                     setCurrentImageIndex(idx);
@@ -367,9 +357,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
       {/* Always visible details (matching ProductCard) */}
       <div className={styles.productDetails}>
         <Text text={itemTitle} size="b3" className={styles.productTitle} />
-        {secondaryText && (
-          <Text text={secondaryText} size="b3" className={styles.productPrice} />
-        )}
+        {secondaryText && <Text text={secondaryText} size="b3" className={styles.productPrice} />}
       </div>
     </Link>
   );
@@ -378,7 +366,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
 const DiscoverMoreSection: React.FC<IDiscoverMoreSection> = props => {
   const { links, title } = props;
   const [isCarouselMode, setIsCarouselMode] = useState(true);
-  
+
   const itemCount = links?.length || 0;
 
   useEffect(() => {
@@ -387,7 +375,7 @@ const DiscoverMoreSection: React.FC<IDiscoverMoreSection> = props => {
   }, [itemCount]);
 
   const breakpoints = {
-    '(min-width: 769px)': { 
+    '(min-width: 769px)': {
       active: isCarouselMode // Only show carousel arrows when in carousel mode
     }
   };
@@ -404,10 +392,12 @@ const DiscoverMoreSection: React.FC<IDiscoverMoreSection> = props => {
         <Text text={title} size="b1" />
       </div>
 
-      <div className={classNames(styles.wrapper, {
-        [styles.carouselMode]: isCarouselMode,
-        [styles.gridMode]: !isCarouselMode
-      })}>
+      <div
+        className={classNames(styles.wrapper, {
+          [styles.carouselMode]: isCarouselMode,
+          [styles.gridMode]: !isCarouselMode
+        })}
+      >
         {isCarouselMode ? (
           <Carousel
             className={styles.carousel}

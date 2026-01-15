@@ -1,59 +1,79 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Section from '@/components/Section';
 import Description from '../Description';
 import Gallery from '../Gallery';
 import Text from '@/components/Text';
 import Form from '../Form';
 import Container from '@/components/Container';
-
-import { GetProductByHandleResponse, GetProductRecommendationsResponse } from '@/tools/apis/shopify';
+import { GetProductByHandleResponse } from '@/tools/apis/shopify';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
 import styles from './styles.module.scss';
 import Price from '@/templates/ProductTemplate/components/Price';
+import Image from 'next/image';
+
+interface CollectionData {
+  store?: {
+    title?: string;
+    collectionStory?: string;
+    slug?: { current?: string };
+    imageUrl?: string;
+    id?: string;
+  };
+}
 
 type DetailsProps = {
   sanityProductData: IProductDocument;
   sanitySizeGuide: ISizeGuideDocument;
   shopifyProductData: GetProductByHandleResponse;
-  shopifyProductRecommendations: GetProductRecommendationsResponse;
+  primaryCollection?: CollectionData | null;
 };
 
-const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData, sanitySizeGuide }) => {
-  // Get all variants
+const Details: React.FC<DetailsProps> = ({ 
+  sanityProductData, 
+  shopifyProductData, 
+  sanitySizeGuide,
+  primaryCollection
+}) => {
   const variants = shopifyProductData?.variants?.edges?.map(({ node }) => node) || [];
-
-  // Set first variant as default
   const defaultVariant = variants[0];
   const [selectedVariant, setSelectedVariant] = useState<any>(defaultVariant);
 
-  // Get price values as NUMBERS
   const priceAmount = selectedVariant?.priceV2?.amount || shopifyProductData?.priceRange?.minVariantPrice?.amount;
-
   const compareAtPriceAmount = selectedVariant?.compareAtPriceV2?.amount;
-
-  // Convert to STRINGS for Price component
   const price = priceAmount ? priceAmount.toString() : '0';
   const compareAtPrice = compareAtPriceAmount ? compareAtPriceAmount.toString() : undefined;
-
-  // Debug logging
-  useEffect(() => {
-    console.log('=== PRICE DEBUG ===');
-    console.log('Price amount:', priceAmount);
-    console.log('Price as string:', price);
-    console.log('Compare at price amount:', compareAtPriceAmount);
-    console.log('Compare at price as string:', compareAtPrice);
-    console.log('Selected variant:', selectedVariant);
-    console.log('Product price range:', shopifyProductData?.priceRange);
-    console.log('Description exists:', !!shopifyProductData?.descriptionHtml);
-  }, [selectedVariant, shopifyProductData]);
 
   return (
     <Section theme="dark" spacing="none" full>
       <div className={styles.section}>
-        {/* LEFT – Gallery */}
+        {/* LEFT COLUMN - Collection Info (Sticky) */}
+    <div className={styles.leftColumn}>
+  {primaryCollection?.store ? (
+    <div className={styles.collectionInfo}>
+      <div className={styles.collectionHeader}>
+        {primaryCollection.store.title && (
+          <Text size="b2" className={styles.collectionName}>
+            {primaryCollection.store.title}
+          </Text>
+        )}
+      </div>
+
+      {primaryCollection.store.collectionStory &&
+       primaryCollection.store.collectionStory.trim() !== '' && (
+        <div className={styles.collectionStory}>
+          <Text size="b2" className={styles.storyText}>
+            {primaryCollection.store.collectionStory}
+          </Text>
+        </div>
+      )}
+    </div>
+  ) : null}
+</div>
+
+        {/* CENTER COLUMN - Gallery (Natural Scroll) */}
         <div className={styles.gallery}>
           <Gallery
             featureMedia={sanityProductData?.featureMedia}
@@ -62,12 +82,11 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
           />
         </div>
 
-        {/* RIGHT – Product details */}
+        {/* RIGHT COLUMN - Product Details (Sticky) */}
         <div className={styles.container}>
           <div className={styles.containerSticky}>
             <Container>
               <div id="details" className={styles.detailsRight}>
-                {/* Title + Price */}
                 <div className={styles.header}>
                   <Text size="b2" text={sanityProductData.store.title} />
                   {/* <Price 
@@ -76,7 +95,6 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
                   /> */}
                 </div>
 
-                {/* Description + Size guide */}
                 <Description
                   title={sanityProductData.store.title}
                   descriptionHtml={shopifyProductData?.descriptionHtml}
@@ -84,7 +102,6 @@ const Details: React.FC<DetailsProps> = ({ sanityProductData, shopifyProductData
                   collections={shopifyProductData?.collections}
                 />
 
-                {/* Purchase */}
                 <Form
                   currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
                   variants={variants}
