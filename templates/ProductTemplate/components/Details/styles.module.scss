@@ -1,62 +1,300 @@
+/* ===========================================
+   THREE COLUMN LAYOUT (Clean & Simple)
+   =========================================== */
+
 .section {
   display: flex;
   flex-direction: column-reverse;
+  width: 100%;
+  gap: 2rem;
+  
 
   @include media-up(tablet) {
     flex-direction: row;
+    gap: 2rem;
+    min-height: 100vh;
+    align-items: flex-start;
+      padding-right: 20px;
   }
 }
+
+/* ===========================================
+   LEFT COLUMN - COLLECTION INFO (TOTALLY SEPARATE)
+   =========================================== */
+
+/* Container Styles - LEFT COLUMN ONLY */
+.leftColumn {
+  width: 100%;
+  margin-bottom: 1rem;
+  display: none;
+  /* Hidden on mobile by default */
+
+  @include media-up(tablet) {
+    display: block;
+    width: 300px;
+    flex: 0 0 300px;
+    margin-bottom: 0;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+    max-height: calc(100vh - 150px);
+    overflow: auto;
+    align-self: flex-start;
+  }
+
+  @media (min-width: 1400px) {
+    width: 400px;
+    flex: 0 0 400px;
+  }
+}
+
+/* Collection Info Styles - LEFT COLUMN ONLY */
+.collectionInfoLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+
+  @include media-up(tablet) {
+    padding: 2rem;
+    gap: 2rem;
+  }
+}
+
+.collectionHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.collectionNameLeft {
+  color: #000000;
+  font-weight: 400;
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+.collectionStoryLeft {
+  text-align: center;
+}
+
+.storyTextLeft {
+  color: #444444;
+  line-height: 1.8;
+  font-size: 11px;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* ===========================================
+   CENTER COLUMN - GALLERY
+   =========================================== */
 
 .gallery {
   width: 100%;
-  // Force all images inside to respect max-width
+  order: 2;
+  /* Gallery second on mobile */
+
   img {
-    max-width: 100% !important; // Use !important to override any other styles
+    max-width: 100% !important;
     height: auto !important;
     display: block;
   }
+
   @include media-up(tablet) {
-    width: 60%;
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    /* Allow gallery to shrink below its content width */
+    align-self: center;
   }
 }
 
-.container {
+/* ===========================================
+   RIGHT COLUMN - PRODUCT DETAILS (TOTALLY SEPARATE)
+   =========================================== */
+
+/* Container Styles - RIGHT COLUMN ONLY */
+.rightColumn {
   width: 100%;
-  padding: auto;
+  order: 1;
+  /* Product details first on mobile */
 
   @include media-up(tablet) {
-    width: 40%;
+    order: 3;
+    width: 300px;
+    flex: 0 0 300px;
+    min-width: 300px;
+    margin-top: 90px;
+    display: block;
+    margin-bottom: 0;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+    max-height: calc(100vh - 150px);
+    overflow: auto;
+    align-self: flex-start;
+  }
+
+  @media (min-width: 1400px) {
+    width: 400px;
+    flex: 0 0 400px;
   }
 }
 
-.containerSticky {
+.containerStickyRight {
+  width: 100%;
+
   @include media-up(tablet) {
     position: sticky;
     top: 128px;
+    height: fit-content;
+    max-height: calc(100vh - 150px);
+    overflow: auto;
+    align-self: flex-start;
   }
 }
 
-.detailsRight {
+.detailsRightSection {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
-  max-width: 100%;
-  margin-top: 20px;
+  font-size: medium;
+  gap: 2rem;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
 
   @include media-up(tablet) {
-    padding: 0 32px;
+    padding: 2rem;
+    gap: 2.5rem;
   }
 }
 
-// 787px and above (tablet/desktop)
-@media (max-width: 787px) {
-  .detailsRight {
-    margin-top: 100px;
-  }
-}
-.header {
+.headerRight {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.headerRight span {
+  font-size: 12px;
+
+}
+
+.productDescriptionRight {
+  width: 100%;
+}
+
+/* ===========================================
+   RESPONSIVE BREAKPOINTS
+   =========================================== */
+
+/* Mobile (default - no media query needed) */
+/* Already handled by column-reverse and 100% widths */
+
+/* Tablet (768px and up) */
+@include media-up(tablet) {
+  .section {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    display: block;
+  }
+}
+
+/* Desktop (1024px and up) */
+@media (min-width: 1024px) {
+  .section {
+    gap: 3rem;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    width: 320px;
+    flex: 0 0 320px;
+  }
+}
+
+/* Large Desktop (1400px and up) */
+@media (min-width: 1400px) {
+  .section {
+    gap: 4rem;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    width: 400px;
+    flex: 0 0 400px;
+  }
+
+  .collectionInfoLeft,
+  .detailsRightSection {
+    padding: 3rem;
+  }
+}
+
+/* Very Large Screens (1600px and up) */
+@media (min-width: 1600px) {
+  .section {
+    max-width: 1920px;
+    margin: 0 auto;
+    gap: 5rem;
+  }
+}
+
+/* Special case for screens between 767px and 1023px */
+@media (min-width: 767px) and (max-width: 1023px) {
+
+  .leftColumn,
+  .rightColumn {
+    width: 250px;
+    flex: 0 0 250px;
+  }
+
+  .section {
+    gap: 1.5rem;
+  }
+
+  .collectionInfoLeft,
+  .detailsRightSection {
+    padding: 1.5rem;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 766px) {
+  .section {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+
+  .leftColumn {
+    order: 3;
+    /* Collection info last on mobile */
+    display: block;
+    /* Show on mobile if you want */
+    margin-top: 4rem;
+  }
+
+  .storyTextLeft {
+    font-size: 11px;
+  }
+
+  .collectionInfoLeft {
+    padding: 1rem;
+    margin-top: 16px;
+  }
+
+  .detailsRightSection {
+    padding: 0.5rem;
+    gap: 1.5rem;
+  }
 }

@@ -27,6 +27,13 @@ const productProjection = groq`{
     options,
     variants[]->${productVariantProjection},
   },
+     // ADD THIS: Shopify collections data
+    collections[] {
+      id,
+      title,
+      handle,
+      description
+  },
   featureMedia {
     enable,
     mediaItems[] {

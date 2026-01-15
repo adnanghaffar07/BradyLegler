@@ -546,10 +546,29 @@ type ShopifyProductRecommendationsResponse = {
     id: string;
     title: string;
     handle: string;
+    productType?: string;
     images: {
       edges: {
         node: {
           src: string;
+        };
+      }[];
+    };
+    priceRange?: {
+      minVariantPrice: {
+        amount: number;
+        currencyCode: string;
+      };
+    };
+    variants?: {
+      edges?: {
+        node?: {
+          id?: string;
+          title?: string;
+          priceV2?: {
+            amount?: number;
+            currencyCode?: string;
+          };
         };
       }[];
     };
@@ -570,10 +589,29 @@ export const getProductRecommendations = async (
         id
         title
         handle
+        productType
         images(first: 1) {
           edges {
             node {
               src
+            }
+          }
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          edges {
+            node {
+              id
+              title
+              priceV2 {
+                amount
+                currencyCode
+              }
             }
           }
         }
@@ -597,7 +635,6 @@ export const getProductRecommendations = async (
     return [];
   }
 };
-
 /*=============================================>>>>>
 = GET COLLECTION BY HANDLE =
 ===============================================>>>>>*/

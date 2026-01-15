@@ -12,6 +12,7 @@ import { ICollectionHeader } from '../objects/collectionHeader';
 interface ICollectionDocument {
   _id: string;
   store: IShopifyCollectionObject;
+    collectionStory?: string; // Add this
   collectionHeader: ICollectionHeader;
   sections: any[];
   sectionsMiddle: any[];
@@ -45,6 +46,16 @@ const collectionDocument = defineType({
     }
   ],
   fields: [
+
+       defineField({
+      name: 'collectionStory',
+      title: 'Collection Story',
+      type: 'text',
+      rows: 4,
+      description: 'The story/narrative for this collection. This will appear on product pages.',
+      group: 'editorial'
+    }),
+
     // Collection hidden status
     defineField({
       name: 'hidden',

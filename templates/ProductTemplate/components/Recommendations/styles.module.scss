@@ -1,5 +1,57 @@
+.recommendationsSection {
+  width: 100%;
+  margin: 3rem 0;
+  padding: 2rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #202020;
+  
+  h2 {
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 1rem;
+  gap: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+    gap: 1rem;
+  }
+}
+
+.productWrapper {
+  width: 100%;
+  
+  // Optional: Control the max size of product cards
+  :global(.product-card) {
+    max-width: 100%;
+    
+    // If ProductCard has image styling issues
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
 }
