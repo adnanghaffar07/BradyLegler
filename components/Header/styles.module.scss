@@ -17,6 +17,12 @@
       top: 0;
       z-index: 2;
     }
+
+    &-static {
+      position: relative;
+      z-index: 2;
+      pointer-events: auto;
+    }
   }
 }
 
