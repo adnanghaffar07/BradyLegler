@@ -6,37 +6,95 @@
   display: flex;
   flex-direction: column-reverse;
   width: 100%;
+  gap: 2rem;
+  
 
   @include media-up(tablet) {
     flex-direction: row;
-    gap: 3rem;
+    gap: 2rem;
     min-height: 100vh;
+    align-items: flex-start;
+      padding-right: 20px;
   }
 }
 
-/* Left Column - Collection Info (Sticky) */
+/* ===========================================
+   LEFT COLUMN - COLLECTION INFO (TOTALLY SEPARATE)
+   =========================================== */
+
+/* Container Styles - LEFT COLUMN ONLY */
 .leftColumn {
   width: 100%;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  display: none;
+  /* Hidden on mobile by default */
 
   @include media-up(tablet) {
-    width: 370px;
-    flex: 0 0 370px;
+    display: block;
+    width: 300px;
+    flex: 0 0 300px;
     margin-bottom: 0;
-    padding-right: 2rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
     position: sticky;
     top: 100px;
     height: fit-content;
     max-height: calc(100vh - 150px);
-    overflow: visible;
+    overflow: auto;
     align-self: flex-start;
+  }
+
+  @media (min-width: 1400px) {
+    width: 400px;
+    flex: 0 0 400px;
   }
 }
 
-/* Center Column - Gallery (Natural Scroll) */
+/* Collection Info Styles - LEFT COLUMN ONLY */
+.collectionInfoLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+
+  @include media-up(tablet) {
+    padding: 2rem;
+    gap: 2rem;
+  }
+}
+
+.collectionHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.collectionNameLeft {
+  color: #000000;
+  font-weight: 400;
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+.collectionStoryLeft {
+  text-align: center;
+}
+
+.storyTextLeft {
+  color: #444444;
+  line-height: 1.8;
+  font-size: 11px;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* ===========================================
+   CENTER COLUMN - GALLERY
+   =========================================== */
+
 .gallery {
   width: 100%;
+  order: 2;
+  /* Gallery second on mobile */
 
   img {
     max-width: 100% !important;
@@ -45,208 +103,198 @@
   }
 
   @include media-up(tablet) {
-    width: auto;
-    flex: 1;
-    /* Natural height - will push section to be taller */
-    align-self: flex-start;
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    /* Allow gallery to shrink below its content width */
+    align-self: center;
   }
 }
 
-/* Right Column - Product Details (Sticky) */
-.container {
+/* ===========================================
+   RIGHT COLUMN - PRODUCT DETAILS (TOTALLY SEPARATE)
+   =========================================== */
+
+/* Container Styles - RIGHT COLUMN ONLY */
+.rightColumn {
   width: 100%;
-  padding: 0;
+  order: 1;
+  /* Product details first on mobile */
 
   @include media-up(tablet) {
+    order: 3;
+    width: 300px;
+    flex: 0 0 300px;
+    min-width: 300px;
+    margin-top: 90px;
+    display: block;
+    margin-bottom: 0;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+    max-height: calc(100vh - 150px);
+    overflow: auto;
+    align-self: flex-start;
+  }
+
+  @media (min-width: 1400px) {
     width: 400px;
     flex: 0 0 400px;
   }
 }
 
-.containerSticky {
+.containerStickyRight {
+  width: 100%;
+
   @include media-up(tablet) {
     position: sticky;
     top: 128px;
     height: fit-content;
     max-height: calc(100vh - 150px);
-    overflow: visible;
+    overflow: auto;
     align-self: flex-start;
   }
 }
 
-.detailsRight {
+.detailsRightSection {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
-  max-width: 100%;
-  margin-top: 20px;
-
-  @include media-up(tablet) {
-    padding: 0 10px;
-    align-items: center;
-  }
-}
-
-.header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  @include media-up(tablet) {
-    justify-content: flex-start;
-  }
-}
-
-/* ===========================================
-   COLLECTION INFO STYLES
-   =========================================== */
-
-.collectionInfo {
-  display: flex;
-  flex-direction: column;
+  font-size: medium;
   gap: 2rem;
-
-  @include media-up(tablet) {
-    padding: 2rem;
-  }
-}
-
-.noCollectionInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-  text-align: center;
-
-  @include media-up(tablet) {
-    padding: 2rem;
-  }
-}
-
-.collectionHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.collectionLabel {
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.collectionName {
-  color: #000000;
-  font-weight: 400;
-  margin: 0;
-  font-size: 13px;
-  text-align: center;
-}
-
-.collectionStory {
-  padding: 1rem 0;
-  text-align: center;
-}
-
-.storyText {
-  color: rgba(61, 61, 61, 0.8);
-  line-height: 1.6;
-  font-size: 12px;
-  font-weight: 300;
-  margin: 0;
-}
-
-.collectionImage {
-  position: relative;
   width: 100%;
-  height: 200px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  box-sizing: border-box;
 
-  .image {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
+  @include media-up(tablet) {
+    padding: 2rem;
+    gap: 2.5rem;
   }
 }
 
-.viewCollectionLink,
-.viewAllCollectionsLink {
-  display: inline-flex;
-  align-items: center;
+.headerRight {
+  display: flex;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  align-items: center;
   text-align: center;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 500;
   width: 100%;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
 }
 
-.noCollectionText {
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
+.headerRight span {
+  font-size: 12px;
+
+}
+
+.productDescriptionRight {
+  width: 100%;
 }
 
 /* ===========================================
-   MOBILE RESPONSIVE
+   RESPONSIVE BREAKPOINTS
    =========================================== */
 
-@media (max-width: 787px) {
-  .leftColumn {
-    order: 1;
-    margin-bottom: 2rem;
-  }
+/* Mobile (default - no media query needed) */
+/* Already handled by column-reverse and 100% widths */
 
-  .gallery {
-    order: 2;
-    margin-bottom: 2rem;
-  }
-
-  .container {
-    order: 3;
-  }
-
-  .collectionInfo,
-  .noCollectionInfo {
-    padding: 1rem;
-  }
-
-  .collectionImage {
-    height: 150px;
-  }
-
-  .detailsRight {
-    margin-top: 0;
-  }
-}
-
-/* Ensure proper ordering on mobile */
-@media (max-width: 767px) {
+/* Tablet (768px and up) */
+@include media-up(tablet) {
   .section {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2rem;
   }
 
   .leftColumn,
-  .gallery,
-  .container {
-    width: 100%;
+  .rightColumn {
+    display: block;
+  }
+}
+
+/* Desktop (1024px and up) */
+@media (min-width: 1024px) {
+  .section {
+    gap: 3rem;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    width: 320px;
+    flex: 0 0 320px;
+  }
+}
+
+/* Large Desktop (1400px and up) */
+@media (min-width: 1400px) {
+  .section {
+    gap: 4rem;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    width: 400px;
+    flex: 0 0 400px;
+  }
+
+  .collectionInfoLeft,
+  .detailsRightSection {
+    padding: 3rem;
+  }
+}
+
+/* Very Large Screens (1600px and up) */
+@media (min-width: 1600px) {
+  .section {
+    max-width: 1920px;
+    margin: 0 auto;
+    gap: 5rem;
+  }
+}
+
+/* Special case for screens between 767px and 1023px */
+@media (min-width: 767px) and (max-width: 1023px) {
+
+  .leftColumn,
+  .rightColumn {
+    width: 250px;
+    flex: 0 0 250px;
+  }
+
+  .section {
+    gap: 1.5rem;
+  }
+
+  .collectionInfoLeft,
+  .detailsRightSection {
+    padding: 1.5rem;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 766px) {
+  .section {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+
+  .leftColumn {
+    order: 3;
+    /* Collection info last on mobile */
+    display: block;
+    /* Show on mobile if you want */
+    margin-top: 4rem;
+  }
+
+  .storyTextLeft {
+    font-size: 11px;
+  }
+
+  .collectionInfoLeft {
+    padding: 1rem;
+    margin-top: 16px;
+  }
+
+  .detailsRightSection {
+    padding: 0.5rem;
+    gap: 1.5rem;
   }
 }

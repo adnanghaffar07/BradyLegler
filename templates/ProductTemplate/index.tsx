@@ -1,6 +1,6 @@
 import Details from './components/Details';
 import Sections from './components/Sections';
-import { getProductByHandle, getProductRecommendations } from '@/tools/apis/shopify';
+import { getCollectionByHandle, getProductByHandle, getProductRecommendations } from '@/tools/apis/shopify';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import { SIZE_GUIDE_QUERY } from '@/tools/sanity/lib/queries.groq';
@@ -8,6 +8,7 @@ import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDoc
 import SplashScreen from '@/components/SplashScreen';
 import { Analytics } from '@/tools/analytics';
 import { groq } from 'next-sanity';
+import Recommendations from './components/Recommendations';
 
 interface WebPageProps extends PageProps {
   data: IProductDocument;
@@ -102,7 +103,7 @@ const ProductTemplate = async (props: WebPageProps) => {
   // If no specific collection found, try any collection
   if (!primaryCollection && shopifyCollections.length > 0) {
     console.log('No specific collection found, trying any collection...');
-    
+
     for (const shopifyCollection of shopifyCollections) {
       try {
         const collection = await sanityFetch<any>({
@@ -145,11 +146,30 @@ const ProductTemplate = async (props: WebPageProps) => {
   console.log('Story:', primaryCollection?.store?.collectionStory);
   console.log('Full object:', primaryCollection);
 
-  // Fetch recommendations safely
-  const shopifyProductRecommendations = sanityProductData?.store?.gid
-    ? await getProductRecommendations(sanityProductData.store.gid)
-    : [];
+  // Get recommendations from the same collection instead
+  let shopifyProductRecommendations = [];
+  
+  if (primaryCollection?.store?.slug?.current) {
+    try {
+      // Fetch collection products
+      const collection = await getCollectionByHandle(primaryCollection.store.slug.current, 1);
+      
+      if (collection?.products?.edges) {
+        // Filter out the current product and take up to 3
+        shopifyProductRecommendations = collection.products.edges
+          .map(({ node }) => node)
+          .filter(product => product.id !== shopifyProductData?.id) // Exclude current product
+          .slice(0, 3);
+      }
+    } catch (error) {
+      console.error('Error fetching collection for recommendations:', error);
+    }
+  }
 
+  // Fallback to Shopify recommendations if no collection
+  if (shopifyProductRecommendations.length === 0 && sanityProductData?.store?.gid) {
+    shopifyProductRecommendations = await getProductRecommendations(sanityProductData.store.gid);
+  }
   // Fetch size guide
   const sanitySizeGuide = await sanityFetch<ISizeGuideDocument>({
     query: SIZE_GUIDE_QUERY,
@@ -178,9 +198,11 @@ const ProductTemplate = async (props: WebPageProps) => {
         sanityProductData={sanityProductData}
         sanitySizeGuide={sanitySizeGuide}
         shopifyProductData={shopifyProductData}
-        // shopifyProductRecommendations={shopifyProductRecommendations}
+        // shopifyProductRecommendations={shopifyProductRecommendations} // Pass this
         primaryCollection={primaryCollection}
       />
+
+      <Recommendations recommendations={shopifyProductRecommendations} />
 
       <Sections sanityProductData={sanityProductData} params={params} searchParams={searchParams} />
     </>

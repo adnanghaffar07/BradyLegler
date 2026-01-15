@@ -26,13 +26,14 @@ const Description = ({
 
   return (
     <div className={styles.container}>
+            <SizeGuide sanitySizeGuide={sanitySizeGuide} collections={collections} />
+
       {description && (
-        <Text className={styles.description} as="p" size="b3">
+        <p className={styles.description} as="p" size="b3">
           <span dangerouslySetInnerHTML={{ __html: description }} />
-        </Text>
+        </p>
       )}
 
-      <SizeGuide sanitySizeGuide={sanitySizeGuide} collections={collections} />
     </div>
   );
 };

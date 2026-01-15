@@ -11,8 +11,6 @@ import { GetProductByHandleResponse } from '@/tools/apis/shopify';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
 import styles from './styles.module.scss';
-import Price from '@/templates/ProductTemplate/components/Price';
-import Image from 'next/image';
 
 interface CollectionData {
   store?: {
@@ -31,9 +29,9 @@ type DetailsProps = {
   primaryCollection?: CollectionData | null;
 };
 
-const Details: React.FC<DetailsProps> = ({ 
-  sanityProductData, 
-  shopifyProductData, 
+const Details: React.FC<DetailsProps> = ({
+  sanityProductData,
+  shopifyProductData,
   sanitySizeGuide,
   primaryCollection
 }) => {
@@ -49,31 +47,31 @@ const Details: React.FC<DetailsProps> = ({
   return (
     <Section theme="dark" spacing="none" full>
       <div className={styles.section}>
-        {/* LEFT COLUMN - Collection Info (Sticky) */}
-    <div className={styles.leftColumn}>
-  {primaryCollection?.store ? (
-    <div className={styles.collectionInfo}>
-      <div className={styles.collectionHeader}>
-        {primaryCollection.store.title && (
-          <Text size="b2" className={styles.collectionName}>
-            {primaryCollection.store.title}
-          </Text>
+        {/* Left Column - Collection Info */}
+        {primaryCollection?.store && (
+          <div className={styles.leftColumn}>
+            <div className={styles.collectionInfoLeft}>
+              <div className={styles.collectionHeaderLeft}>
+                {primaryCollection.store.title && (
+                  <Text size="b2" className={styles.collectionNameLeft}>
+                    {primaryCollection.store.title}
+                  </Text>
+                )}
+              </div>
+
+              {primaryCollection.store.collectionStory &&
+                primaryCollection.store.collectionStory.trim() !== '' && (
+                  <div className={styles.collectionStoryLeft}>
+                    <Text size="b2" className={styles.storyTextLeft}>
+                      {primaryCollection.store.collectionStory}
+                    </Text>
+                  </div>
+                )}
+            </div>
+          </div>
         )}
-      </div>
 
-      {primaryCollection.store.collectionStory &&
-       primaryCollection.store.collectionStory.trim() !== '' && (
-        <div className={styles.collectionStory}>
-          <Text size="b2" className={styles.storyText}>
-            {primaryCollection.store.collectionStory}
-          </Text>
-        </div>
-      )}
-    </div>
-  ) : null}
-</div>
-
-        {/* CENTER COLUMN - Gallery (Natural Scroll) */}
+        {/* Center Column - Gallery */}
         <div className={styles.gallery}>
           <Gallery
             featureMedia={sanityProductData?.featureMedia}
@@ -82,35 +80,31 @@ const Details: React.FC<DetailsProps> = ({
           />
         </div>
 
-        {/* RIGHT COLUMN - Product Details (Sticky) */}
-        <div className={styles.container}>
-          <div className={styles.containerSticky}>
-            <Container>
-              <div id="details" className={styles.detailsRight}>
-                <div className={styles.header}>
-                  <Text size="b2" text={sanityProductData.store.title} />
-                  {/* <Price 
-                    price={price} 
-                    compareAtPrice={compareAtPrice} 
-                  /> */}
-                </div>
+        {/* Right Column - Product Details */}
+        <div className={styles.rightColumn}>
+          <div className={styles.containerStickyRight}>
+            <div id="details" className={styles.detailsRightSection}>
+              <div className={styles.headerRight}>
+                <Text size="b2" text={sanityProductData.store.title} />
+              </div>
 
+              <div className={styles.productDescriptionRight}>
                 <Description
                   title={sanityProductData.store.title}
-                  descriptionHtml={shopifyProductData?.descriptionHtml}
                   sanitySizeGuide={sanitySizeGuide}
+                  descriptionHtml={shopifyProductData?.descriptionHtml}
                   collections={shopifyProductData?.collections}
                 />
-
-                <Form
-                  currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
-                  variants={variants}
-                  sanityProductData={sanityProductData}
-                  setSelectedVariant={setSelectedVariant}
-                  selectedVariant={selectedVariant}
-                />
               </div>
-            </Container>
+
+              <Form
+                currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
+                variants={variants}
+                sanityProductData={sanityProductData}
+                setSelectedVariant={setSelectedVariant}
+                selectedVariant={selectedVariant}
+              />
+            </div>
           </div>
         </div>
       </div>

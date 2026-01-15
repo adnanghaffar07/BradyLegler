@@ -12,7 +12,6 @@ import FormNewsletter from '@/components/Form/FormNewsletter';
 import { IFooterDocument } from '@/tools/sanity/schema/documents/footerDocument';
 import useHeaderTheme from '@/hooks/useHeaderTheme';
 import styles from './styles.module.scss';
-import limitNumber from 'ajv/lib/vocabularies/validation/limitNumber';
 
 interface FooterProps extends IFooterDocument {
   className?: string;

@@ -4,15 +4,21 @@ import { GetProductRecommendationsResponse } from '@/tools/apis/shopify';
 import styles from './styles.module.scss';
 
 const Recommendations = ({ recommendations }: { recommendations: GetProductRecommendationsResponse }) => {
+  if (!recommendations || recommendations.length === 0) return null;
+
   return (
-    <div>
-      <Text as="h2" text="You may also like" size="2xl" />
-      <div className={styles.grid}>
-        {recommendations?.slice(0, 3).map(product => (
-          <ProductCard key={product.id} shopifyProduct={product} />
-        ))}
+    <section className={styles.recommendationsSection}>
+      <div className={styles.container}>
+        <Text as="h2" text="You may also like" size="2xl" className={styles.title} />
+        <div className={styles.grid}>
+          {recommendations.slice(0, 3).map(product => (
+            <div key={product.id} className={styles.productWrapper}>
+              <ProductCard shopifyProduct={product} />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
