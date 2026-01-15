@@ -88,6 +88,9 @@
   color: var(--navigation-color) !important;
   position: relative;
   z-index: 1002;
+  &:hover {
+    color: var(--navigation-color-hover) !important;
+  }
 
   &.disabled {
     pointer-events: none;

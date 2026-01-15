@@ -2,7 +2,7 @@
   display: flex;
   height: auto;
   min-height: 100vh;
-  background-color: var(--brand-ascension-blue);
+  // background-color: var(--brand-ascension-blue);
 
   //&.hover {
   //  .bgImage {
@@ -24,6 +24,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  z-index: 1;
   padding: var(--layout-container-spacing);
 
   position: absolute !important;
@@ -33,84 +34,96 @@
   bottom: 0;
   z-index: 1000;
 
-  @include media-up(tablet) {
+  @include media-up-desktop {
     justify-content: center;
     align-items: flex-end;
   }
 
   .containerSticky {
-    position: relative; // or sticky, if needed
-    z-index: 10; // ensure it’s above background
+    height: 100%; // Match section height for sticky to work
+    min-height: 100%;
+    position: relative;
+    z-index: 10; // ensure it's above background
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end; // Bottom on mobile
+    // background-color: red;
+    
+    @include media-up-desktop {
+      top: 100px;
+      justify-content: center;
+    }
   }
 
   .button {
     position: sticky;
     top: 50%;
     max-width: 200px;
-    @include media-up(tablet) {
-      top: 400px;
+    @include media-up-desktop {
+      top: 100px;
     }
   }
 }
 
 .bgImage {
-  //position: absolute !important;
-  //top: 0;
-  //left: 0;
-  //z-index: -1;
-
-  object-fit: cover;
-  transition: opacity 150ms ease;
-  min-height: 100vh;
-}
-
-// Simple grid approach
-.contentGroup {
-  display: grid;
-  grid-template-columns: 1fr;
-  justify-items: end; // Align everything to right on desktop
-  
-  @include media-up(tablet) {
-    .tagline {
-      grid-column: 1;
-      justify-self: end;
-      text-align: right;
-    }
-    
-    .button {
-      grid-column: 1;
-      justify-self: center; // Center the button
-      margin-top: 1rem;
-    }
-  }
-  
-  @include media-down(tablet) {
-    justify-items: center;
-    
-    .tagline {
-      text-align: center;
-    }
-    
-    .button {
-      justify-self: center;
-    }
-  }
-}
-// ADD video with same styles as bgImage
-.videoContainer {
   // position: absolute !important;
   // top: 0;
   // left: 0;
   // z-index: -1; // Same as bgImage
   width: 100%;
   height: auto;
+  z-index: 0;
   overflow: hidden;
 
-  video, .video {
+  image,
+  .image {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    object-fit: cover;
+  }
+}
+
+// Simple grid approach
+.contentGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; // Position at bottom on mobile
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  padding-bottom: 80px; // Space from bottom on mobile
+
+  .tagline {
+    text-align: center;
+  }
+
+  @include media-up-desktop {
+    align-items: flex-center;
+    justify-content: center;
+    padding-bottom: 0;
+    // padding-top: 50vh; // Only use padding-top on tablet+
+    
+    .tagline {
+      text-align: right;
+    }
+  }
+}
+// ADD video with same styles as bgImage
+.videoContainer {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+
+  video,
+  .video {
     width: 100%;
     height: 100%;
     min-height: 100vh;

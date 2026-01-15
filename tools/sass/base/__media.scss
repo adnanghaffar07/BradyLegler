@@ -104,3 +104,10 @@ $breakpoints: (
     @warn 'Invalid breakpoint: #{$breakpoint}.';
   }
 }
+
+$desktop-start: 890px;
+@mixin media-up-desktop {
+  @media (min-width: $desktop-start) {
+    @content;
+  }
+}

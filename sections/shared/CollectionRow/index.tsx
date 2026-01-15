@@ -95,17 +95,12 @@ interface IHomeCollectionsSection {
   products?: IProduct[];
 }
 
-const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ 
-  title, 
-  products = [] 
-}) => {
-  const [currentImageIndexes, setCurrentImageIndexes] = useState<{[key: string]: number}>({});
+const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ title, products = [] }) => {
+  const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
 
   // Filter valid products
-  const validProducts = products.filter(product => 
-    product?._id && 
-    product?.store?.title && 
-    product?.store?.slug?.current
+  const validProducts = products.filter(
+    product => product?._id && product?.store?.title && product?.store?.slug?.current
   );
 
   // Navigation functions
@@ -166,7 +161,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
         console.log('Checking gallery item:', { img, hasImage });
         return hasImage;
       });
-      
+
       if (sanityImages.length > 0) {
         console.log('✅ Using SANITY GALLERY images');
         source = 'sanityGallery';
@@ -191,19 +186,19 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
   const getCurrentImage = (product: IProduct) => {
     const currentIndex = currentImageIndexes[product._id] || 0;
     const images = getProductImages(product);
-    
+
     if (images.length > 0 && images[currentIndex]) {
       const image = images[currentIndex];
-      
+
       // Handle different image formats
       let imageUrl: string | undefined;
       let altText: string | undefined;
-      
+
       // Gallery image format
       if (image.src) {
         imageUrl = image.src;
         altText = image.altText;
-      } 
+      }
       // Gallery media format
       else if (image.url) {
         imageUrl = image.url;
@@ -219,7 +214,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
         imageUrl = image;
         altText = product.store.title;
       }
-      
+
       if (imageUrl) {
         return {
           src: imageUrl,
@@ -227,7 +222,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
         };
       }
     }
-    
+
     // Fallback to previewImageUrl
     if (product.store.previewImageUrl) {
       return {
@@ -235,7 +230,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
         alt: product.store.title
       };
     }
-    
+
     return null;
   };
 
@@ -347,7 +342,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
         {/* {title && <h2 className={styles.title}>{title}</h2>} */}
 
         <div className={styles.grid}>
-          {validProducts.map((product) => {
+          {validProducts.map(product => {
             const images = getProductImages(product);
             const imagesLength = images.length || (product.store.previewImageUrl ? 1 : 0);
             const hasMultipleImages = imagesLength > 1;
@@ -362,7 +357,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
             });
 
             return (
-              <div 
+              <div
                 key={product._id}
                 className={classNames(styles.item, {
                   [styles.hasMultipleImages]: hasMultipleImages
@@ -370,10 +365,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
               >
                 <div className={styles.imageWrapper}>
                   {currentImage && (
-                    <Link 
-                      href={`/product/${product.store.slug.current}`}
-                      className={styles.link}
-                    >
+                    <Link href={`/product/${product.store.slug.current}`} className={styles.link}>
                       <div className={styles.imageContainer}>
                         <Image
                           src={currentImage.src}
@@ -382,7 +374,7 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
                           alt={currentImage.alt || product.store.title || ''}
                           className={styles.img}
                         />
-                        
+
                         {hasMultipleImages && (
                           <ImageNavigation
                             productId={product._id}
@@ -395,9 +387,9 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({
                     </Link>
                   )}
                 </div>
-                
+
                 <h4 className={styles.name}>{product.store.title}</h4>
-                
+
                 {/* {product.store.priceRange && (
                   <Text
                     text={formatCurrency({ 

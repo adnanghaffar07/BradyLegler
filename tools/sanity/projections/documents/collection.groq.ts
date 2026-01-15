@@ -11,6 +11,7 @@ const collectionProjection = groq`{
     updatedAt,
     isDeleted,
     title,
+    collectionStory,
     id,
     gid,
     slug,

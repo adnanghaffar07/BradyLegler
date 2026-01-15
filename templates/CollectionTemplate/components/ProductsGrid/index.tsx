@@ -59,7 +59,7 @@ const ProductsGrid = ({
   const numVisibleProducts = shopifyCollectionData?.products?.edges?.length || 0;
 
   // Scroll to top of grid after fetching new products or changing layout
-  useScrollToGridTop({ shopifyCollectionData, gridId: 'bl-collection-grid' });
+  // useScrollToGridTop({ shopifyCollectionData, gridId: 'bl-collection-grid' });
 
   // When the user clicks the load more button, increment the page number in the URL
   const nextPage = () => {

@@ -37,8 +37,8 @@ const Header = (props: HeaderProps) => {
   });
 
   if ((isHome || pathname?.startsWith('/gallery')) && pathname !== '/gallery/archive/') {
-    behaviour = 'overlay';
-    appearance = 'dark';
+    behaviour = 'static';
+    appearance = 'light';
   }
 
   if (isCollection || isStory || isProduct) {

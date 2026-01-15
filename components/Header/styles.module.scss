@@ -17,6 +17,12 @@
       top: 0;
       z-index: 2;
     }
+
+    &-static {
+      position: relative;
+      z-index: 2;
+      pointer-events: auto;
+    }
   }
 }
 
@@ -34,8 +40,15 @@
     display: none;
   }
 
-  @include media-up(tablet) {
+  // @include media-up(tablet) {
+  //   padding: 35px 0;
+  //   .navigation {
+  //     display: block;
+  //   }
+  // }
+  @include media-up-desktop {
     padding: 35px 0;
+
     .navigation {
       display: block;
     }
@@ -72,7 +85,7 @@
       transform: translateY(22px) !important;
       z-index: 10 !important;
 
-      @include media-up(tablet) {
+      @include media-up-desktop  {
         transform: translateY(30px) !important;
       }
     }
@@ -98,7 +111,7 @@
     padding: 32px;
     margin-top: -32px;
 
-    @include media-up(tablet) {
+    @include media-up-desktop  {
       width: 250px;
       transform: translateY(30px);
     }
@@ -117,7 +130,7 @@
     width: 23px;
     transform: translateX(-50%) translateY(50%);
 
-    @include media-up(tablet) {
+    @include media-up-desktop  {
       width: 40px;
       transform: translateX(-50%) translateY(50%);
     }

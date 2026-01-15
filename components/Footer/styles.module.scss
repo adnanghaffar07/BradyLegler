@@ -58,6 +58,7 @@
   align-items: center;
   justify-content: center;
   gap: 24px;
+  color: rgb(82, 82, 82);
 
   @include media-up(tablet) {
     justify-content: stretch;
