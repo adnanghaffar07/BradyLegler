@@ -33,6 +33,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
         *[_type == "headerDocument"][0]{
           header{
             navItems[]{
+              _key,
               title,
               side,
               dropdown,
@@ -41,37 +42,68 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                 internalLink->{
                   _type,
                   title,
-                  pathname,
-                  "slug": slug.current
+                  "slug": coalesce(store.slug.current, slug.current, pathname),
+                  pathname
                 }
               },
               navSublinks[]{
+                _key,
                 title,
-                link{
-                  ...,
-                  internalLink->{
-                    _type,
-                    title,
-                    pathname,
-                    "slug": slug.current
-                  }
-                },
-                image{ 
+                image{
                   asset->{
                     _id,
                     url
                   },
                   alt
                 },
+                link{
+                  ...,
+                  internalLink->{
+                    _type,
+                    title,
+                    "slug": coalesce(store.slug.current, slug.current, pathname),
+                    pathname
+                  }
+                },
+                // Level 2 - Collections
                 navSublinks[]{
+                  _key,
                   title,
+                  image{
+                    asset->{
+                      _id,
+                      url
+                    },
+                    alt
+                  },
                   link{
                     ...,
                     internalLink->{
                       _type,
                       title,
-                      pathname,
-                      "slug": slug.current
+                      "slug": coalesce(store.slug.current, slug.current, pathname),
+                      pathname
+                    }
+                  },
+                  // Level 3 - VIP (nested items)
+                  navSublinks[]{
+                    _key,
+                    title,
+                    image{
+                      asset->{
+                        _id,
+                        url
+                      },
+                      alt
+                    },
+                    link{
+                      ...,
+                      internalLink->{
+                        _type,
+                        title,
+                        "slug": coalesce(store.slug.current, slug.current, pathname),
+                        pathname
+                      }
                     }
                   }
                 }
@@ -81,8 +113,14 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
         }
       `;
 
-      const data = await client.fetch(query);
-      setNavItems(data?.header?.navItems || []);
+      try {
+        const data = await client.fetch(query);
+        console.log('Navigation data loaded');
+        setNavItems(data?.header?.navItems || []);
+      } catch (error) {
+        console.error('Error fetching navigation:', error);
+        setNavItems([]);
+      }
     };
     fetchNav();
   }, []);
@@ -108,47 +146,63 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     setTimeout(() => setIsAnimating(false), 300);
   };
 
-  // Open nested submenu
-  const openSubMenu = (sublink: any, parentLevel: number) => {
-    if (isAnimating || !sublink.navSublinks?.length) return;
+const openSubMenu = (sublink: any, parentLevel: number) => {
+  if (isAnimating || !sublink.navSublinks?.length) return;
 
-    setIsAnimating(true);
-    setSubMenuStack(prev => {
-      const updated = prev
-        .slice(0, parentLevel + 1)
-        .map((lvl, i) => (i === parentLevel ? { ...lvl, activeItem: sublink } : lvl));
-      updated.push({
-        level: parentLevel + 1,
-        parentTitle: sublink.title,
-        items: sublink.navSublinks || [],
-        image: sublink.image
-      });
-      return updated;
-    });
-    setTimeout(() => setIsAnimating(false), 300);
-  };
-
-  // Go back in menu hierarchy
-  const goBack = () => {
-    if (isAnimating) return;
-
-    setIsAnimating(true);
-    if (subMenuStack.length > 0) {
-      setSubMenuStack(prev => prev.slice(0, -1));
+  setIsAnimating(true);
+  
+  setSubMenuStack(prev => {
+    // Simply add the new level to the stack
+    const newStack = [...prev];
+    
+    // Remove any levels beyond the current one (to prevent loops)
+    if (newStack.length > parentLevel + 1) {
+      newStack.length = parentLevel + 1;
     }
-    setTimeout(() => setIsAnimating(false), 300);
-  };
+    
+    // Add new level
+    newStack.push({
+      level: newStack.length,
+      parentTitle: sublink.title,
+      items: sublink.navSublinks || [],
+      image: sublink.image || (newStack.length > 0 ? newStack[newStack.length - 1]?.image : undefined)
+    });
+    
+    console.log('Stack updated. New levels:', newStack.map(l => l.parentTitle));
+    
+    return newStack;
+  });
+  
+  setTimeout(() => setIsAnimating(false), 300);
+};
+// Go back in menu hierarchy - FIXED VERSION
+const goBack = () => {
+  if (isAnimating || subMenuStack.length === 0) return;
 
+  setIsAnimating(true);
+  setSubMenuStack(prev => {
+    console.log('Going back from stack length:', prev.length);
+    const newStack = prev.slice(0, -1);
+    console.log('New stack length:', newStack.length);
+    return newStack;
+  });
+  setTimeout(() => setIsAnimating(false), 300);
+};
   // Close all menus
-  const closeAllMenus = () => {
-    setIsAnimating(true);
-    setMobileNavOpen(false);
-    setContactSidebarOpen(false);
-    setTimeout(() => {
-      setSubMenuStack([]);
-      setIsAnimating(false);
-    }, 300);
-  };
+const closeAllMenus = () => {
+  if (isAnimating) return;
+  
+  setIsAnimating(true);
+  setMobileNavOpen(false);
+  setContactSidebarOpen(false);
+  
+  // Clear the menu stack immediately
+  setSubMenuStack([]);
+  
+  setTimeout(() => {
+    setIsAnimating(false);
+  }, 300);
+};
 
   // Handle hamburger button click
   const handleHamburgerClick = () => {
@@ -205,26 +259,21 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     // Handle internal links
     if (link.linkType === 'internal') {
       const internalLink = link.internalLink;
-
       if (!internalLink) return '#';
 
-      // Handle Collection documents
-      if (internalLink._type === 'collection') {
-        if (internalLink.handle) return `/${internalLink.handle}`;
-        if (internalLink.slug) return `/${internalLink.slug}`;
-        if (itemTitle) return `/${generateSlug(itemTitle)}`;
-        if (internalLink.title) return `/${generateSlug(internalLink.title)}`;
-        return '#';
-      }
-
-      // Handle other document types
+      // Priority order for determining URL
       if (internalLink.pathname) return internalLink.pathname;
-      if (internalLink.slug) return internalLink.slug === '' ? '/' : `/${internalLink.slug}`;
+      if (internalLink.slug) return `/${internalLink.slug}`;
 
-      // Fallback to title
+      // Fallback to title-based slug generation
       if (itemTitle) return `/${generateSlug(itemTitle)}`;
       if (internalLink.title) return `/${generateSlug(internalLink.title)}`;
 
+      return '#';
+    }
+
+    // Handle action links
+    if (link.linkType === 'action') {
       return '#';
     }
 
@@ -233,7 +282,15 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
 
   // Get current menu level
   const currentLevel = subMenuStack.length > 0 ? subMenuStack[subMenuStack.length - 1] : null;
-
+useEffect(() => {
+  if (!mobileNavOpen) {
+    // Reset menu state when mobile nav closes
+    setTimeout(() => {
+      setSubMenuStack([]);
+      setIsAnimating(false);
+    }, 300);
+  }
+}, [mobileNavOpen]);
   return (
     <>
       {/* Mobile Header Container */}
@@ -284,7 +341,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 openMenu(navItem);
                               }}
                             >
-                              <Text text={navItem.title} size="lg" />
+                              <Text text={navItem.title} size="sm" />
                               <Icon title="chevronRight" className={styles.navIcon} />
                             </button>
                           ) : (
@@ -294,7 +351,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                               onClick={closeAllMenus}
                               className={styles.navLink}
                             >
-                              <Text text={navItem.title} size="lg" />
+                              <Text text={navItem.title} size="sm" />
                             </Link>
                           )}
                         </li>
@@ -331,7 +388,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
 
                   <ul className={styles.links}>
                     {currentLevel.items.map((item: any) => (
-                      <li key={item.title} className={styles.linkItem}>
+  <li key={`${item.title}-${currentLevel.level}`} className={styles.linkItem}>
                         {item.navSublinks?.length ? (
                           <button
                             className={styles.navButton}

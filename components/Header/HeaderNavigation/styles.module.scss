@@ -2,8 +2,8 @@
 .navigationItems {
   display: flex;
   justify-content: space-between;
-  font-size: 16px;
   font-weight: 400;
+    font-size: 12px;
   line-height: 17.28px;
   letter-spacing: 0.05em;
   user-select: none;
@@ -17,7 +17,6 @@
     gap: 64px;
   }
 }
-
 .backButton {
   display: flex;
   align-items: center;
@@ -88,6 +87,7 @@
   color: var(--navigation-color) !important;
   position: relative;
   z-index: 1002;
+
   &:hover {
     color: var(--navigation-color-hover) !important;
   }
@@ -124,11 +124,14 @@ button.navigationLink::after {
   content: '';
   position: absolute;
   left: 0;
-  bottom: -2px; /* gap between text and underline */
+  bottom: -2px;
+  /* gap between text and underline */
   width: 100%;
-  height: 1px; /* thinner line */
+  height: 1px;
+  /* thinner line */
   background: var(--navigation-color-hover);
-  transform: scaleX(0); /* start hidden */
+  transform: scaleX(0);
+  /* start hidden */
   transform-origin: left;
   transition: transform 0.3s ease;
 }
@@ -138,7 +141,8 @@ button.navigationLink:hover {
 }
 
 button.navigationLink:hover::after {
-  transform: scaleX(1); /* animate line from left to right */
+  transform: scaleX(1);
+  /* animate line from left to right */
 }
 
 .navigationLinkWrapper {
@@ -307,7 +311,7 @@ button.navigationLink:hover::after {
 .menuLevel {
   position: absolute;
   top: 0;
-  width: 70%; // FULL width of sidebar container
+  width: 70%; // Default width
   height: 100%;
   background: white;
   transition: left 0.3s ease;
@@ -316,6 +320,11 @@ button.navigationLink:hover::after {
 
   &.menuLevelActive {
     z-index: 1002;
+  }
+
+  // Target the last level specifically
+  &:last-child {
+    width: 60%; // Reduced width for last level
   }
 }
 
@@ -340,6 +349,7 @@ button.navigationLink:hover::after {
   letter-spacing: 0.05em;
   color: var(--navigation-color) !important;
   transition: color 150ms ease;
+  padding: 0;
 
   &.active {
     color: black !important;
@@ -415,11 +425,32 @@ button.navigationLink:hover::after {
 
 .levelImage {
   max-width: 100%;
-  max-height: 400px;
+  max-height: 200px; 
   object-fit: contain;
   border-radius: 8px;
+  transition: max-height 0.3s ease;
 }
 
+/* Tablet styles (768px and above) */
+@media screen and (min-width: 768px) {
+  .levelImage {
+    max-height: 100px; /* Reduced to 100px for tablets */
+  }
+}
+
+/* Small desktop/laptop (1024px and above) */
+@media screen and (min-width: 1024px) {
+  .levelImage {
+    max-height: 120px; /* Increased to 120px for medium screens */
+  }
+}
+
+/* Large desktop (1280px and above) */
+@media screen and (min-width: 1280px) {
+  .levelImage {
+    max-height: 200px; /* Increased to 130px for large screens */
+  }
+}
 // Contact SideBar
 
 // Ensure contact button is covered by overlay
@@ -512,7 +543,7 @@ button.navigationLink:hover::after {
 }
 
 // When sidebar is open, adjust overlay z-index if needed
-.sidebarOpen + .overlay {
+.sidebarOpen+.overlay {
   z-index: 999;
 }
 
@@ -580,7 +611,7 @@ button.navigationLink:hover::after {
 }
 
 .navigationLinkIcon {
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   transition: transform 150ms ease;
 }
