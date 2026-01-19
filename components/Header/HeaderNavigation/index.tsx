@@ -18,6 +18,7 @@ type SubMenuState = {
   items: any[];
   activeItem?: any;
   image?: any;
+  inheritedImage?: any; // Track inherited image from parent
 };
 
 const HeaderNavigation = ({ className, display }: { className?: string; display: 'left' | 'right' | 'all' }) => {
@@ -28,6 +29,29 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
+  // In your component
+  const [menuOffsets, setMenuOffsets] = useState([0, 70, 140, 210]);
+
+  useEffect(() => {
+    const updateOffsets = () => {
+      const width = window.innerWidth;
+      if (width >= 1536) {
+        setMenuOffsets([0, 130, 250, 370]);
+      } else if (width >= 1280) {
+        setMenuOffsets([0, 120, 230, 340]);
+      } else if (width >= 1024) {
+        setMenuOffsets([0, 110, 210, 310]);
+      } else if (width >= 768) {
+        setMenuOffsets([0, 100, 190, 280]);
+      } else {
+        setMenuOffsets([0, 70, 140, 210]);
+      }
+    };
+
+    updateOffsets();
+    window.addEventListener('resize', updateOffsets);
+    return () => window.removeEventListener('resize', updateOffsets);
+  }, []);
 
   // Fetch header nav via GROQ
   useEffect(() => {
@@ -39,47 +63,70 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
               title,
               side,
               dropdown,
-
               link{
                 ...,
                 internalLink->{
                   _type,
                   title,
-                  pathname,
-                  "slug": slug.current
+                  "slug": coalesce(store.slug.current, slug.current, pathname),
+                  pathname
                 }
               },
-
               navSublinks[]{
                 title,
-
-                link{
-                  ...,
-                  internalLink->{
-                    _type,
-                    title,
-                    pathname,
-                    "slug": slug.current
-                  }
-                },
-
-                image{ 
+                image{
                   asset->{
                     _id,
                     url
                   },
                   alt
                 },
-
+                link{
+                  ...,
+                  internalLink->{
+                    _type,
+                    title,
+                    "slug": coalesce(store.slug.current, slug.current, pathname),
+                    pathname
+                  }
+                },
+                // Level 2 - Collections
                 navSublinks[]{
                   title,
+                  image{
+                    asset->{
+                      _id,
+                      url
+                    },
+                    alt
+                  },
                   link{
                     ...,
                     internalLink->{
                       _type,
                       title,
-                      pathname,
-                      "slug": slug.current
+                      "slug": coalesce(store.slug.current, slug.current, pathname),
+                      pathname
+                    }
+                  },
+                  // Level 3 - VIP (nested items)
+                  navSublinks[]{
+                    title,
+                    image{
+                      asset->{
+                        _id,
+                        url
+                      },
+                      alt
+                    },
+                    link{
+                      ...,
+                      internalLink->{
+                        _type,
+                        title,
+                        "slug": coalesce(store.slug.current, slug.current, pathname),
+                        pathname
+                      }
                     }
                   }
                 }
@@ -89,50 +136,60 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
         }
       `;
 
-      const data = await client.fetch(query);
-      console.log('Fetched nav items:', data);
-      setNavItems(data?.header?.navItems || []);
+      try {
+        const data = await client.fetch(query);
+        console.log('Navigation data loaded');
+        setNavItems(data?.header?.navItems || []);
+      } catch (error) {
+        console.error('Error fetching navigation:', error);
+        setNavItems([]);
+      }
     };
     fetchNav();
   }, []);
 
   const filteredLinks = navItems.filter(navItem => navItem.side === display || display === 'all');
 
-  // Open first-level submenu
-  const openMenu = (navItem: any) => {
-    if (isAnimating || !navItem.navSublinks?.length) return;
+  // Open menu at any level
+  const openMenu = (items: any[], title: string, image?: any, level?: number, parentImage?: any) => {
+    if (isAnimating || !items?.length) return;
 
     setIsAnimating(true);
-    setSidebarOpen(true);
-    setSubMenuStack([
-      {
-        level: 0,
-        parentTitle: navItem.title,
-        items: navItem.navSublinks,
-        image: navItem.image
-      }
-    ]);
 
-    setTimeout(() => setIsAnimating(false), 400);
-  };
+    // Determine which image to use: current item's image or inherited from parent
+    const imageToUse = image || parentImage;
 
-  // Open nested submenu
-  const openSubMenu = (sublink: any, parentLevel: number) => {
-    if (isAnimating || !sublink.navSublinks?.length) return;
+    if (level !== undefined) {
+      // Opening nested menu - keep previous levels
+      const currentLevelImage = subMenuStack[level]?.image;
 
-    setIsAnimating(true);
-    setSubMenuStack(prev => {
-      const updated = prev
-        .slice(0, parentLevel + 1)
-        .map((lvl, i) => (i === parentLevel ? { ...lvl, activeItem: sublink } : lvl));
-      updated.push({
-        level: parentLevel + 1,
-        parentTitle: sublink.title,
-        items: sublink.navSublinks,
-        image: sublink.image
+      setSubMenuStack(prev => {
+        const updated = prev.slice(0, level + 1);
+        updated[level] = {
+          ...updated[level],
+          activeItem: { title, image: imageToUse }
+        };
+        updated.push({
+          level: level + 1,
+          parentTitle: title,
+          items,
+          image: imageToUse,
+          inheritedImage: imageToUse // Pass current image for next level
+        });
+        return updated;
       });
-      return updated;
-    });
+    } else {
+      // Opening first-level menu
+      setSidebarOpen(true);
+      setSubMenuStack([{
+        level: 0,
+        parentTitle: title,
+        items,
+        image: imageToUse,
+        inheritedImage: imageToUse
+      }]);
+    }
+
     setTimeout(() => setIsAnimating(false), 300);
   };
 
@@ -153,13 +210,13 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     }, 400);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
-      closeSidebar();
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        closeSidebar();
+      }
+    };
+
     if (sidebarOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.body.style.overflow = 'hidden';
@@ -174,26 +231,21 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     };
   }, [sidebarOpen]);
 
-  const getCurrentLevel = () => subMenuStack[subMenuStack.length - 1];
-
   // Helper function to convert text to URL-friendly slug
   const generateSlug = (text: string) => {
     if (!text) return '#';
-
     return text
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-') // Replace multiple - with single -
-      .replace(/^-+/, '') // Trim - from start of text
-      .replace(/-+$/, ''); // Trim - from end of text
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '');
   };
 
   const resolveLink = (link: any, itemTitle?: string) => {
     if (!link) return '#';
-
-    console.log('Resolving link:', link);
 
     // Handle external links
     if (link.linkType === 'external') {
@@ -203,67 +255,50 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     // Handle internal links
     if (link.linkType === 'internal') {
       const internalLink = link.internalLink;
+      if (!internalLink) return '#';
 
-      if (!internalLink) {
-        console.log('No internal link found');
-        return '#';
-      }
+      // Priority order for determining URL
+      if (internalLink.pathname) return internalLink.pathname;
+      if (internalLink.slug) return `/${internalLink.slug}`;
 
-      // Handle Collection documents specifically
-      if (internalLink._type === 'collection') {
-        // First try existing handle/slug
-        if (internalLink.handle) return `/${internalLink.handle}`;
-        if (internalLink.slug) return `/${internalLink.slug}`;
+      // Fallback to title-based slug generation
+      if (itemTitle) return `/${generateSlug(itemTitle)}`;
+      if (internalLink.title) return `/${generateSlug(internalLink.title)}`;
 
-        // Fallback: use the item title to generate slug
-        if (itemTitle) {
-          const generatedSlug = generateSlug(itemTitle);
-          console.log(`Generated slug from title "${itemTitle}": /${generatedSlug}`);
-          return `/${generatedSlug}`;
-        }
+      return '#';
+    }
 
-        // If no title available, try internalLink title
-        if (internalLink.title) {
-          const generatedSlug = generateSlug(internalLink.title);
-          console.log(`Generated slug from internal title "${internalLink.title}": /${generatedSlug}`);
-          return `/${generatedSlug}`;
-        }
-
-        console.warn('Collection link has no handle, slug, or title');
-        return '#';
-      }
-
-      // Handle other document types (pages, products, etc.)
-      if (internalLink.pathname) {
-        return internalLink.pathname;
-      }
-
-      if (internalLink.slug) {
-        if (internalLink.slug === '') return '/';
-        return `/${internalLink.slug}`;
-      }
-
-      // For other internal links without slug/pathname, try title fallback
-      if (itemTitle) {
-        const generatedSlug = generateSlug(itemTitle);
-        console.log(`Generated slug for ${internalLink._type} from title "${itemTitle}": /${generatedSlug}`);
-        return `/${generatedSlug}`;
-      }
-
-      if (internalLink.title) {
-        const generatedSlug = generateSlug(internalLink.title);
-        console.log(
-          `Generated slug for ${internalLink._type} from internal title "${internalLink.title}": /${generatedSlug}`
-        );
-        return `/${generatedSlug}`;
-      }
-
-      console.warn(`Linked ${internalLink._type} has no pathname, slug, or title`);
+    // Handle action links
+    if (link.linkType === 'action') {
       return '#';
     }
 
     return '#';
   };
+
+  // Get current image - check current level first, then fall back to parent
+  const getCurrentImage = () => {
+    if (!subMenuStack.length) return null;
+
+    const currentLevel = subMenuStack[subMenuStack.length - 1];
+
+    // Check current level image
+    if (currentLevel.image?.asset?.url) {
+      return currentLevel.image;
+    }
+
+    // Fall back to previous level image
+    if (subMenuStack.length > 1) {
+      const parentLevel = subMenuStack[subMenuStack.length - 2];
+      if (parentLevel.image?.asset?.url) {
+        return parentLevel.image;
+      }
+    }
+
+    return null;
+  };
+
+
 
   return (
     <div className={classes}>
@@ -274,17 +309,13 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
             key={navItem.title}
             className={classNames(styles.navigationItem, {
               [styles.withSublinks]: navItem.navSublinks?.length,
-              [styles.active]: getCurrentLevel()?.parentTitle === navItem.title
+              [styles.active]: subMenuStack[0]?.parentTitle === navItem.title
             })}
           >
             {navItem.title?.toLowerCase() === 'concierge' ? (
               <button
                 className={styles.navigationLink}
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setContactSidebarOpen(true);
-                }}
+                onClick={() => setContactSidebarOpen(true)}
               >
                 <span className={styles.navText}>{navItem.title}</span>
               </button>
@@ -293,11 +324,10 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 variant="normal-sm"
                 href={navItem.dropdown ? '#' : resolveLink(navItem.link, navItem.title)}
                 className={styles.navigationLink}
-                onClick={e => {
+                onClick={(e) => {
                   if (navItem.navSublinks?.length) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    openMenu(navItem);
+                    openMenu(navItem.navSublinks, navItem.title, navItem.image);
                   }
                 }}
               >
@@ -325,9 +355,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
           [styles.sidebarOpen]: sidebarOpen,
           [styles.sidebarAnimating]: isAnimating
         })}
-        style={{
-          width: `${15 + subMenuStack.length * 15}%`
-        }}
+        style={{ width: `${15 + subMenuStack.length * 12}%` }}
       >
         <div className={styles.sidebarContent}>
           {/* Current submenu levels */}
@@ -338,54 +366,64 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 className={classNames(styles.menuLevel, {
                   [styles.menuLevelActive]: levelIndex === subMenuStack.length - 1
                 })}
-                style={{ left: `${levelIndex * 140}px` }}
+                style={{
+                  left: `${menuOffsets[levelIndex] || levelIndex * 120}px`
+                }}
               >
                 <div className={styles.levelLayout}>
                   {/* LEFT: Links */}
                   <ul className={styles.sidebarNavigation}>
-                    {menuLevel.items.map((item: any) => (
-                      <li
-                        key={item.title}
-                        className={classNames(styles.sidebarItem, {
-                          [styles.active]: menuLevel.activeItem === item
-                        })}
-                      >
-                        {item.navSublinks?.length ? (
-                          <button
-                            className={classNames(styles.sidebarLinkButton, {
-                              [styles.active]: menuLevel.activeItem === item
-                            })}
-                            onClick={() => openSubMenu(item, levelIndex)}
-                          >
-                            <Text text={item.title} />
-                            {item.navSublinks?.length && <Icon title="chevronRight" className={styles.submenuIcon} />}
-                          </button>
-                        ) : (
-                          <Link
-                            href={resolveLink(item.link, item.title)}
-                            className={styles.sidebarLink}
-                            onClick={closeSidebar}
-                          >
-                            <Text text={item.title} />
-                          </Link>
-                        )}
-                      </li>
-                    ))}
+                    {menuLevel.items.map((item: any, index: number) => {
+                      const hasNestedItems = item.navSublinks?.length > 0;
+                      const isDropdownItem = hasNestedItems || !item.link;
+
+                      return (
+                        <li
+                          key={`${item.title}-${index}`}
+                          className={classNames(styles.sidebarItem, {
+                            [styles.active]: menuLevel.activeItem?.title === item.title
+                          })}
+                        >
+                          {isDropdownItem ? (
+                            <button
+                              className={classNames(styles.sidebarLinkButton, {
+                                [styles.active]: menuLevel.activeItem?.title === item.title
+                              })}
+                              onClick={() => openMenu(
+                                item.navSublinks || [],
+                                item.title,
+                                item.image,
+                                levelIndex,
+                                menuLevel.image // Pass current level image as parent image
+                              )}
+                            >
+                              <Text text={item.title} />
+                              {hasNestedItems && <Icon title="chevronRight" className={styles.submenuIcon} />}
+                            </button>
+                          ) : (
+                            <Link
+                              href={resolveLink(item.link, item.title)}
+                              className={styles.sidebarLink}
+                              onClick={closeSidebar}
+                            >
+                              <Text text={item.title} />
+                            </Link>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
 
-                  {/* RIGHT: Image */}
-                  {menuLevel.image?.asset?.url && (
-                    <div
-                      className={classNames(styles.levelImageWrapper, {
-                        [styles.imageAnimating]: sidebarOpen
-                      })}
-                    >
+                  {/* RIGHT: Image - Use getCurrentImage to show appropriate image */}
+                  {getCurrentImage()?.asset?.url && (
+                    <div className={styles.levelImageWrapper}>
                       <Image
-                        src={menuLevel.image.asset.url}
-                        alt={menuLevel.image.alt || menuLevel.parentTitle || 'Menu image'}
-                        width={300}
-                        height={400}
+                        src={getCurrentImage().asset.url}
+                        alt={getCurrentImage().alt || menuLevel.parentTitle || 'Menu image'}
+                        width={200}
+                        height={200}
                         className={styles.levelImage}
+                        priority={levelIndex === 0}
                       />
                     </div>
                   )}
@@ -403,3 +441,4 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
 };
 
 export default HeaderNavigation;
+
