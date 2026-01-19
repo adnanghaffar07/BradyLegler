@@ -134,11 +134,11 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     if (isAnimating || !navItem.navSublinks?.length) return;
 
     setIsAnimating(true);
+
     setSubMenuStack([
       {
-        level: 0,
         parentTitle: navItem.title,
-        items: navItem.navSublinks || [],
+        items: navItem.navSublinks,
         image: navItem.image
       }
     ]);
@@ -146,63 +146,52 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     setTimeout(() => setIsAnimating(false), 300);
   };
 
-const openSubMenu = (sublink: any, parentLevel: number) => {
-  if (isAnimating || !sublink.navSublinks?.length) return;
 
-  setIsAnimating(true);
-  
-  setSubMenuStack(prev => {
-    // Simply add the new level to the stack
-    const newStack = [...prev];
-    
-    // Remove any levels beyond the current one (to prevent loops)
-    if (newStack.length > parentLevel + 1) {
-      newStack.length = parentLevel + 1;
-    }
-    
-    // Add new level
-    newStack.push({
-      level: newStack.length,
-      parentTitle: sublink.title,
-      items: sublink.navSublinks || [],
-      image: sublink.image || (newStack.length > 0 ? newStack[newStack.length - 1]?.image : undefined)
+  const openSubMenu = (sublink: any) => {
+    if (isAnimating || !sublink.navSublinks?.length) return;
+
+    setIsAnimating(true);
+
+    setSubMenuStack(prev => {
+      // slice to current level only
+      const newStack = prev.slice(0);
+
+      newStack.push({
+        parentTitle: sublink.title,
+        items: sublink.navSublinks,
+        image: sublink.image ?? prev[prev.length - 1]?.image
+      });
+
+      return newStack;
     });
-    
-    console.log('Stack updated. New levels:', newStack.map(l => l.parentTitle));
-    
-    return newStack;
-  });
-  
-  setTimeout(() => setIsAnimating(false), 300);
-};
-// Go back in menu hierarchy - FIXED VERSION
-const goBack = () => {
-  if (isAnimating || subMenuStack.length === 0) return;
 
-  setIsAnimating(true);
-  setSubMenuStack(prev => {
-    console.log('Going back from stack length:', prev.length);
-    const newStack = prev.slice(0, -1);
-    console.log('New stack length:', newStack.length);
-    return newStack;
-  });
-  setTimeout(() => setIsAnimating(false), 300);
-};
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  // Go back in menu hierarchy - FIXED VERSION
+  const goBack = () => {
+    if (isAnimating || subMenuStack.length === 0) return;
+
+    setIsAnimating(true);
+    setSubMenuStack(prev => prev.slice(0, -1));
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
   // Close all menus
-const closeAllMenus = () => {
-  if (isAnimating) return;
-  
-  setIsAnimating(true);
-  setMobileNavOpen(false);
-  setContactSidebarOpen(false);
-  
-  // Clear the menu stack immediately
-  setSubMenuStack([]);
-  
-  setTimeout(() => {
-    setIsAnimating(false);
-  }, 300);
-};
+  const closeAllMenus = () => {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+    setMobileNavOpen(false);
+    setContactSidebarOpen(false);
+
+    // Clear the menu stack immediately
+    setSubMenuStack([]);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  };
 
   // Handle hamburger button click
   const handleHamburgerClick = () => {
@@ -282,15 +271,15 @@ const closeAllMenus = () => {
 
   // Get current menu level
   const currentLevel = subMenuStack.length > 0 ? subMenuStack[subMenuStack.length - 1] : null;
-useEffect(() => {
-  if (!mobileNavOpen) {
-    // Reset menu state when mobile nav closes
-    setTimeout(() => {
-      setSubMenuStack([]);
-      setIsAnimating(false);
-    }, 300);
-  }
-}, [mobileNavOpen]);
+  useEffect(() => {
+    if (!mobileNavOpen) {
+      // Reset menu state when mobile nav closes
+      setTimeout(() => {
+        setSubMenuStack([]);
+        setIsAnimating(false);
+      }, 300);
+    }
+  }, [mobileNavOpen]);
   return (
     <>
       {/* Mobile Header Container */}
@@ -388,14 +377,15 @@ useEffect(() => {
 
                   <ul className={styles.links}>
                     {currentLevel.items.map((item: any) => (
-  <li key={`${item.title}-${currentLevel.level}`} className={styles.linkItem}>
+                      <li key={`${item._key}-${subMenuStack.length}`} className={styles.linkItem}>
+
                         {item.navSublinks?.length ? (
                           <button
                             className={styles.navButton}
                             onClick={e => {
                               e.preventDefault();
                               e.stopPropagation();
-                              openSubMenu(item, currentLevel.level);
+                              openSubMenu(item);
                             }}
                           >
                             <Text text={item.title} size="md" />
