@@ -6,6 +6,8 @@ import { client as sanityClient } from '@/tools/sanity/lib/client';
 
 type ImageSanityProps = {
   asset: any;
+  crop?: any;
+  hotspot?: any;
   className?: string;
   sizes?: string;
   alt: string;
@@ -24,11 +26,14 @@ type ImageSanityProps = {
 };
 
 const ImageSanity: React.FC<ImageSanityProps> = props => {
-  const { asset, sizes, className, quality, alt, fill, placeholder, onError, priority, error, fallback } = props;
+  const { asset, crop, hotspot, sizes, className, quality, alt, fill, placeholder, onError, priority, error, fallback } = props;
 
   let imageProps: Partial<ImageProps> = {};
 
-  const sanityImage: any = useNextSanityImage(sanityClient, asset);
+  // Create the full image object with crop and hotspot for useNextSanityImage
+  const imageObject = crop || hotspot ? { asset, crop, hotspot } : asset;
+  
+  const sanityImage: any = useNextSanityImage(sanityClient, imageObject);
 
   if (sanityImage && sanityImage?.src && !error) {
     imageProps = { ...sanityImage, placeholder: 'empty' };

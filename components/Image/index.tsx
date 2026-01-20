@@ -11,6 +11,18 @@ import styles from './styles.module.scss';
 
 export type ImagePropsSanity = {
   asset: SanityImageAsset;
+  crop?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+  hotspot?: {
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+  };
   altText?: string;
   className?: string;
   quality?: number;
@@ -89,6 +101,8 @@ const Image = (props: ImageProps) => {
         <ImageSanity
           alt={props?.altText || asset?.altText || 'Image'}
           asset={props?.asset}
+          crop={(props as any)?.crop}
+          hotspot={(props as any)?.hotspot}
           className={styles.image}
           sizes={sizesAttributes}
           onError={setError}
