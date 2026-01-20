@@ -112,7 +112,7 @@ const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDoc
           )}
         </div>
       </Section>
-      <Section className={styles.spacer} theme={logoTheme || 'dark'}>
+      <Section className={styles.spacer} theme="light" removeBottomSpacing removeTopSpacing spacing="none">
         <div />
       </Section>
     </>
