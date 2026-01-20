@@ -5,6 +5,8 @@ const imageProjection = groq`{
     ...,
     metadata
   },
+  crop,
+  hotspot,
   altText,
   aspectRatio,
 }`;

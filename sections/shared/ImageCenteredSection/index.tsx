@@ -21,7 +21,7 @@ const ImageCenteredSection: React.FC<IImageCenteredSection> = props => {
   };
 
   return (
-    <Section name="ImageCenteredSection" theme="dark" full removeBottomSpacing removeTopSpacing>
+    <Section className='section' name="ImageCenteredSection" theme="dark" full removeBottomSpacing removeTopSpacing>
       <div
         className={classNames(styles.container, styles[`layout-${layout || 'small'}`], {
           [styles.hover]: isHover

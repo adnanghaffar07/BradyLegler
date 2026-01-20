@@ -10,8 +10,24 @@ type SanityImageAsset = {
   };
 };
 
+type SanityCrop = {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+type SanityHotspot = {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+};
+
 type SanityImageSimple = {
   asset: SanityImageAsset;
+  crop?: SanityCrop;
+  hotspot?: SanityHotspot;
   altText?: string;
 };
 

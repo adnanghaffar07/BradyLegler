@@ -33,7 +33,7 @@
 }
 
 .header {
-  position: absolute !important;
+  position: sticky !important;
   top: 0;
   left: 0;
   width: 100%;
@@ -126,8 +126,6 @@
 }
 
 .spacer {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  pointer-events: none;
+   margin-bottom: -180px;
+   background-color: #ffffff;
 }

@@ -112,7 +112,8 @@ const productDocument = defineType({
         { type: 'imageCenteredSection' },
         { type: `linksSection` },
         { type: `listArtwork` },
-        { type: 'discoverMoreSection' }
+        { type: 'discoverMoreSection' },
+        { type: 'homeCollections' }
       ],
       components: { input: SectionLibrary },
       group: 'editorial'

@@ -1,43 +1,72 @@
-// In homeCollections.ts
-import { defineType } from 'sanity';
+import { defineType, defineField } from 'sanity';
 import { FiGrid } from 'react-icons/fi';
+import defaultSectionGroups from '../../common/defaultSectionGroups';
+import internalLabelField from '../../common/internalLabelField';
+import ReadOnlyImageInput from '../../../components/ReadOnlyImageInput';
+import thumbnail from '../../../../../sections/shared/CollectionRow/thumbnail.png';
+
+interface IHomeCollectionsSection {
+  title?: string;
+  products: any[];
+}
 
 export const homeCollections = defineType({
   name: 'homeCollections',
-  title: 'Home Products Section',
-  type: 'document',
+  title: 'Home Collections Section',
+  type: 'object',
+  groups: defaultSectionGroups,
   icon: FiGrid,
   fields: [
+    internalLabelField,
+    {
+      name: 'sectionPreview',
+      title: 'Section Preview',
+      type: 'image',
+      components: { input: ReadOnlyImageInput },
+      // @ts-ignore
+      imageUrl: thumbnail.src,
+      readOnly: true,
+      group: 'internal'
+    },
     {
       name: 'title',
       title: 'Section Title',
-      type: 'string'
+      type: 'string',
+      group: 'data'
     },
-    {
+    defineField({
       name: 'products',
       title: 'Products',
       type: 'array',
       of: [
         {
           type: 'reference',
-          to: [{ type: 'product' }]
+          to: [{ type: 'product' }],
+          options: { filter: `store.status != 'archived'` }
         }
-      ]
+      ],
+      group: 'data'
+    }),
+    {
+      name: 'sectionFields',
+      title: 'Section Fields',
+      type: 'sectionFields',
+      group: 'styles'
     }
   ],
   preview: {
     select: {
       title: 'title',
-      productCount: 'products'
+      productCount: 'products',
+      internalLabel: 'internalLabel'
     },
-    prepare({ title, productCount }) {
+    prepare({ title, productCount, internalLabel }) {
       return {
-        title: title || 'Home Products',
-        subtitle: `${productCount ? productCount.length : 0} products`
+        title: 'Home Collections',
+        subtitle: internalLabel || `${title || 'Untitled'} - ${productCount ? productCount.length : 0} products`
       };
     }
   }
 });
 
-// Remove collectionItem if not needed
-// export const collectionItem = defineType({ ... });
+export type { IHomeCollectionsSection };
