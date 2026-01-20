@@ -124,7 +124,8 @@ const artwork = defineType({
         { type: `headerHeroSection` },
         { type: `quoteSection` },
         { type: 'imageCenteredSection' },
-        { type: 'discoverMoreSection' }
+        { type: 'discoverMoreSection' },
+        { type: 'homeCollections' }
       ],
       components: { input: SectionLibrary },
       group: 'data'

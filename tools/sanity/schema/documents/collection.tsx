@@ -157,7 +157,8 @@ const collectionDocument = defineType({
         { type: 'twoColTextSection' },
         { type: `linksSection` },
         { type: `announcementSection` },
-        { type: 'discoverMoreSection' }
+        { type: 'discoverMoreSection' },
+        { type: 'homeCollections' }
       ],
       components: { input: SectionLibrary },
       group: 'editorial'
