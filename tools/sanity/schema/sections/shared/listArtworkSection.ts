@@ -9,6 +9,7 @@ import { IArtwork } from '../../documents/artwork';
 interface IListArtworkSection {
   artworks: IArtwork[];
   viewOption?: 'onSale' | 'sold' | 'selected';
+  spacingBetweenArtworks?: number;
 }
 
 const listArtworkSection = defineType({
@@ -42,6 +43,15 @@ const listArtworkSection = defineType({
       of: [{ type: 'reference', to: [{ type: 'artwork' }] }],
       group: 'data',
       hidden: ({ parent }) => parent?.viewOption !== 'selected'
+    },
+    {
+      name: 'spacingBetweenArtworks',
+      title: 'Spacing Between Artworks (px)',
+      description: 'Add vertical spacing between each artwork. Default is 0px.',
+      type: 'number',
+      initialValue: 0,
+      group: 'styles',
+      validation: (Rule) => Rule.min(0).max(500).integer()
     },
     {
       name: 'sectionPreview',

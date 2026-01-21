@@ -10,7 +10,7 @@ import { ARTWORKS_QUERY } from '@/tools/sanity/lib/queries.groq';
 import styles from './styles.module.scss';
 
 const ListArtworkSection: React.FC<IListArtworkSection> = async props => {
-  const { artworks: selectedArtworks, viewOption = 'selected' } = props;
+  const { artworks: selectedArtworks, viewOption = 'selected', spacingBetweenArtworks = 0 } = props;
 
   let artworks = selectedArtworks;
 
@@ -48,13 +48,18 @@ const ListArtworkSection: React.FC<IListArtworkSection> = async props => {
       containerClassName={styles.container}
       {...getSectionSpacingProps(props)}
     >
-      {artworks?.map(artwork => {
-        if (viewOption === 'sold') {
-          return <ArtworkSold key={artwork._id} {...artwork} />;
-        } else {
-          return <ArtworkFullWidth key={artwork._id} {...artwork} />;
-        }
-      })}
+      <div 
+        className={styles.artworkList} 
+        style={{ gap: `${spacingBetweenArtworks}px` }}
+      >
+        {artworks?.map(artwork => {
+          if (viewOption === 'sold') {
+            return <ArtworkSold key={artwork._id} {...artwork} />;
+          } else {
+            return <ArtworkFullWidth key={artwork._id} {...artwork} />;
+          }
+        })}
+      </div>
     </Section>
   );
 };
