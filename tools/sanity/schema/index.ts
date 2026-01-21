@@ -74,6 +74,7 @@ import listArtworkSection from './sections/shared/listArtworkSection';
 import discoverMoreSection from './sections/shared/discoverMoreSection';
 import announcementSection from './sections/shared/announcementSection';
 import fullScreenImageSection from './sections/shared/fullScreenImageSection';
+import spacerSection from './sections/shared/spacerSection';
 
 // Product Sections
 import viewedProductsSection from './sections/product/viewedProductsSection';
@@ -158,6 +159,7 @@ const schema: SchemaTypeDefinition[] = [
   discoverMoreSection,
   announcementSection,
   fullScreenImageSection,
+  spacerSection,
   // Product Sections
   viewedProductsSection,
   productReviewsSection

@@ -34,7 +34,8 @@ const Sections = async (props: SectionProps) => {
         const sectionMap: { [key: string]: string } = {
           homeCollections: 'HomeCollectionsSection',
           headerHeroSection: 'HeaderHeroSection',
-          fullscreenImageSection: 'FullscreenImageSection'
+          fullscreenImageSection: 'FullscreenImageSection',
+          spacerSection: 'SpacerSection'
           // add other sections as needed
         };
 

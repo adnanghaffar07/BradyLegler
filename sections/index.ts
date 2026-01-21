@@ -14,3 +14,5 @@ export { default as DiscoverMoreSection } from './shared/DiscoverMoreSection';
 export { default as AnnouncementSection } from './shared/AnnouncementSection';
 export { default as FullscreenImageSection } from './shared/FullscreenImageSection';
 export { default as HomeCollectionsSection } from './shared/CollectionRow';
+
+export { default as SpacerSection } from './shared/SpacerSection';
