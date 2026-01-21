@@ -5,6 +5,7 @@ import imageProjection from '@/tools/sanity/projections/common/image.groq';
 const listArtworkProjection = groq`
   _type == 'listArtwork' => {
       viewOption,
+      spacingBetweenArtworks,
      artworks[]->{
       _id,
       title,

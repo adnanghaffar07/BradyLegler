@@ -80,18 +80,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 .triggerText {
   font-size: 17px; /* Your original size */
   font-weight: 500;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: var(--primary-font), sans-serif;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -159,6 +148,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
+  font-family: var(--primary-font), sans-serif;
 
   &.open {
     transform: translateX(0);
@@ -202,6 +192,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   color: $color-text-primary;
   margin: 0;
   letter-spacing: -0.01em;
+  font-family: var(--primary-font), sans-serif;
 }
 
 .closeBtn {
@@ -872,18 +863,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   .triggerText {
     padding: $spacing-md $spacing-lg;
     font-size: $font-size-sm;
-    font-family:
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      Oxygen,
-      Ubuntu,
-      Cantarell,
-      'Open Sans',
-      'Helvetica Neue',
-      sans-serif;
+    font-family: var(--primary-font), sans-serif;
   }
 
   /* Larger touch targets for mobile */

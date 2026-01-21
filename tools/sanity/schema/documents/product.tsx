@@ -113,7 +113,8 @@ const productDocument = defineType({
         { type: `linksSection` },
         { type: `listArtwork` },
         { type: 'discoverMoreSection' },
-        { type: 'homeCollections' }
+        { type: 'homeCollections' },
+        { type: 'spacerSection' }
       ],
       components: { input: SectionLibrary },
       group: 'editorial'

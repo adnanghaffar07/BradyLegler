@@ -201,10 +201,8 @@ const ProductTemplate = async (props: WebPageProps) => {
         // shopifyProductRecommendations={shopifyProductRecommendations} // Pass this
         primaryCollection={primaryCollection}
       />
-
-      <Recommendations recommendations={shopifyProductRecommendations} />
-
       <Sections sanityProductData={sanityProductData} params={params} searchParams={searchParams} />
+            <Recommendations recommendations={shopifyProductRecommendations} />
     </>
   );
 };

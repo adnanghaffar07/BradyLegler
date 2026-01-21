@@ -1,0 +1,9 @@
+.spacer {
+  width: 100%;
+  height: var(--mobile-height);
+  background-color: white;
+
+  @media (min-width: 769px) {
+    height: var(--desktop-height);
+  }
+}

@@ -94,7 +94,8 @@ const page = defineType({
         { type: `linksSection` },
         { type: `listArtwork` },
         { type: `announcementSection` },
-        { type: 'homeCollections' }
+        { type: 'homeCollections' },
+        { type: 'spacerSection' }
       ],
       components: { input: SectionLibrary },
       group: 'data'

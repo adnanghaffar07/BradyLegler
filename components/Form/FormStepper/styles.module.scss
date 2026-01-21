@@ -57,7 +57,7 @@
   font-weight: 700 !important;
   line-height: 140%;
   letter-spacing: -0.4px;
-  font-family: 'Raleway', sans-serif;
+  font-family: var(--primary-font), sans-serif;
   z-index: 1;
 
   &.warning {

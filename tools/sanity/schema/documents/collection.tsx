@@ -139,7 +139,7 @@ const collectionDocument = defineType({
       title: `Middle Sections`,
       description: `Add sections to the middle of the collection page`,
       type: `array`,
-      of: [{ type: `quoteSection` }, { type: 'fullscreenImageSection' }, { type: `videoSection` }],
+      of: [{ type: `quoteSection` }, { type: 'fullscreenImageSection' }, { type: `videoSection` }, { type: 'spacerSection' }],
       components: { input: SectionLibrary },
       group: 'editorial',
       hidden: ({ parent }) => parent?.layout === 'list'
@@ -158,7 +158,8 @@ const collectionDocument = defineType({
         { type: `linksSection` },
         { type: `announcementSection` },
         { type: 'discoverMoreSection' },
-        { type: 'homeCollections' }
+        { type: 'homeCollections' },
+        { type: 'spacerSection' }
       ],
       components: { input: SectionLibrary },
       group: 'editorial'
