@@ -94,8 +94,8 @@ $containerPadding: var(--layout-container-spacing);
   &-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-gap: 8px;
-    padding: 8px;
+    grid-gap: 24px;
+    padding: 24px;
 
     & > div {
       width: 100%;
@@ -112,6 +112,8 @@ $containerPadding: var(--layout-container-spacing);
 
     @include media-up(desktop) {
       grid-template-columns: repeat(4, 1fr);
+      grid-gap: 32px;
+      padding: 32px;
 
       & > div {
         aspect-ratio: 390 / 580;

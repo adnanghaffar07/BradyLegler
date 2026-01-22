@@ -1,10 +1,28 @@
 .container {
   display: flex;
   flex-direction: column;
+  padding: 0;
 }
 
-.artworkList {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.artworkGrid {
+  // Grid layout is handled by Layout component with variant="grid"
+  // Additional styles can be added here if needed
+}
+
+.centeredGrid {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start;
+  gap: 24px;
+  
+  & > div {
+    width: calc(50% - 12px) !important;
+    max-width: 540px;
+    flex: 0 0 auto !important;
+    
+    @media (min-width: 768px) {
+      width: 390px !important;
+      max-width: 390px;
+    }
+  }
 }
