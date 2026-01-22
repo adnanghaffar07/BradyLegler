@@ -78,17 +78,24 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 }
 
 .triggerText {
-  font-size: 17px; /* Your original size */
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   font-family: var(--primary-font), sans-serif;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #222222;
+  color: var(--navigation-color);
   padding: 50px; /* Your original padding */
+  opacity: 0.7;
+  transition: color 150ms ease;
+
   &:hover {
     text-decoration: underline;
+    color: var(--navigation-color-hover);
+    opacity: 1;
   }
 }
 .triggerIcon {
@@ -187,12 +194,14 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 }
 
 .headerTitle {
-  font-size: $font-size-xl;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   margin: 0;
-  letter-spacing: -0.01em;
   font-family: var(--primary-font), sans-serif;
+  opacity: 0.9;
 }
 
 .closeBtn {
@@ -285,18 +294,23 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  color: $color-text-primary;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-medium;
+  color: var(--navigation-color);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   text-align: left;
   transition: all $transition-fast;
   border-radius: $radius-sm;
   margin: 0 -$spacing-sm;
   padding-left: $spacing-sm;
   padding-right: $spacing-sm;
+  opacity: 0.7;
+  font-family: var(--primary-font), sans-serif;
 
   &:hover {
-    color: $color-primary;
+    color: var(--navigation-color-hover);
+    opacity: 1;
 
     .chev {
       stroke: $color-primary;
@@ -367,10 +381,14 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   padding: $spacing-lg $spacing-md;
   text-align: left;
   background: $color-background;
-  color: $color-text-primary !important;
+  color: var(--navigation-color) !important;
   border-radius: $radius-md;
   border: 1px solid $color-border;
-  font-size: $font-size-sm;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  font-family: var(--primary-font), sans-serif;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -378,6 +396,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   transition: all $transition-fast;
   position: relative;
   overflow: hidden;
+  opacity: 0.7;
 
   &::before {
     content: '';
@@ -395,6 +414,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     background: $color-background-hover;
     border-color: $color-border-hover;
     transform: translateX(4px);
+    opacity: 1;
 
     &::before {
       transform: scaleX(1);
@@ -405,7 +425,8 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
     border-color: $color-primary;
     background: $color-primary-light;
     color: $color-primary !important;
-    font-weight: $font-weight-semibold;
+    font-weight: 400;
+    opacity: 1;
 
     &::before {
       transform: scaleX(1);
@@ -436,13 +457,18 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 .linkButton {
   display: block;
   padding: $spacing-md 0;
-  color: $color-text-primary;
+  color: var(--navigation-color);
   text-decoration: none;
   border: 1px solid transparent;
-  font-size: $font-size-base;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  font-family: var(--primary-font), sans-serif;
   border-radius: $radius-sm;
   transition: all $transition-fast;
   position: relative;
+  opacity: 0.7;
 
   &::before {
     content: '';
@@ -456,8 +482,9 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   }
 
   &:hover {
-    color: $color-primary;
+    color: var(--navigation-color-hover);
     padding-left: $spacing-md;
+    opacity: 1;
 
     &::before {
       background: $color-background-hover;
@@ -466,7 +493,8 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 
   &.activeLink {
     color: $color-primary;
-    font-weight: $font-weight-semibold;
+    font-weight: 400;
+    opacity: 1;
 
     &::before {
       background: $color-primary-light;
@@ -517,18 +545,24 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   gap: $spacing-md;
   padding: $spacing-sm $spacing-md;
   cursor: pointer;
-  color: $color-text-primary;
-  font-size: $font-size-base;
+  color: var(--navigation-color);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  font-family: var(--primary-font), sans-serif;
   border-radius: $radius-lg;
   background: $color-background;
   transition:
     background $transition-fast,
     transform $transition-fast;
   position: relative;
+  opacity: 0.7;
 
   &:hover {
     background: rgba($color-primary, 0.05);
     transform: translateX(1px);
+    opacity: 1;
 
     .checkboxFake {
       border-color: $color-primary;
@@ -586,7 +620,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   justify-content: space-between;
   flex: 1;
   gap: $spacing-sm;
-  font-weight: $font-weight-medium;
+  font-weight: 400;
 }
 
 .checkboxLabel .count {
@@ -666,8 +700,11 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   flex: 1;
   min-height: 44px;
   border-radius: $radius-md;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  font-family: var(--primary-font), sans-serif;
   cursor: pointer;
   transition: all $transition-fast;
   display: flex !important;
@@ -715,7 +752,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   background: $color-primary;
   color: $color-background;
   border: 2px solid $color-primary;
-  font-weight: $font-weight-semibold;
+  font-weight: 400;
   position: relative;
   overflow: hidden;
 
@@ -862,7 +899,10 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
 
   .triggerText {
     padding: $spacing-md $spacing-lg;
-    font-size: $font-size-sm;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 17.28px;
+    letter-spacing: 0.05em;
     font-family: var(--primary-font), sans-serif;
   }
 
