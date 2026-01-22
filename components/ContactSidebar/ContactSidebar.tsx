@@ -320,7 +320,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                       >
                         Email
                       </button>
-                      <button
+                      {/* <button
                         type="button"
                         className={classNames(styles.contactMethodBtn, {
                           [styles.active]: formData.contactMethod === 'whatsapp'
@@ -329,7 +329,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                         disabled={isSubmitting}
                       >
                         WhatsApp
-                      </button>
+                      </button> */}
                     </div>
                   </div>
 

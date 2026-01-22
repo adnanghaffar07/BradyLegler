@@ -123,25 +123,14 @@
 }
 
 .contactHeading {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
   margin: 0;
   color: #222;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 18px;
+    font-size: 14px;
   }
 }
 
@@ -175,25 +164,14 @@
 }
 
 .contactDescription {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
   color: #666;
   margin-bottom: 2rem;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.5;
     margin-bottom: 1.5rem;
   }
@@ -219,14 +197,15 @@
 
 .inquiryTitle {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #222;
   margin-bottom: 16px;
   letter-spacing: 0.05em;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 13px;
+    font-size: 11px;
     margin-bottom: 12px;
   }
 }
@@ -239,7 +218,7 @@
   border: 1px solid #222;
   border-radius: 0;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: #222;
   cursor: pointer;
   transition: all 150ms ease;
@@ -247,6 +226,7 @@
   letter-spacing: 0.05em;
   line-height: 1.4;
   text-transform: none;
+  font-family: 'primary font', sans-serif;
 
   &:hover {
     background: #222;
@@ -255,7 +235,7 @@
 
   @include mobile {
     padding: 16px 20px;
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 
@@ -281,7 +261,7 @@
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   color: #222;
   cursor: pointer;
   transition: all 150ms ease;
@@ -289,6 +269,7 @@
   letter-spacing: 0.03em;
   line-height: 1.4;
   margin-top: -1px;
+  font-family: 'primary font', sans-serif;
 
   &:hover {
     background: #f9f9f9;
@@ -300,55 +281,59 @@
 
   @include mobile {
     padding: 18px 0;
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 
 .optionMainText {
-  font-size: 13px;
+  font-size: 12px;
   color: #222;
   font-weight: 400;
   margin-bottom: 4px;
-
-  @include mobile {
-    font-size: 14px;
-  }
-}
-
-.optionSubText {
-  font-size: 11px;
-  color: #666;
-  font-weight: 300;
-  letter-spacing: 0.03em;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
     font-size: 12px;
   }
 }
 
+.optionSubText {
+  font-size: 10px;
+  color: #666;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  font-family: 'primary font', sans-serif;
+
+  @include mobile {
+    font-size: 11px;
+  }
+}
+
 .pressTitle {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
   color: #222;
   margin-bottom: 8px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 12px;
+    font-size: 10px;
     margin-bottom: 6px;
   }
 }
 
 .pressText {
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
   line-height: 1.5;
   margin: 0;
   letter-spacing: 0.03em;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.4;
   }
 }
@@ -358,6 +343,7 @@
   text-decoration: underline;
   margin-left: 4px;
   font-weight: 400;
+  font-family: 'primary font', sans-serif;
 
   &:hover {
     text-decoration: none;
@@ -385,18 +371,19 @@
   background: none;
   border: none;
   color: #666;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   padding: 8px 0;
   margin-bottom: 10px;
   align-self: flex-start;
+  font-family: 'primary font', sans-serif;
 
   &:hover {
     color: #222;
   }
 
   @include mobile {
-    font-size: 13px;
+    font-size: 11px;
     padding: 10px 0;
   }
 }
@@ -412,45 +399,24 @@
 }
 
 .formHeading {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 400;
   color: #333;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  margin-top: 14px;
   line-height: 1.5;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 12px;
+    font-size: 10px;
     margin-bottom: 8px;
   }
 }
 
 .statusMessage {
   margin-bottom: 10px;
-  font-size: 12px;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-size: 11px;
+  font-family: 'primary font', sans-serif;
 
   &.success {
     color: #2e7d32;
@@ -461,7 +427,7 @@
   }
 
   @include mobile {
-    font-size: 11px;
+    font-size: 10px;
     margin-bottom: 8px;
   }
 }
@@ -484,14 +450,15 @@
   position: relative;
 
   label {
-    font-size: 12px;
+    font-size: 11px;
     color: #222;
     font-weight: 400;
     letter-spacing: 0.05em;
     margin-bottom: 4px;
+    font-family: 'primary font', sans-serif;
 
     @include mobile {
-      font-size: 11px;
+      font-size: 10px;
     }
   }
 }
@@ -501,12 +468,13 @@
   width: 100%;
   border: none;
   border-bottom: 1px solid #ddd;
-  font-size: 12px;
+  font-size: 11px;
   background: transparent;
   border-radius: 0;
   letter-spacing: 0.03em;
   transition: border-color 150ms ease;
   padding: 3px 0;
+  font-family: 'primary font', sans-serif;
 
   &:focus {
     outline: none;
@@ -521,7 +489,7 @@
   }
 
   @include mobile {
-    font-size: 11px;
+    font-size: 10px;
     padding: 6px 0;
   }
 }
@@ -566,27 +534,16 @@
 }
 
 .contactMethodLabel {
-  font-size: 12.5px;
+  font-size: 11px;
   color: #222;
   font-weight: 400;
   letter-spacing: 0.05em;
   text-align: center;
   margin-bottom: 20px;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: 'primary font', sans-serif;
 
   @include mobile {
-    font-size: 12px;
+    font-size: 10px;
     margin-bottom: 16px;
   }
 }
@@ -610,7 +567,7 @@
   border: 1px solid #ddd;
   border-radius: 0;
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
   cursor: pointer;
   transition: all 150ms ease;
@@ -621,6 +578,7 @@
   justify-content: center;
   text-transform: uppercase;
   white-space: nowrap;
+  font-family: 'primary font', sans-serif;
 
   &:hover:not(:disabled) {
     background: #f9f9f9;
@@ -643,7 +601,7 @@
   @include mobile {
     min-width: 80px;
     padding: 8px;
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 
@@ -654,11 +612,12 @@
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 150ms ease;
   margin-top: 10px;
+  font-family: 'primary font', sans-serif;
 
   &:hover:not(:disabled) {
     background: #222;
@@ -671,7 +630,7 @@
 
   @include mobile {
     padding: 18px 24px;
-    font-size: 14px;
+    font-size: 12px;
     margin-top: 20px;
   }
 }
@@ -696,7 +655,7 @@
 
   .formInput,
   .formTextarea {
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 
