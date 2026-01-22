@@ -133,7 +133,11 @@ const ProductsGrid = ({
           <Text text="No products found" size="b2" />
         </div>
       )}
-      <Layout variant={layoutVariant} id="bl-collection-grid">
+      <Layout 
+        variant={layoutVariant} 
+        id="bl-collection-grid"
+        className={numVisibleProducts <= 2 ? styles.centeredGrid : ''}
+      >
         <QuoteOverlay
           quote={sanityCollectionData?.quote}
           show={layoutType === 'list'}

@@ -373,7 +373,12 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 <div className={styles.levelLayout}>
                   {/* LEFT: Links */}
                   <ul className={styles.sidebarNavigation}>
-                    {menuLevel.items.map((item: any, index: number) => {
+                    {menuLevel.items
+                      // Remove duplicate items based on title
+                      .filter((item: any, index: number, self: any[]) => 
+                        index === self.findIndex((t) => t.title === item.title)
+                      )
+                      .map((item: any, index: number) => {
                       const hasNestedItems = item.navSublinks?.length > 0;
                       const isDropdownItem = hasNestedItems || !item.link;
 
