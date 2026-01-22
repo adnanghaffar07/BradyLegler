@@ -116,7 +116,7 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
       {/* Drawer */}
       <aside className={classNames(styles.drawer, { [styles.open]: drawerOpen })} role="dialog" aria-modal="true">
         <div className={styles.header}>
-          <Text size="h4" text="Filters & Sorting" />
+          <h2 className={styles.headerTitle}>Filters & Sorting</h2>
           <button aria-label="Close filters" className={styles.closeBtn} onClick={closeDrawer}>
             <Icon title="close" />
           </button>

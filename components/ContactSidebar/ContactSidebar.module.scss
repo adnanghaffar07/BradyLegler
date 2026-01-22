@@ -86,7 +86,7 @@
 }
 
 .sidebarContent {
-  padding: 2rem;
+  padding: 0 2rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -112,20 +112,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid #eee;
 
   @include mobile {
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
   }
 }
 
 .contactHeading {
   font-weight: 400;
-  font-size: 16px;
-  line-height: 22px;
+  font-size: 12px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
   margin: 0;
   color: var(--navigation-color);
@@ -133,8 +133,8 @@
   opacity: 1;
 
   @include mobile {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 12px;
+    line-height: 17.28px;
   }
 }
 
@@ -173,14 +173,14 @@
   line-height: 17.28px;
   letter-spacing: 0.05em;
   color: var(--navigation-color);
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   font-family: 'primary font', sans-serif;
   opacity: 0.7;
 
   @include mobile {
     font-size: 12px;
     line-height: 17.28px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 }
 
@@ -193,20 +193,20 @@
 }
 
 .inquirySection {
-  padding: 24px 0;
-  margin-bottom: 12px;
+  padding: 16px 0;
+  margin-bottom: 8px;
 
   @include mobile {
-    padding: 20px 0;
-    margin-bottom: 8px;
+    padding: 14px 0;
+    margin-bottom: 6px;
   }
 }
 
 .inquiryTitle {
   display: block;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 12px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
   color: var(--navigation-color);
   margin-bottom: 16px;
@@ -214,8 +214,8 @@
   opacity: 0.9;
 
   @include mobile {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: 12px;
+    line-height: 17.28px;
     margin-bottom: 12px;
   }
 }
@@ -404,8 +404,8 @@
   letter-spacing: 0.05em;
   color: var(--navigation-color);
   cursor: pointer;
-  padding: 8px 0;
-  margin-bottom: 10px;
+  padding: 4px 0;
+  margin-bottom: 8px;
   align-self: flex-start;
   font-family: 'primary font', sans-serif;
   opacity: 0.7;
@@ -417,7 +417,7 @@
 
   @include mobile {
     font-size: 12px;
-    padding: 10px 0;
+    padding: 6px 0;
   }
 }
 
@@ -434,23 +434,23 @@
 .formHeading {
   font-weight: 400;
   font-size: 12px;
-  line-height: 20px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
   color: var(--navigation-color);
-  margin-bottom: 24px;
-  margin-top: 14px;
+  margin-bottom: 20px;
+  margin-top: 12px;
   font-family: 'primary font', sans-serif;
   opacity: 0.9;
 
   @include mobile {
-    font-size: 13px;
-    line-height: 18px;
+    font-size: 12px;
+    line-height: 17.28px;
     margin-bottom: 8px;
   }
 }
 
 .statusMessage {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-weight: 400;
   font-size: 12px;
   line-height: 17.28px;
@@ -467,25 +467,26 @@
 
   @include mobile {
     font-size: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 }
 
 .enquiryForm {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  margin-top: 10px;
   flex: 1;
 
   @include mobile {
-    gap: 16px;
+    gap: 12px;
   }
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   position: relative;
 
   label {
@@ -494,7 +495,7 @@
     line-height: 17.28px;
     letter-spacing: 0.05em;
     color: var(--navigation-color);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     font-family: 'primary font', sans-serif;
     opacity: 0.7;
 
@@ -540,11 +541,11 @@
 
 .formTextarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 60px;
   line-height: 1.5;
 
   @include mobile {
-    min-height: 60px;
+    min-height: 50px;
   }
 }
 
@@ -557,11 +558,11 @@
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 0.75rem;
 
   @include mobile {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 12px;
   }
 }
 
@@ -569,11 +570,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin: 6px 0 6px 0;
-  padding-top: 4px;
+  margin: 4px 0 4px 0;
+  padding-top: 2px;
 
   @include mobile {
-    margin: 10px 0;
+    margin: 6px 0;
   }
 }
 
@@ -584,13 +585,13 @@
   letter-spacing: 0.05em;
   color: var(--navigation-color);
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   font-family: 'primary font', sans-serif;
   opacity: 0.7;
 
   @include mobile {
     font-size: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
 }
 
@@ -656,7 +657,7 @@
 
 .submitBtn {
   width: 100%;
-  padding: 16px 24px;
+  padding: 12px 24px;
   background: #333;
   color: white;
   border: none;
@@ -667,7 +668,7 @@
   letter-spacing: 0.05em;
   cursor: pointer;
   transition: background-color 150ms ease;
-  margin-top: 10px;
+  margin-top: 8px;
   font-family: 'primary font', sans-serif;
 
   &:hover:not(:disabled) {
@@ -680,9 +681,9 @@
   }
 
   @include mobile {
-    padding: 18px 24px;
+    padding: 14px 24px;
     font-size: 12px;
-    margin-top: 20px;
+    margin-top: 12px;
   }
 }
 
