@@ -12,7 +12,8 @@ const listArtworkProjection = groq`
       slug,
       pathname,
       specification,
-      featureImage${imageProjection}
+      content,
+      featureImage${imageProjection},
      }
   },
 `;
