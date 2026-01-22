@@ -16,11 +16,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 100px 64px; // 100px top/bottom, 64px left/right
+  padding:  0 64px; // 100px top/bottom, 64px left/right
   gap: 48px;
 
   @include media-up(tablet) {
-    padding: 100px 64px; // Equal padding top/bottom
+    padding: 0 64px; // Equal padding top/bottom
     gap: 80px;
   }
 }

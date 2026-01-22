@@ -14,8 +14,10 @@ const CollectionTemplate = async (props: WebPageProps) => {
   return (
     <>
       <Header sanityCollectionData={sanityCollectionData} />
-      <Products sanityCollectionData={sanityCollectionData} params={params} searchParams={searchParams} />
-      <Sections sections={sanityCollectionData?.sections} params={params} searchParams={searchParams} />
+      <div style={{ position: 'relative', zIndex: 10, backgroundColor: 'white', minHeight: '100vh' }}>
+        <Products sanityCollectionData={sanityCollectionData} params={params} searchParams={searchParams} />
+        <Sections sections={sanityCollectionData?.sections} params={params} searchParams={searchParams} />
+      </div>
     </>
   );
 };

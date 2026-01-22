@@ -9,18 +9,18 @@
       bottom: 0;
       left: 0;
       pointer-events: none;
-      z-index: 2;
+      z-index: 100;
     }
 
     &-sticky {
       position: sticky;
       top: 0;
-      z-index: 2;
+      z-index: 100;
     }
 
     &-static {
       position: relative;
-      z-index: 2;
+      z-index: 100;
       pointer-events: auto;
     }
   }

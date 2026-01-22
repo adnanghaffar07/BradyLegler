@@ -10,7 +10,6 @@ import TextBlock from '@/components/TextBlock';
 import Filters from './components/Filters';
 import Layout from '@/components/Layout';
 import useCollectionFilters from './hooks/useCollectionFilters';
-import useScrollToGridTop from './hooks/useScrollToGridTop';
 import {
   GetCollectionByHandleResponse,
   GetCollectionFiltersByHandleResponse,
@@ -57,9 +56,6 @@ const ProductsGrid = ({
   const router = useRouter();
   const pathname = usePathname();
   const numVisibleProducts = shopifyCollectionData?.products?.edges?.length || 0;
-
-  // Scroll to top of grid after fetching new products or changing layout
-  // useScrollToGridTop({ shopifyCollectionData, gridId: 'bl-collection-grid' });
 
   // When the user clicks the load more button, increment the page number in the URL
   const nextPage = () => {

@@ -149,6 +149,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
+  font-family: var(--primary-font), sans-serif;
 
   &.open {
     transform: translateX(0);
@@ -192,6 +193,7 @@ $shadow-focus: 0 0 0 3px rgba(11, 102, 255, 0.1);
   color: $color-text-primary;
   margin: 0;
   letter-spacing: -0.01em;
+  font-family: var(--primary-font), sans-serif;
 }
 
 .closeBtn {

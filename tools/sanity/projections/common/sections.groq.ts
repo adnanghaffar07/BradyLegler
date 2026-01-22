@@ -11,6 +11,7 @@ import listArtworkSectionProjection from '@/sections/shared/ListArtworkSection/q
 import discoverMoreSectionProjection from '@/sections/shared/DiscoverMoreSection/queries.groq';
 import announcementSectionProjection from '@/sections/shared/AnnouncementSection/queries.groq';
 import fullscreenImageSectionProjection from '@/sections/shared/FullscreenImageSection/queries.groq';
+import spacerSectionProjection from '@/sections/shared/SpacerSection/queries.groq';
 
 // New Section Projections
 import productsSectionProjection from '@/sections/shared/ProductsSection/queries.groq';
@@ -35,6 +36,7 @@ const sectionsProjection = groq`{
   ${discoverMoreSectionProjection}
   ${announcementSectionProjection}
   ${fullscreenImageSectionProjection}
+  ${spacerSectionProjection}
 ${homeCollectionsProjection}
   sectionFields {
     spacingOptions {
