@@ -123,14 +123,18 @@
 }
 
 .contactHeading {
-  font-size: 16px;
   font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.05em;
   margin: 0;
-  color: #222;
+  color: var(--navigation-color);
   font-family: 'primary font', sans-serif;
+  opacity: 1;
 
   @include mobile {
     font-size: 14px;
+    line-height: 20px;
   }
 }
 
@@ -164,15 +168,18 @@
 }
 
 .contactDescription {
-  font-size: 13px;
-  line-height: 1.6;
-  color: #666;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   margin-bottom: 2rem;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   @include mobile {
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 17.28px;
     margin-bottom: 1.5rem;
   }
 }
@@ -197,15 +204,18 @@
 
 .inquiryTitle {
   display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 16px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
   letter-spacing: 0.05em;
+  color: var(--navigation-color);
+  margin-bottom: 16px;
   font-family: 'primary font', sans-serif;
+  opacity: 0.9;
 
   @include mobile {
-    font-size: 11px;
+    font-size: 13px;
+    line-height: 18px;
     margin-bottom: 12px;
   }
 }
@@ -218,19 +228,21 @@
   border: 1px solid #222;
   border-radius: 0;
   text-align: center;
+  font-weight: 400;
   font-size: 12px;
-  color: #222;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   cursor: pointer;
   transition: all 150ms ease;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  line-height: 1.4;
   text-transform: none;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   &:hover {
     background: #222;
     color: white;
+    opacity: 1;
   }
 
   @include mobile {
@@ -261,18 +273,20 @@
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   text-align: left;
+  font-weight: 400;
   font-size: 12px;
-  color: #222;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   cursor: pointer;
   transition: all 150ms ease;
-  font-weight: 400;
-  letter-spacing: 0.03em;
-  line-height: 1.4;
   margin-top: -1px;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   &:hover {
     background: #f9f9f9;
+    opacity: 1;
   }
 
   &:last-child {
@@ -286,9 +300,11 @@
 }
 
 .optionMainText {
-  font-size: 12px;
-  color: #222;
   font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   margin-bottom: 4px;
   font-family: 'primary font', sans-serif;
 
@@ -298,60 +314,72 @@
 }
 
 .optionSubText {
-  font-size: 10px;
-  color: #666;
-  font-weight: 300;
-  letter-spacing: 0.03em;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   @include mobile {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
 .pressTitle {
-  font-size: 11px;
-  font-weight: 500;
-  color: #222;
-  margin-bottom: 8px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
+  color: var(--navigation-color);
+  margin-bottom: 8px;
   text-transform: uppercase;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   @include mobile {
-    font-size: 10px;
+    font-size: 12px;
     margin-bottom: 6px;
   }
 }
 
 .pressText {
-  font-size: 11px;
-  color: #666;
-  line-height: 1.5;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   margin: 0;
-  letter-spacing: 0.03em;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   @include mobile {
-    font-size: 10px;
-    line-height: 1.4;
+    font-size: 12px;
+    line-height: 17.28px;
   }
 }
 
 .emailLink {
-  color: #666 !important;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color) !important;
   text-decoration: underline;
   margin-left: 4px;
-  font-weight: 400;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   &:hover {
     text-decoration: none;
-    color: #222 !important;
+    color: var(--navigation-color-hover) !important;
+    opacity: 1;
   }
 
   @include mobile {
     margin-left: 4px;
+    font-size: 12px;
   }
 }
 
@@ -370,20 +398,25 @@
   gap: 8px;
   background: none;
   border: none;
-  color: #666;
+  font-weight: 400;
   font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   cursor: pointer;
   padding: 8px 0;
   margin-bottom: 10px;
   align-self: flex-start;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   &:hover {
-    color: #222;
+    color: var(--navigation-color-hover);
+    opacity: 1;
   }
 
   @include mobile {
-    font-size: 11px;
+    font-size: 12px;
     padding: 10px 0;
   }
 }
@@ -399,23 +432,29 @@
 }
 
 .formHeading {
-  font-size: 12px;
   font-weight: 400;
-  color: #333;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   margin-bottom: 24px;
   margin-top: 14px;
-  line-height: 1.5;
   font-family: 'primary font', sans-serif;
+  opacity: 0.9;
 
   @include mobile {
-    font-size: 10px;
+    font-size: 13px;
+    line-height: 18px;
     margin-bottom: 8px;
   }
 }
 
 .statusMessage {
   margin-bottom: 10px;
-  font-size: 11px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   font-family: 'primary font', sans-serif;
 
   &.success {
@@ -427,7 +466,7 @@
   }
 
   @include mobile {
-    font-size: 10px;
+    font-size: 12px;
     margin-bottom: 8px;
   }
 }
@@ -446,19 +485,21 @@
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
   position: relative;
 
   label {
-    font-size: 11px;
-    color: #222;
     font-weight: 400;
+    font-size: 12px;
+    line-height: 17.28px;
     letter-spacing: 0.05em;
+    color: var(--navigation-color);
     margin-bottom: 4px;
     font-family: 'primary font', sans-serif;
+    opacity: 0.7;
 
     @include mobile {
-      font-size: 10px;
+      font-size: 12px;
     }
   }
 }
@@ -468,17 +509,22 @@
   width: 100%;
   border: none;
   border-bottom: 1px solid #ddd;
-  font-size: 11px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   background: transparent;
   border-radius: 0;
-  letter-spacing: 0.03em;
   transition: border-color 150ms ease;
-  padding: 3px 0;
+  padding: 0;
   font-family: 'primary font', sans-serif;
+  color: var(--navigation-color);
+  opacity: 0.7;
 
   &:focus {
     outline: none;
     border-bottom-color: #222;
+    opacity: 1;
   }
 
   &:disabled {
@@ -489,7 +535,7 @@
   }
 
   @include mobile {
-    font-size: 10px;
+    font-size: 12px;
     padding: 6px 0;
   }
 }
@@ -534,16 +580,18 @@
 }
 
 .contactMethodLabel {
-  font-size: 11px;
-  color: #222;
   font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
+  color: var(--navigation-color);
   text-align: center;
   margin-bottom: 20px;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   @include mobile {
-    font-size: 10px;
+    font-size: 12px;
     margin-bottom: 16px;
   }
 }
@@ -567,30 +615,33 @@
   border: 1px solid #ddd;
   border-radius: 0;
   text-align: center;
-  font-size: 10px;
-  color: #666;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color);
   cursor: pointer;
   transition: all 150ms ease;
-  font-weight: 400;
-  letter-spacing: 0.05em;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
   white-space: nowrap;
   font-family: 'primary font', sans-serif;
+  opacity: 0.7;
 
   &:hover:not(:disabled) {
     background: #f9f9f9;
     border-color: #bbb;
-    color: #222;
+    color: var(--navigation-color-hover);
+    opacity: 1;
   }
 
   &.active {
     background: #222;
     color: white;
     border-color: #222;
-    font-weight: 400;
+    opacity: 1;
   }
 
   &:disabled {
@@ -601,7 +652,7 @@
   @include mobile {
     min-width: 80px;
     padding: 8px;
-    font-size: 9px;
+    font-size: 12px;
   }
 }
 
@@ -612,8 +663,10 @@
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: background-color 150ms ease;
   margin-top: 10px;
