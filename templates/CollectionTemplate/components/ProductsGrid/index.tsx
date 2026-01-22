@@ -122,11 +122,10 @@ const ProductsGrid = ({
         <Text size="b3" text={`Product count: ${productCount}`} />
       </div> */}
 
-      {/* {layoutType !== 'list' && (
-        <Filters filters={filters} subCollectionFilters={subCollectionFilters} />
+      {/* Only show filters if there are products */}
+      {productCount > 0 && (
+        <FiltersDrawer filters={filters} subCollectionFilters={subCollectionFilters} productCount={productCount} />
       )}
-       */}
-      <FiltersDrawer filters={filters} subCollectionFilters={subCollectionFilters} productCount={productCount} />
 
       {shopifyCollectionData?.products?.edges?.length === 0 && (
         <div className={styles.noProducts}>
