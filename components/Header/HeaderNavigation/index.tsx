@@ -355,7 +355,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
           [styles.sidebarOpen]: sidebarOpen,
           [styles.sidebarAnimating]: isAnimating
         })}
-        style={{ width: `${15 + subMenuStack.length * 12}%` }}
+        style={{ width: `${17 + subMenuStack.length * 15}%` }}
       >
         <div className={styles.sidebarContent}>
           {/* Current submenu levels */}

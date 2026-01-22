@@ -10,7 +10,7 @@
   gap: 8px;
 
   @include media-up(tablet) {
-    gap: 24px;
+    gap: 20px;
   }
 
   @include media-up(desktop) {
