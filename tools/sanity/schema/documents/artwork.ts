@@ -123,9 +123,18 @@ const artwork = defineType({
       of: [
         { type: `headerHeroSection` },
         { type: `quoteSection` },
+        { type: 'twoColMediaSection' },
+        { type: 'twoColTextSection' },
+        { type: `videoSection` },
         { type: 'imageCenteredSection' },
+        { type: 'fullscreenImageSection' },
+        { type: `linksSection` },
+        { type: `listArtwork` },
+        { type: `announcementSection` },
         { type: 'discoverMoreSection' },
-        { type: 'homeCollections' }
+        { type: 'homeCollections' },
+        { type: 'productsSection' },
+        { type: 'spacerSection' }
       ],
       components: { input: SectionLibrary },
       group: 'data'
