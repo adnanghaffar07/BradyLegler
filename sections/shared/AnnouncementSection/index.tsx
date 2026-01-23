@@ -13,38 +13,43 @@ const AnnouncementSection: React.FC<IAnnouncementSection> = props => {
   const { title, content, align = 'left', addButton = false, button, addDownloadButton = false, downloadFile } = props;
   const layoutVariant = align === 'left' ? 'rightLarge' : 'leftLarge';
 
-  return (
-    <Section name="AnnouncementSection" theme="dark" {...getSectionSpacingProps(props)}>
-      <Layout variant={layoutVariant} className={styles.layout}>
-        {layoutVariant === 'leftLarge' ? <div className={styles.placeholder} /> : null}
-        <div className={styles.container}>
-          <Text text={title} size="h2" />
+  const contentSection = (
+    <div className={classNames(styles.container, { [styles.centered]: align === 'center' })}>
+      <Text text={title} size="h2" />
 
-          <TextBlock blocks={content} className={styles.content} />
+      <TextBlock blocks={content} className={styles.content} />
 
-          {(addButton || (addDownloadButton && downloadFile)) && (
-            <div className={styles.actions}>
-              {addButton && button?.link && (
-                <div>
-                  <Link {...button?.link} className={styles.button} variant={'square'} text={button?.label} />
-                </div>
-              )}
-              {addDownloadButton && downloadFile && (
-                <div>
-                  <Link
-                    href={downloadFile?.asset?.url}
-                    className={classNames(styles.button, styles.download)}
-                    variant={'square'}
-                    text={downloadFile?.downloadButtonText}
-                    target="_blank"
-                  />
-                </div>
-              )}
-            </div>
+      {(addButton || (addDownloadButton && downloadFile)) && (
+        <div className={styles.actions}>
+          {addButton && button?.link && button?.label && (
+            <Link {...button?.link} className={styles.button} variant={'square'} text={button?.label} />
+          )}
+          {addDownloadButton && downloadFile?.asset?.url && downloadFile?.downloadButtonText && (
+            <Link
+              href={downloadFile.asset.url}
+              className={classNames(styles.button, styles.download)}
+              variant={'square'}
+              text={downloadFile.downloadButtonText}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
           )}
         </div>
-        {layoutVariant === 'rightLarge' ? <div className={styles.placeholder} /> : null}
-      </Layout>
+      )}
+    </div>
+  );
+
+  return (
+    <Section name="AnnouncementSection" theme="dark" {...getSectionSpacingProps(props)}>
+      {align === 'center' ? (
+        contentSection
+      ) : (
+        <Layout variant={layoutVariant} className={styles.layout}>
+          {layoutVariant === 'leftLarge' ? <div className={styles.placeholder} /> : null}
+          {contentSection}
+          {layoutVariant === 'rightLarge' ? <div className={styles.placeholder} /> : null}
+        </Layout>
+      )}
     </Section>
   );
 };

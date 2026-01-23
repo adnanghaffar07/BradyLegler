@@ -11,7 +11,7 @@ interface IAnnouncementSection {
   content?: SanityTextBlock[];
   addButton?: boolean;
   button?: IButtonElement;
-  align?: 'left' | 'right';
+  align?: 'left' | 'center' | 'right';
   addDownloadButton?: boolean;
   downloadFile?: {
     downloadButtonText?: string;
@@ -45,9 +45,10 @@ const announcementSection = defineType({
       type: `string`,
       options: {
         list: ['left', 'center', 'right'],
-        layout: 'select',
-        initialValue: 'left'
+        layout: 'radio',
+        direction: 'horizontal'
       },
+      initialValue: 'left',
       group: 'data'
     },
     {
@@ -95,7 +96,7 @@ const announcementSection = defineType({
       ],
       group: 'data',
       hidden: ({ parent }) => !parent?.addDownloadButton
-    }
+    },
   ],
   preview: {
     select: {
