@@ -47,12 +47,6 @@ export const homeCollections = defineType({
       ],
       group: 'data'
     }),
-    {
-      name: 'sectionFields',
-      title: 'Section Fields',
-      type: 'sectionFields',
-      group: 'styles'
-    }
   ],
   preview: {
     select: {

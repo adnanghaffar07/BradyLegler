@@ -43,12 +43,6 @@ const productsSection = defineType({
       of: [{ type: 'reference', to: [{ type: 'product' }], options: { filter: `store.status != 'archived'` } }],
       group: 'data'
     }),
-    {
-      name: 'sectionFields',
-      title: 'Section Fields',
-      type: 'sectionFields',
-      group: 'styles'
-    }
   ],
   preview: {
     prepare() {
