@@ -13,6 +13,7 @@ import { groq } from 'next-sanity';
 import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
+import HeaderNavigationCart from '../HeaderNavigation/HeaderNavigationCart';
 
 type HeaderNavigationMobileProps = {
   navItems: IHeaderDocument['header']['navItems'];
@@ -135,8 +136,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     fetchNav();
   }, []);
 
-  // Show only left side nav items for mobile to avoid duplicates
-  const mobileNavItems = navItems.filter(item => item.side === 'left');
+  // Show all nav items for mobile (both left and right)
+  const mobileNavItems = navItems;
   const topLevelItems = mobileNavItems.filter(item => !item.isSubLink);
 
   // Deduplicate items by title (what user sees)
@@ -383,7 +384,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 handleConciergeClick(e);
                               }}
                             >
-                              <Text text={navItem.title} size="lg" />
+                              <span>{navItem.title}</span>
                               <Icon title="chevronRight" className={styles.navIcon} />
                             </button>
                           ) : navItem.navSublinks?.length || (navItem.requiresPasscode && !hasAccess) ? (
@@ -396,7 +397,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 handleMenuItemClick(navItem, () => openMenu(navItem));
                               }}
                             >
-                              <Text text={navItem.title} size="sm" />
+                              <span>{navItem.title}</span>
                               <div className={styles.iconWrapper}>
                                 {navItem.requiresPasscode && !hasAccess && (
                                   <Icon title="lock" className={styles.lockIcon} />
@@ -423,7 +424,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                               }}
                               className={styles.navLink}
                             >
-                              <Text text={navItem.title} size="sm" />
+                              <span>{navItem.title}</span>
                               {navItem.requiresPasscode && !hasAccess && (
                                 <Icon title="lock" className={styles.lockIcon} />
                               )}
@@ -432,6 +433,13 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                         </li>
                       );
                     })}
+                    
+                    {/* Cart/Yours Button */}
+                    <li className={styles.linkItem}>
+                      <div className={styles.mobileCartWrapper}>
+                        <HeaderNavigationCart />
+                      </div>
+                    </li>
                   </ul>
                 </div>
               )}
@@ -486,7 +494,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 handleMenuItemClick(item, () => openSubMenu(item));
                               }}
                             >
-                              <Text text={item.title} size="md" />
+                              <span>{item.title}</span>
                               <div className={styles.iconWrapper}>
                                 {item.requiresPasscode && !hasAccess && (
                                   <Icon title="lock" className={styles.lockIcon} />
@@ -513,7 +521,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                               }}
                               className={styles.navLink}
                             >
-                              <Text text={item.title} size="md" />
+                              <span>{item.title}</span>
                               {item.requiresPasscode && !hasAccess && (
                                 <Icon title="lock" className={styles.lockIcon} />
                               )}
