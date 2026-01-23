@@ -62,12 +62,6 @@ const logosSection = defineType({
       of: [{ type: 'imageElementSimple' }],
       group: 'data'
     },
-    {
-      name: 'sectionFields',
-      title: 'Section Fields',
-      type: 'sectionFields',
-      group: 'styles'
-    }
   ],
   preview: {
     select: {

@@ -44,15 +44,15 @@ const listArtworkSection = defineType({
       group: 'data',
       hidden: ({ parent }) => parent?.viewOption !== 'selected'
     },
-    {
-      name: 'spacingBetweenArtworks',
-      title: 'Spacing Between Artworks (px)',
-      description: 'Add vertical spacing between each artwork. Default is 0px.',
-      type: 'number',
-      initialValue: 0,
-      group: 'styles',
-      validation: (Rule) => Rule.min(0).max(500).integer()
-    },
+    // {
+    //   name: 'spacingBetweenArtworks',
+    //   title: 'Spacing Between Artworks (px)',
+    //   description: 'Add vertical spacing between each artwork. Default is 0px.',
+    //   type: 'number',
+    //   initialValue: 0,
+    //   group: 'styles',
+    //   validation: (Rule) => Rule.min(0).max(500).integer()
+    // },
     {
       name: 'sectionPreview',
       title: 'Section Preview',

@@ -8,14 +8,39 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 
   @include media-down(tablet) {
     width: 100% !important;
   }
 
   @include media-up(tablet) {
-    gap: 64px;
+    gap: 32px;
+  }
+
+  &.centered {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    align-items: center;
+
+    // Center all child elements
+    & > * {
+      text-align: center;
+    }
+  }
+}
+
+.content {
+  line-height: 1.6;
+
+  .centered & {
+    text-align: center;
+
+    // Center all paragraphs and text elements
+    p, span, div {
+      text-align: center;
+    }
   }
 }
 
@@ -28,5 +53,22 @@
 
 .actions {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+
+  .centered & {
+    justify-content: center;
+  }
+}
+
+.button {
+  min-width: 160px;
+  text-align: center;
+  justify-content: center;
+  
+  // Ensure text/span children are centered
+  span {
+    text-align: center;
+  }
 }

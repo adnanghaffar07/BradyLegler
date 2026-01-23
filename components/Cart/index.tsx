@@ -50,6 +50,31 @@ const Cart = () => {
     }
   }, [cartOpen]);
 
+  // Prevent body scroll when cart is open
+  useEffect(() => {
+    if (cartOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      
+      // Apply styles to lock scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        // Remove scroll lock styles
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [cartOpen]);
+
   // Generate the checkout URL with client_id appended
   const checkoutUrl = useMemo(() => {
     if (!cart?.checkoutUrl) return '';
