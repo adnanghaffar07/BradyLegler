@@ -12,6 +12,7 @@ import styles from './styles.module.scss';
 import { groq } from 'next-sanity';
 import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
+import PasscodeModal from '@/components/PasscodeModal';
 
 type HeaderNavigationMobileProps = {
   navItems: IHeaderDocument['header']['navItems'];
@@ -25,6 +26,9 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   const [subMenuStack, setSubMenuStack] = useState<any[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
+  const [showPasscodeModal, setShowPasscodeModal] = useState(false);
+  const [currentPasscodeItem, setCurrentPasscodeItem] = useState<any | null>(null);
+  const [onPasscodeSuccess, setOnPasscodeSuccess] = useState<(() => void) | null>(null);
 
   // Fetch header nav via GROQ
   useEffect(() => {
@@ -49,6 +53,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
               navSublinks[]{
                 _key,
                 title,
+                requiresPasscode,
+                passcode,
                 image{
                   asset->{
                     _id,
@@ -69,6 +75,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                 navSublinks[]{
                   _key,
                   title,
+                  requiresPasscode,
+                  passcode,
                   image{
                     asset->{
                       _id,
@@ -89,6 +97,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                   navSublinks[]{
                     _key,
                     title,
+                    requiresPasscode,
+                    passcode,
                     image{
                       asset->{
                         _id,
@@ -125,9 +135,25 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     fetchNav();
   }, []);
 
-  // Show all nav items for mobile, not just left side
-  const mobileNavItems = navItems; // Changed: removed the filter
+  // Show only left side nav items for mobile to avoid duplicates
+  const mobileNavItems = navItems.filter(item => item.side === 'left');
   const topLevelItems = mobileNavItems.filter(item => !item.isSubLink);
+
+  // Deduplicate items by title (what user sees)
+  const deduplicateItems = (items: any[]) => {
+    if (!items || !Array.isArray(items)) return [];
+    
+    const seen = new Map();
+    return items.filter((item) => {
+      // Use title as the primary key for deduplication since that's what's visible
+      const key = item.title?.toLowerCase().trim();
+      if (!key || seen.has(key)) {
+        return false;
+      }
+      seen.set(key, true);
+      return true;
+    });
+  };
 
   // Open first-level submenu
   const openMenu = (navItem: any) => {
@@ -138,7 +164,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     setSubMenuStack([
       {
         parentTitle: navItem.title,
-        items: navItem.navSublinks,
+        items: deduplicateItems(navItem.navSublinks),
         image: navItem.image
       }
     ]);
@@ -158,7 +184,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
 
       newStack.push({
         parentTitle: sublink.title,
-        items: sublink.navSublinks,
+        items: deduplicateItems(sublink.navSublinks),
         image: sublink.image ?? prev[prev.length - 1]?.image
       });
 
@@ -269,6 +295,36 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     return '#';
   };
 
+  // Check if user has passcode access
+  const hasPasscodeAccess = (item: any) => {
+    if (!item.requiresPasscode) return true;
+    if (typeof window === 'undefined') return false;
+    const stored = sessionStorage.getItem(`vip_access_${item.title}`);
+    return stored === 'true';
+  };
+
+  // Handle menu item click with passcode check
+  const handleMenuItemClick = (item: any, successCallback: () => void) => {
+    if (item.requiresPasscode && !hasPasscodeAccess(item)) {
+      setCurrentPasscodeItem(item);
+      setShowPasscodeModal(true);
+      setOnPasscodeSuccess(() => successCallback);
+      return false;
+    }
+    successCallback();
+    return true;
+  };
+
+  // Handle passcode verification success
+  const handlePasscodeSuccess = () => {
+    setShowPasscodeModal(false);
+    if (onPasscodeSuccess) {
+      onPasscodeSuccess();
+      setOnPasscodeSuccess(null);
+    }
+    setCurrentPasscodeItem(null);
+  };
+
   // Get current menu level
   const currentLevel = subMenuStack.length > 0 ? subMenuStack[subMenuStack.length - 1] : null;
   useEffect(() => {
@@ -314,33 +370,63 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                   <ul className={styles.links}>
                     {topLevelItems.map(navItem => {
                       const navTitle = navItem.title?.toLowerCase() || '';
+                      const hasAccess = hasPasscodeAccess(navItem);
                       return (
                         <li key={navItem.title} className={styles.linkItem}>
                           {navTitle === 'concierge' ? (
-                            <button className={styles.navButton} onClick={handleConciergeClick}>
+                            <button 
+                              type="button"
+                              className={styles.navButton} 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleConciergeClick(e);
+                              }}
+                            >
                               <Text text={navItem.title} size="lg" />
                               <Icon title="chevronRight" className={styles.navIcon} />
                             </button>
-                          ) : navItem.navSublinks?.length ? (
+                          ) : navItem.navSublinks?.length || (navItem.requiresPasscode && !hasAccess) ? (
                             <button
+                              type="button"
                               className={styles.navButton}
                               onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                openMenu(navItem);
+                                handleMenuItemClick(navItem, () => openMenu(navItem));
                               }}
                             >
                               <Text text={navItem.title} size="sm" />
-                              <Icon title="chevronRight" className={styles.navIcon} />
+                              <div className={styles.iconWrapper}>
+                                {navItem.requiresPasscode && !hasAccess && (
+                                  <Icon title="lock" className={styles.lockIcon} />
+                                )}
+                                {navItem.navSublinks?.length && (
+                                  <Icon title="chevronRight" className={styles.navIcon} />
+                                )}
+                              </div>
                             </button>
                           ) : (
                             <Link
                               variant="normal-sm"
-                              href={resolveLink(navItem.link, navItem.title)}
-                              onClick={closeAllMenus}
+                              href={hasAccess ? resolveLink(navItem.link, navItem.title) : '#'}
+                              onClick={(e) => {
+                                if (navItem.requiresPasscode && !hasAccess) {
+                                  e.preventDefault();
+                                  handleMenuItemClick(navItem, () => {
+                                    window.location.href = resolveLink(navItem.link, navItem.title);
+                                    closeAllMenus();
+                                  });
+                                } else {
+                                  closeAllMenus();
+                                }
+                              }}
                               className={styles.navLink}
                             >
                               <Text text={navItem.title} size="sm" />
+                              {navItem.requiresPasscode && !hasAccess && (
+                                <Icon title="lock" className={styles.lockIcon} />
+                              )}
                             </Link>
                           )}
                         </li>
@@ -354,9 +440,19 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
               {currentLevel && (
                 <div className={styles.menuLevel}>
                   <div className={styles.submenuHeader}>
-                    <button className={styles.backButton} onClick={goBack}>
+                    <button 
+                      type="button"
+                      className={styles.backButton} 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        goBack();
+                      }}
+                    >
                       <Icon title="chevronLeft" className={styles.backIcon} />
-                      <Text text={subMenuStack.length > 1 ? 'Back' : 'Menu'} size="sm" />
+                      <span className={styles.backText}>
+                        {subMenuStack.length > 1 ? 'Back' : 'Menu'}
+                      </span>
                     </button>
                     <h3 className={styles.submenuTitle}>{currentLevel.parentTitle}</h3>
                   </div>
@@ -376,33 +472,56 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                   )}
 
                   <ul className={styles.links}>
-                    {currentLevel.items.map((item: any) => (
-                      <li key={`${item._key}-${subMenuStack.length}`} className={styles.linkItem}>
-
-                        {item.navSublinks?.length ? (
-                          <button
-                            className={styles.navButton}
-                            onClick={e => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              openSubMenu(item);
-                            }}
-                          >
-                            <Text text={item.title} size="md" />
-                            <Icon title="chevronRight" className={styles.navIcon} />
-                          </button>
-                        ) : (
-                          <Link
-                            variant="normal-sm"
-                            href={resolveLink(item.link, item.title)}
-                            onClick={closeAllMenus}
-                            className={styles.navLink}
-                          >
-                            <Text text={item.title} size="md" />
-                          </Link>
-                        )}
-                      </li>
-                    ))}
+                    {deduplicateItems(currentLevel.items).map((item: any) => {
+                      const hasAccess = hasPasscodeAccess(item);
+                      return (
+                        <li key={`${item._key}-${subMenuStack.length}`} className={styles.linkItem}>
+                          {item.navSublinks?.length || (item.requiresPasscode && !hasAccess) ? (
+                            <button
+                              type="button"
+                              className={styles.navButton}
+                              onClick={e => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleMenuItemClick(item, () => openSubMenu(item));
+                              }}
+                            >
+                              <Text text={item.title} size="md" />
+                              <div className={styles.iconWrapper}>
+                                {item.requiresPasscode && !hasAccess && (
+                                  <Icon title="lock" className={styles.lockIcon} />
+                                )}
+                                {item.navSublinks?.length && (
+                                  <Icon title="chevronRight" className={styles.navIcon} />
+                                )}
+                              </div>
+                            </button>
+                          ) : (
+                            <Link
+                              variant="normal-sm"
+                              href={hasAccess ? resolveLink(item.link, item.title) : '#'}
+                              onClick={(e) => {
+                                if (item.requiresPasscode && !hasAccess) {
+                                  e.preventDefault();
+                                  handleMenuItemClick(item, () => {
+                                    window.location.href = resolveLink(item.link, item.title);
+                                    closeAllMenus();
+                                  });
+                                } else {
+                                  closeAllMenus();
+                                }
+                              }}
+                              className={styles.navLink}
+                            >
+                              <Text text={item.title} size="md" />
+                              {item.requiresPasscode && !hasAccess && (
+                                <Icon title="lock" className={styles.lockIcon} />
+                              )}
+                            </Link>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
@@ -419,6 +538,21 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
           setMobileNavOpen(false);
         }}
       />
+
+      {/* Passcode Modal */}
+      {currentPasscodeItem && (
+        <PasscodeModal
+          isOpen={showPasscodeModal}
+          onClose={() => {
+            setShowPasscodeModal(false);
+            setCurrentPasscodeItem(null);
+            setOnPasscodeSuccess(null);
+          }}
+          onSuccess={handlePasscodeSuccess}
+          correctPasscode={currentPasscodeItem.passcode}
+          menuTitle={currentPasscodeItem.title}
+        />
+      )}
     </>
   );
 };
