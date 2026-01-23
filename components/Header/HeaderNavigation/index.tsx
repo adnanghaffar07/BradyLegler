@@ -11,6 +11,7 @@ import styles from './styles.module.scss';
 import { groq } from 'next-sanity';
 import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
+import PasscodeModal from '@/components/PasscodeModal';
 
 type SubMenuState = {
   level: number;
@@ -31,6 +32,12 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
   const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
   // In your component
   const [menuOffsets, setMenuOffsets] = useState([0, 70, 140, 210]);
+  const [passcodeModal, setPasscodeModal] = useState<{
+    isOpen: boolean;
+    item: any;
+    correctPasscode: string;
+    onVerified: () => void;
+  } | null>(null);
 
   useEffect(() => {
     const updateOffsets = () => {
@@ -74,6 +81,8 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
               },
               navSublinks[]{
                 title,
+                requiresPasscode,
+                passcode,
                 image{
                   asset->{
                     _id,
@@ -93,6 +102,8 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 // Level 2 - Collections
                 navSublinks[]{
                   title,
+                  requiresPasscode,
+                  passcode,
                   image{
                     asset->{
                       _id,
@@ -112,6 +123,8 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                   // Level 3 - VIP (nested items)
                   navSublinks[]{
                     title,
+                    requiresPasscode,
+                    passcode,
                     image{
                       asset->{
                         _id,
@@ -150,11 +163,30 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
 
   const filteredLinks = navItems.filter(navItem => navItem.side === display || display === 'all');
 
+  // Deduplicate items by title (what user sees)
+  const deduplicateItems = (items: any[]) => {
+    if (!items || !Array.isArray(items)) return [];
+    
+    const seen = new Map();
+    return items.filter((item) => {
+      // Use title as the primary key for deduplication since that's what's visible
+      const key = item.title?.toLowerCase().trim();
+      if (!key || seen.has(key)) {
+        return false;
+      }
+      seen.set(key, true);
+      return true;
+    });
+  };
+
   // Open menu at any level
   const openMenu = (items: any[], title: string, image?: any, level?: number, parentImage?: any) => {
     if (isAnimating || !items?.length) return;
 
     setIsAnimating(true);
+
+    // Deduplicate items
+    const uniqueItems = deduplicateItems(items);
 
     // Determine which image to use: current item's image or inherited from parent
     const imageToUse = image || parentImage;
@@ -172,7 +204,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
         updated.push({
           level: level + 1,
           parentTitle: title,
-          items,
+          items: uniqueItems,
           image: imageToUse,
           inheritedImage: imageToUse // Pass current image for next level
         });
@@ -184,7 +216,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
       setSubMenuStack([{
         level: 0,
         parentTitle: title,
-        items,
+        items: uniqueItems,
         image: imageToUse,
         inheritedImage: imageToUse
       }]);
@@ -230,6 +262,35 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
       document.body.style.overflow = 'unset';
     };
   }, [sidebarOpen]);
+
+  // Check if user has access to a passcode-protected item
+  const hasPasscodeAccess = (item: any): boolean => {
+    if (!item.requiresPasscode) return true;
+    const accessKey = `vip_access_${item.title}`;
+    return sessionStorage.getItem(accessKey) === 'true';
+  };
+
+  // Handle click on menu item (button or link)
+  const handleMenuItemClick = (
+    item: any,
+    action: () => void,
+    levelIndex?: number
+  ) => {
+    if (item.requiresPasscode && !hasPasscodeAccess(item)) {
+      // Show passcode modal
+      setPasscodeModal({
+        isOpen: true,
+        item,
+        correctPasscode: item.passcode,
+        onVerified: () => {
+          setPasscodeModal(null);
+          action(); // Execute original action after verification
+        }
+      });
+    } else {
+      action(); // No passcode required, execute action
+    }
+  };
 
   // Helper function to convert text to URL-friendly slug
   const generateSlug = (text: string) => {
@@ -355,7 +416,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
           [styles.sidebarOpen]: sidebarOpen,
           [styles.sidebarAnimating]: isAnimating
         })}
-        style={{ width: `${15 + subMenuStack.length * 12}%` }}
+        style={{ width: `${17 + subMenuStack.length * 15}%` }}
       >
         <div className={styles.sidebarContent}>
           {/* Current submenu levels */}
@@ -373,7 +434,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 <div className={styles.levelLayout}>
                   {/* LEFT: Links */}
                   <ul className={styles.sidebarNavigation}>
-                    {menuLevel.items.map((item: any, index: number) => {
+                    {deduplicateItems(menuLevel.items).map((item: any, index: number) => {
                       const hasNestedItems = item.navSublinks?.length > 0;
                       const isDropdownItem = hasNestedItems || !item.link;
 
@@ -389,24 +450,44 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                               className={classNames(styles.sidebarLinkButton, {
                                 [styles.active]: menuLevel.activeItem?.title === item.title
                               })}
-                              onClick={() => openMenu(
-                                item.navSublinks || [],
-                                item.title,
-                                item.image,
-                                levelIndex,
-                                menuLevel.image // Pass current level image as parent image
+                              onClick={() => handleMenuItemClick(
+                                item,
+                                () => openMenu(
+                                  item.navSublinks || [],
+                                  item.title,
+                                  item.image,
+                                  levelIndex,
+                                  menuLevel.image // Pass current level image as parent image
+                                ),
+                                levelIndex
                               )}
                             >
                               <Text text={item.title} />
                               {hasNestedItems && <Icon title="chevronRight" className={styles.submenuIcon} />}
+                              {item.requiresPasscode && !hasPasscodeAccess(item) && (
+                                <Icon title="lock" className={styles.lockIcon} />
+                              )}
                             </button>
                           ) : (
                             <Link
-                              href={resolveLink(item.link, item.title)}
+                              href={hasPasscodeAccess(item) ? resolveLink(item.link, item.title) : '#'}
                               className={styles.sidebarLink}
-                              onClick={closeSidebar}
+                              onClick={(e) => {
+                                if (item.requiresPasscode && !hasPasscodeAccess(item)) {
+                                  e.preventDefault();
+                                  handleMenuItemClick(item, () => {
+                                    window.location.href = resolveLink(item.link, item.title);
+                                    closeSidebar();
+                                  });
+                                } else {
+                                  closeSidebar();
+                                }
+                              }}
                             >
                               <Text text={item.title} />
+                              {item.requiresPasscode && !hasPasscodeAccess(item) && (
+                                <Icon title="lock" className={styles.lockIcon} />
+                              )}
                             </Link>
                           )}
                         </li>
@@ -436,6 +517,17 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
 
       {/* Contact Sidebar */}
       <ContactSidebar isOpen={contactSidebarOpen} onClose={() => setContactSidebarOpen(false)} />
+
+      {/* Passcode Modal */}
+      {passcodeModal && (
+        <PasscodeModal
+          isOpen={passcodeModal.isOpen}
+          onClose={() => setPasscodeModal(null)}
+          onSuccess={passcodeModal.onVerified}
+          correctPasscode={passcodeModal.correctPasscode}
+          menuTitle={passcodeModal.item.title}
+        />
+      )}
     </div>
   );
 };

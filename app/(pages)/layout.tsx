@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import ModalPortal from '@/components/Modal/ModalPortal';
 import Cart from '@/components/Cart';
 import VisualEditing from '@/components/VisualEditing';
+import ScrollToTop from '@/components/ScrollToTop';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import {
   COLLECTION_SLUGS_QUERY, 
@@ -34,6 +35,7 @@ const PageLayout: React.FC<PageLayoutProps> = async props => {
 
   return (
     <>
+      <ScrollToTop />
       <Header {...headerDocument} collectionSlugs={collectionSlugs} productSlugs={productSlugs} />
       <main>{children}</main>
       <Cart />

@@ -9,7 +9,7 @@ const Recommendations = ({ recommendations }: { recommendations: GetProductRecom
   return (
     <section className={styles.recommendationsSection}>
       <div className={styles.container}>
-        <Text as="h2" text="You may also like" size="2xl" className={styles.title} />
+        <Text as="h2" text="You May Also Like" size="b1" className={styles.title} />
         <div className={styles.grid}>
           {recommendations.slice(0, 3).map(product => (
             <div key={product.id} className={styles.productWrapper}>

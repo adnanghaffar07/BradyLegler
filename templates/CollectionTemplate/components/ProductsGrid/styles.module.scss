@@ -27,3 +27,21 @@
   z-index: 10;
   background-color: white;
 }
+
+.centeredGrid {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start;
+  gap: 8px;
+  
+  & > div {
+    width: calc(50% - 4px) !important;
+    max-width: 540px;
+    flex: 0 0 auto !important;
+    
+    @media (min-width: 768px) {
+      width: 390px !important;
+      max-width: 390px;
+    }
+  }
+}

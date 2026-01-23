@@ -36,6 +36,28 @@ const navSublink = defineType({
       hidden: ({ parent }) => !!parent.navSublinks?.length // hide link if submenu exists
     },
     {
+      name: 'requiresPasscode',
+      title: 'Requires Passcode',
+      type: 'boolean',
+      description: 'Enable this to require a passcode to access this menu item',
+      initialValue: false
+    },
+    {
+      name: 'passcode',
+      title: 'Passcode',
+      type: 'string',
+      description: 'Set a passcode to protect this menu item (e.g., for VIP access)',
+      hidden: ({ parent }) => !parent.requiresPasscode,
+      validation: Rule =>
+        Rule.custom((passcode, context) => {
+          const parent = context.parent as any;
+          if (parent?.requiresPasscode && !passcode) {
+            return 'Passcode is required when passcode protection is enabled';
+          }
+          return true;
+        })
+    },
+    {
       name: 'image',
       title: 'Image (Optional)',
       type: 'image',

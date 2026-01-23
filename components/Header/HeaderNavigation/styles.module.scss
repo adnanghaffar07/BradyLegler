@@ -10,7 +10,7 @@
   gap: 8px;
 
   @include media-up(tablet) {
-    gap: 24px;
+    gap: 20px;
   }
 
   @include media-up(desktop) {
@@ -113,11 +113,25 @@ button.navigationLink {
   padding: 0;
   cursor: pointer;
   position: relative;
-  color: var(--navigation-color) !important;
-  line-height: 19.2px;
-  opacity: 0.7;
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
   transition: color 150ms ease;
   text-decoration: none;
+  text-align: left;
+  color: inherit;
+
+  @media (min-width: 768px) {
+    font-size: 12px;
+    line-height: 19.2px;
+  }
+
+  span {
+    color: inherit;
+    font-family: inherit;
+  }
 }
 
 button.navigationLink::after {
@@ -125,15 +139,12 @@ button.navigationLink::after {
   position: absolute;
   left: 0;
   bottom: -2px;
-  /* gap between text and underline */
   width: 100%;
   height: 1px;
-  /* thinner line */
   background: var(--navigation-color-hover);
   transform: scaleX(0);
-  /* start hidden */
   transform-origin: left;
-  transition: transform 0.3s ease;
+  transition: transform 250ms ease;
 }
 
 button.navigationLink:hover {
@@ -208,9 +219,11 @@ button.navigationLink:hover::after {
   align-items: center;
   gap: 8px;
   color: var(--navigation-color) !important;
-  // Inherit all the same styles as navigationLink
+  font-weight: 400;
+  font-size: 12px;
   line-height: 17.28px;
   letter-spacing: 0.05em;
+  opacity: 0.7;
 }
 
 .sidebarMainItemIcon {
@@ -230,15 +243,17 @@ button.navigationLink:hover::after {
 }
 
 .sidebarLink {
-  line-height: 26.28px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
   color: var(--navigation-color) !important;
-  letter-spacing: 0.05em;
   transition: color 150ms ease;
-  font-size: small;
+  opacity: 0.7;
 
   &:hover {
     color: var(--navigation-color-hover) !important;
+    opacity: 1;
   }
 }
 
@@ -345,23 +360,28 @@ button.navigationLink:hover::after {
   border: none;
   cursor: pointer;
   text-align: left;
-  line-height: 26.28px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
   letter-spacing: 0.05em;
   color: var(--navigation-color) !important;
   transition: color 150ms ease;
   padding: 0;
+  opacity: 0.7;
 
   &.active {
-    color: black !important;
+    color: var(--navigation-color-hover) !important;
+    opacity: 1;
 
     .submenuIcon {
-      opacity: 1; // keep arrow visible when active
+      opacity: 1;
       transform: rotate(0deg);
     }
   }
 
   &:hover {
     color: var(--navigation-color-hover) !important;
+    opacity: 1;
 
     .submenuIcon {
       opacity: 1;
@@ -421,6 +441,14 @@ button.navigationLink:hover::after {
   transition:
     transform 0.3s ease,
     opacity 0.3s ease;
+}
+
+.lockIcon {
+  width: 12px;
+  height: 12px;
+  margin-left: 6px;
+  opacity: 0.6;
+  flex-shrink: 0;
 }
 
 .levelImage {

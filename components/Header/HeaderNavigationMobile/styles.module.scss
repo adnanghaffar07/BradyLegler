@@ -167,6 +167,9 @@ $transition-speed: 300ms;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--brand-black-20);
   flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  pointer-events: all;
 }
 
 .backButton {
@@ -175,44 +178,60 @@ $transition-speed: 300ms;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--brand-black-70);
+  color: var(--navigation-color, #1a1a1a);
   cursor: pointer;
-  font-size: 14px;
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   padding: 8px 0;
-  font-family: inherit;
   flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 200ms ease;
+  pointer-events: all;
+  z-index: 10;
+  position: relative;
 
   &:hover {
-    color: var(--brand-black);
+    opacity: 1;
+  }
+
+  &:active {
+    opacity: 0.5;
   }
 }
 
 .backIcon {
   width: 16px;
   height: 16px;
-  color: var(--brand-black-70);
+  stroke: var(--navigation-color, #1a1a1a);
+  opacity: 0.7;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.backText {
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color, #1a1a1a);
+  pointer-events: none;
 }
 
 .submenuTitle {
-  font-size: 16px;
-  font-weight: 500;
-  color: rgb(107, 106, 106);
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+  color: var(--navigation-color, #1a1a1a);
+  opacity: 0.7;
   flex: 1;
   text-align: center;
   margin-left: -60px;
-  line-height: 1.2;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
 }
 
 .menuImageContainer {
@@ -266,18 +285,27 @@ $transition-speed: 300ms;
   background: none;
   border: none;
   text-align: left;
-  color: var(--brand-black-70);
+  color: var(--navigation-color, #1a1a1a);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
   padding: 16px 0;
-  font-size: 14px;
-  line-height: 1.4;
-  font-family: inherit;
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17.28px;
+  letter-spacing: 0.05em;
   text-decoration: none;
   min-height: 48px;
+  pointer-events: all;
+  position: relative;
 
   &:hover {
-    color: var(--brand-black);
+    color: var(--navigation-color, #1a1a1a);
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 0.5;
   }
 }
 
@@ -285,7 +313,12 @@ $transition-speed: 300ms;
   span {
     flex: 1;
     text-align: center;
-    font-weight: 500;
+    font-family: var(--primary-font), sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    line-height: 17.28px !important;
+    letter-spacing: 0.05em !important;
+    pointer-events: none;
   }
 }
 
@@ -293,16 +326,57 @@ $transition-speed: 300ms;
   span {
     flex: 1;
     text-align: left;
-    font-weight: 500;
+    font-family: var(--primary-font), sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    line-height: 17.28px !important;
+    letter-spacing: 0.05em !important;
+    pointer-events: none;
+  }
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.mobileCartWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 16px 0;
+  min-height: 48px;
+
+  button {
+    font-family: var(--primary-font), sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    line-height: 17.28px !important;
+    letter-spacing: 0.05em !important;
+    text-align: left !important;
   }
 }
 
 .navIcon {
   width: 16px;
   height: 16px;
-  color: var(--brand-black-50);
+  color: var(--navigation-color, #1a1a1a);
+  opacity: 0.6;
   flex-shrink: 0;
-  margin-left: 8px;
+  pointer-events: none;
+}
+
+.lockIcon {
+  width: 14px;
+  height: 14px;
+  stroke: var(--navigation-color, #1a1a1a);
+  opacity: 0.5;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 // Responsive adjustments
@@ -318,12 +392,50 @@ $transition-speed: 300ms;
   .navButton,
   .navLink {
     padding: 14px 0;
-    font-size: 11px;
+    font-size: 11px !important;
+    line-height: 16px !important;
     min-height: 44px;
+    
+    span {
+      font-size: 11px !important;
+      line-height: 16px !important;
+    }
   }
 
   .submenuTitle {
-    font-size: 15px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .backButton {
+    font-size: 11px;
+    line-height: 16px;
+    padding: 6px 0;
+  }
+
+  .backText {
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .backIcon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .lockIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mobileCartWrapper {
+    padding: 14px 0;
+    min-height: 44px;
+
+    button {
+      font-size: 11px !important;
+      line-height: 16px !important;
+    }
   }
 }
 
@@ -340,6 +452,10 @@ $transition-speed: 300ms;
   .navButton,
   .navLink {
     padding: 18px 0;
-    font-size: 11px;
+    
+    span {
+      font-size: 12px !important;
+      line-height: 17.28px !important;
+    }
   }
 }

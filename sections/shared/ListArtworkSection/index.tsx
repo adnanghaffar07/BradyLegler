@@ -1,12 +1,13 @@
 import React from 'react';
 import Section from '@/components/Section';
+import Layout from '@/components/Layout';
 import { getSectionSpacingProps } from '@/tools/helpers/section';
 import { IListArtworkSection } from '@/tools/sanity/schema/sections/shared/listArtworkSection';
-import ArtworkFullWidth from './ArtworkFullWidth';
-import ArtworkSold from './ArtworkSold';
+import ArtworkCard from './ArtworkCard';
 import { sanityFetch } from '@/tools/sanity/lib/fetchFromSection';
 import { SanityDocument } from 'next-sanity';
 import { ARTWORKS_QUERY } from '@/tools/sanity/lib/queries.groq';
+import classNames from '@/helpers/classNames';
 import styles from './styles.module.scss';
 
 const ListArtworkSection: React.FC<IListArtworkSection> = async props => {
@@ -38,6 +39,8 @@ const ListArtworkSection: React.FC<IListArtworkSection> = async props => {
 
   if (!artworks?.length) return null;
 
+  const artworkCount = artworks?.length || 0;
+
   return (
     <Section
       name="ListArtworkSection"
@@ -48,18 +51,21 @@ const ListArtworkSection: React.FC<IListArtworkSection> = async props => {
       containerClassName={styles.container}
       {...getSectionSpacingProps(props)}
     >
-      <div 
-        className={styles.artworkList} 
-        style={{ gap: `${spacingBetweenArtworks}px` }}
-      >
-        {artworks?.map(artwork => {
-          if (viewOption === 'sold') {
-            return <ArtworkSold key={artwork._id} {...artwork} />;
-          } else {
-            return <ArtworkFullWidth key={artwork._id} {...artwork} />;
-          }
+      <Layout 
+        variant="grid" 
+        id="artwork-grid"
+        className={classNames(styles.artworkGrid, {
+          [styles.centeredGrid]: artworkCount <= 2
         })}
-      </div>
+      >
+        {artworks?.map(artwork => (
+          <ArtworkCard 
+            key={artwork._id} 
+            artwork={artwork}
+            isSold={viewOption === 'sold'}
+          />
+        ))}
+      </Layout>
     </Section>
   );
 };
