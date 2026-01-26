@@ -2,14 +2,31 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: auto;
+  justify-content: flex-start;
+  margin: 0;
   gap: 20px;
-  max-width: 370px;
-  padding: 0 20px;
+  width: 100%;
+  padding: 0;
+  text-align: center;
+  position: relative;
 }
 
 .description {
-  text-align: center;
+  text-align: center !important;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  
+  // Force all content to be centered
+  & > * {
+    text-align: center !important;
+  }
+  
+  // Target all paragraphs specifically
+  p {
+    text-align: center !important;
+    margin: 0 0 1em 0;
+  }
 }
 
 .description span {
@@ -18,12 +35,80 @@
   font-size: 12px;
   font-family: var(--primary-font), sans-serif;
   font-weight: 300;
-  margin: 0;    /* Slightly bigger than parent */
+  margin: 0;
+  text-align: center !important;
+  display: block;
+  width: 100%;
+  
+  // Override any text-align from nested elements
+  * {
+    text-align: center !important;
+  }
+}
+
+// Target all possible HTML elements from Shopify with maximum specificity
+.description span p,
+.description span div,
+.description span h1,
+.description span h2,
+.description span h3,
+.description span h4,
+.description span h5,
+.description span h6,
+.description span span,
+.description span strong,
+.description span em,
+.description span i,
+.description span b,
+.description span a,
+.description p,
+.description div,
+.description h1,
+.description h2,
+.description h3,
+.description h4,
+.description h5,
+.description h6,
+.description strong,
+.description em,
+.description i,
+.description b,
+.description a {
+  text-align: center !important;
+  margin: 0 0 1em 0;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Ensure ALL child elements and text nodes are centered
+.description,
+.description *,
+.description span,
+.description span *,
+.description span > *,
+.description > * {
+  text-align: center !important;
+}
+
+// Force center alignment on any inline-styled elements from Shopify
+.description[style],
+.description *[style],
+.description span[style],
+.description span *[style] {
+  text-align: center !important;
+}
+
+// Override any align attributes
+.description *[align],
+.description span *[align] {
+  text-align: center !important;
 }
 
 // Container fixes for product grid
 @media (min-width: 768px) {
-.description span {
- font-size: 11px;
-}
+  .description span {
+    font-size: 11px;
+  }
 }

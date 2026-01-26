@@ -45,7 +45,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     order: 1;
     width: 280px;
     flex: 0 0 280px;
@@ -53,9 +53,10 @@
     max-width: 280px;
     margin-bottom: 0;
     position: sticky;
-    top: 100px;
+    top: 50%;
+    transform: translateY(-50%);
     height: fit-content;
-    max-height: calc(100vh - 150px);
+    max-height: 80vh;
     align-self: flex-start;
   }
 
@@ -183,9 +184,11 @@
     margin-top: 0;
     margin-bottom: 0;
     position: sticky;
-    top: 100px;
+    top: 50%;
+    transform: translateY(-50%);
     height: fit-content;
-    max-height: calc(100vh - 150px);
+    max-height: 80vh;
+    overflow-y: auto;
     align-self: flex-start;
   }
 
@@ -208,12 +211,8 @@
   width: 100%;
 
   @include media-up(tablet) {
-    position: sticky;
-    top: 128px;
-    height: fit-content;
-    max-height: calc(100vh - 150px);
-    // overflow: auto;
-    align-self: flex-start;
+    // Sticky positioning handled by parent .rightColumn
+    width: 100%;
   }
 }
 
@@ -221,7 +220,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: medium;
   gap: 2rem;
   width: 100%;
@@ -250,15 +249,23 @@
   align-items: center;
   text-align: center;
   width: 100%;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .headerRight span {
   font-size: 12px;
-
 }
 
 .productDescriptionRight {
   width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 /* ===========================================
