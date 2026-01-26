@@ -280,31 +280,33 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleFormChange}
-                      required
-                      className={styles.formInput}
-                      disabled={isSubmitting}
-                    />
-                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="email">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleFormChange}
+                        required
+                        className={styles.formInput}
+                        disabled={isSubmitting}
+                      />
+                    </div>
 
-                  <div className={styles.formGroup}>
-                    <label htmlFor="phone">Phone</label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleFormChange}
-                      className={styles.formInput}
-                      disabled={isSubmitting}
-                    />
+                    <div className={styles.formGroup}>
+                      <label htmlFor="phone">Phone</label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleFormChange}
+                        className={styles.formInput}
+                        disabled={isSubmitting}
+                      />
+                    </div>
                   </div>
 
                   <div className={styles.formGroup}>
