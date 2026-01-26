@@ -41,12 +41,24 @@
   color: var(--brand-white);
   z-index: 0;
 
+  @include media-down(tablet) {
+    height: 70vh;
+  }
+
   &.layout_fullWidth {
     height: 100vh;
+
+    @include media-down(tablet) {
+      height: 70vh;
+    }
   }
 
   &.layout_split {
     height: 100vh;
+
+    @include media-down(tablet) {
+      height: 70vh;
+    }
     
     @include media-down(tablet) {
       .mediaContainer {
@@ -70,6 +82,10 @@
     justify-content: center;
     height: 100vh;
 
+    @include media-down(tablet) {
+      height: 70vh;
+    }
+
     .textContainer {
       width: 100%;
       height: 100%;
@@ -91,6 +107,10 @@
   position: relative;
   width: 100%;
   height: 100vh;
+
+  @include media-down(tablet) {
+    height: 70vh;
+  }
 }
 
 .buttonContainer {
@@ -114,10 +134,18 @@
   width: 100%;
   height: 100vh;
 
+  @include media-down(tablet) {
+    height: 60vh;
+  }
+
   .media {
     display: block;
     width: 100%;
     height: 100vh;
+
+    @include media-down(tablet) {
+      height: 70vh;
+    }
 
     img,
     video {
@@ -125,6 +153,10 @@
       height: 100vh;
       object-fit: cover;
       object-position: center;
+
+      @include media-down(tablet) {
+        height: 70vh;
+      }
     }
   }
 }
