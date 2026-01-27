@@ -21,6 +21,19 @@
 .container {
   width: 100% !important;
   height: 100% !important;
+
+  // Mobile full-width/full-height styling (like FullscreenImageSection)
+  @include media-down(tablet) {
+    min-height: 100vh;
+    min-width: 100vw;
+    
+    video {
+      object-fit: cover;
+      min-height: 100vh;
+      min-width: 100vw;
+      transition: opacity 150ms ease;
+    }
+  }
 }
 
 .object-fit {
