@@ -3,6 +3,7 @@
 import NextImage, { ImageProps } from 'next/image';
 import { useNextSanityImage } from 'next-sanity-image';
 import { client as sanityClient } from '@/tools/sanity/lib/client';
+import { useState, useEffect, useMemo } from 'react';
 
 type ImageSanityProps = {
   asset: any;
@@ -28,15 +29,75 @@ type ImageSanityProps = {
 const ImageSanity: React.FC<ImageSanityProps> = props => {
   const { asset, crop, hotspot, sizes, className, quality, alt, fill, placeholder, onError, priority, error, fallback } = props;
 
-  let imageProps: Partial<ImageProps> = {};
+  const [isMobile, setIsMobile] = useState(true); // Start with true to show hotspot
 
-  // Create the full image object with crop and hotspot for useNextSanityImage
-  const imageObject = crop || hotspot ? { asset, crop, hotspot } : asset;
+  useEffect(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+    
+    const checkMobile = () => {
+      const newIsMobile = window.innerWidth < 768;
+      setIsMobile(newIsMobile);
+    };
+    
+    // Check on mount
+    checkMobile();
+    
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Always apply crop (rectangle), but only apply hotspot (circle) on mobile
+  const imageObject = useMemo(() => {
+    return isMobile 
+      ? { asset, crop, hotspot }  // Mobile: Use both crop and hotspot
+      : crop 
+        ? { asset, crop }  // Desktop: Only use crop (rectangle), ignore hotspot (circle)
+        : asset;  // No crop or hotspot
+  }, [isMobile, asset, crop, hotspot]);
   
   const sanityImage: any = useNextSanityImage(sanityClient, imageObject);
 
+  let imageProps: Partial<ImageProps> = {};
+
   if (sanityImage && sanityImage?.src && !error) {
-    imageProps = { ...sanityImage, placeholder: 'empty' };
+    let imageSrc = sanityImage.src;
+    
+    // Manually add focal point parameters on mobile if hotspot exists
+    if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined) {
+      try {
+        const url = new URL(imageSrc);
+        // Remove existing fit and crop parameters
+        url.searchParams.delete('fit');
+        url.searchParams.delete('crop');
+        // Add focal point parameters with dimensions
+        url.searchParams.set('w', '800');
+        url.searchParams.set('h', '1200');
+        url.searchParams.set('fit', 'crop');
+        url.searchParams.set('crop', 'focalpoint');
+        url.searchParams.set('fp-x', hotspot.x.toString());
+        url.searchParams.set('fp-y', hotspot.y.toString());
+        // Add cache buster to force fresh image
+        url.searchParams.set('v', Date.now().toString());
+        imageSrc = url.toString();
+      } catch (e) {
+        // Silent error handling
+      }
+    }
+    
+    // If we modified the URL for focal point, remove the loader so Next.js uses our custom src
+    const modifiedForFocalPoint = isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined;
+    if (modifiedForFocalPoint) {
+      imageProps = { 
+        src: imageSrc, 
+        width: sanityImage.width,
+        height: sanityImage.height,
+        placeholder: 'empty' 
+      };
+    } else {
+      imageProps = { ...sanityImage, src: imageSrc, placeholder: 'empty' };
+    }
+    
     const lqip = asset?.metadata?.lqip;
     if (lqip) {
       imageProps.blurDataURL = lqip;
@@ -53,6 +114,7 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
 
   return (
     <NextImage
+      key={isMobile ? 'mobile' : 'desktop'}
       className={className}
       quality={quality}
       sizes={sizes}
