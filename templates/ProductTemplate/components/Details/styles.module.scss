@@ -73,6 +73,10 @@
     min-width: 380px;
     max-width: 380px;
   }
+
+  @media (min-width: 1500px) {
+    top: 35vh;
+  }
 }
 
 /* Collection Info Styles - LEFT COLUMN ONLY */
@@ -204,6 +208,10 @@
     flex: 0 0 380px;
     min-width: 380px;
     max-width: 380px;
+  }
+
+  @media (min-width: 1500px) {
+    top: 35vh;
   }
 }
 
