@@ -7,7 +7,7 @@
 
 .title {
   justify-content: center;
-  padding-bottom: 42px;
+  padding-bottom: 90px;
   width: 100%;
   text-align: center;
 }
@@ -288,7 +288,7 @@
 
     &.gridMode {
       .gridItems {
-        gap: 40px;
+        gap: 80px;
 
         .item {
           flex: 0 0 calc(100% - 32px);

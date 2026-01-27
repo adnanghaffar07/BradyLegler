@@ -42,14 +42,14 @@
   z-index: 0;
 
   @include media-down(tablet) {
-    height: 70vh;
+    height: 100vh;
   }
 
   &.layout_fullWidth {
     height: 100vh;
 
     @include media-down(tablet) {
-      height: 70vh;
+      height: 100vh;
     }
   }
 
@@ -57,7 +57,7 @@
     height: 100vh;
 
     @include media-down(tablet) {
-      height: 70vh;
+      height: 100vh;
     }
     
     @include media-down(tablet) {
@@ -83,7 +83,7 @@
     height: 100vh;
 
     @include media-down(tablet) {
-      height: 70vh;
+      height: 100vh;
     }
 
     .textContainer {
@@ -109,7 +109,7 @@
   height: 100vh;
 
   @include media-down(tablet) {
-    height: 70vh;
+    height: 100vh;
   }
 }
 
@@ -144,7 +144,7 @@
     height: 100vh;
 
     @include media-down(tablet) {
-      height: 70vh;
+      height: 100vh;
     }
 
     img,
@@ -155,7 +155,7 @@
       object-position: center;
 
       @include media-down(tablet) {
-        height: 70vh;
+        height: 100vh;
       }
     }
   }

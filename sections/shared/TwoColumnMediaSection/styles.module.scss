@@ -10,6 +10,15 @@
   .image {
     opacity: 1;
     transition: opacity 150ms ease-out;
+    
+    // Mobile full-width/full-height styling (like FullscreenImageSection)
+    @include media-down(tablet) {
+      object-fit: cover;
+      min-height: 100vh;
+      min-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+    }
   }
 
   .overlayContent {
