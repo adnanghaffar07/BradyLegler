@@ -57,4 +57,19 @@
 .image {
   margin: 0 auto;
   height: auto;
+  
+  // Mobile: Portrait orientation with cover
+  @include media-down(large-tablet) {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    padding: 0 !important;
+  }
+  
+  // Desktop: Show full image, centered
+  @include media-up(tablet) {
+    object-fit: contain;
+    object-position: center center;
+  }
 }

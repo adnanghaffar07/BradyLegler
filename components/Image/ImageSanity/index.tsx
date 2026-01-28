@@ -58,7 +58,7 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
   
   const sanityImage: any = useNextSanityImage(sanityClient, imageObject);
 
-  let imageProps: Partial<ImageProps> = {};
+  let imageProps: any = {};
 
   if (sanityImage && sanityImage?.src && !error) {
     let imageSrc = sanityImage.src;
@@ -88,14 +88,28 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     // If we modified the URL for focal point, remove the loader so Next.js uses our custom src
     const modifiedForFocalPoint = isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined;
     if (modifiedForFocalPoint) {
-      imageProps = { 
-        src: imageSrc, 
-        width: sanityImage.width,
-        height: sanityImage.height,
-        placeholder: 'empty' 
-      };
+      // When using fill prop, don't include width/height
+      if (fill) {
+        imageProps = { 
+          src: imageSrc, 
+          placeholder: 'empty'
+        };
+      } else {
+        imageProps = { 
+          src: imageSrc, 
+          width: sanityImage.width,
+          height: sanityImage.height,
+          placeholder: 'empty'
+        };
+      }
     } else {
-      imageProps = { ...sanityImage, src: imageSrc, placeholder: 'empty' };
+      // When using fill prop, exclude width and height from sanityImage
+      if (fill) {
+        const { width, height, ...restSanityImage } = sanityImage;
+        imageProps = { ...restSanityImage, src: imageSrc, placeholder: 'empty' };
+      } else {
+        imageProps = { ...sanityImage, src: imageSrc, placeholder: 'empty' };
+      }
     }
     
     const lqip = asset?.metadata?.lqip;
@@ -104,10 +118,19 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
       imageProps.placeholder = 'blur';
     }
   } else {
-    imageProps = {
-      ...fallback,
-      placeholder: fallback.blurDataURL ? 'blur' : 'empty'
-    };
+    // When using fill prop, exclude width and height from fallback
+    if (fill) {
+      const { width, height, ...restFallback } = fallback;
+      imageProps = {
+        ...restFallback,
+        placeholder: fallback.blurDataURL ? 'blur' : 'empty'
+      };
+    } else {
+      imageProps = {
+        ...fallback,
+        placeholder: fallback.blurDataURL ? 'blur' : 'empty'
+      };
+    }
   }
 
   if (placeholder) imageProps.placeholder = placeholder;
