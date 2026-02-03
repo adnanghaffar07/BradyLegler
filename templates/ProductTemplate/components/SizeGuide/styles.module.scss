@@ -20,17 +20,13 @@
 .table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  column-gap: 16px;
-  row-gap: 2px;
+  gap: 0 16px;
   overflow: hidden;
   width: 100%;
 }
 
 .headerRow {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 16px;
+  display: contents;
 }
 
 .headerCell {
@@ -40,16 +36,13 @@
 }
 
 .row {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 16px;
-  border-bottom: 1px solid var(--brand-black-40);
+  display: contents;
 }
 
 .cell {
   padding: 16px 2rem;
   text-align: center;
+  border-bottom: 1px solid var(--brand-black-40);
 }
 
 @media (max-width: 640px) {

@@ -71,7 +71,6 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
         }
       };
     } catch (error) {
-      console.log('An error occurred while generating metadata', error);
       return {};
     }
   };

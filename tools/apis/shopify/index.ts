@@ -47,7 +47,6 @@ export const createCart = async (itemId: string, quantity: number): Promise<Crea
     const response: ShopifyCartCreateResponse = await client.request(createCartMutation, variables);
     return response?.cartCreate?.cart;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -89,7 +88,6 @@ export const addToCart = async (cartId: string, variantId: string, quantity: num
     const response: ShopifyCartLinesAddResponse = await client.request(addToCartMutation, variables);
     return response?.cartLinesAdd?.cart;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -131,7 +129,6 @@ export const updateCart = async (cartId: string, lineId: string, quantity: numbe
     const response: ShopifyCartLinesUpdateResponse = await client.request(updateCartMutation, variables);
     return response?.cartLinesUpdate?.cart;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -282,7 +279,6 @@ export const retrieveCart = async (cartId: string): Promise<RetrieveCartResponse
     const data: ShopifyCartResponse = await client.request(cartQuery, variables);
     return data?.cart;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -306,7 +302,6 @@ export const getCheckoutUrl = async (cartId: string): Promise<any> => {
     const response: any = await client.request(getCheckoutUrlQuery, variables);
     return response?.cart?.checkoutUrl;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -455,7 +450,6 @@ export const getProductByHandle = async (handle: string): Promise<GetProductByHa
     const response: ShopifyProductByHandleResponse = await client.request(getProductByHandleQuery, variables);
     return response?.productByHandle;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -532,7 +526,6 @@ export const getProducts = async (productIds: string[]): Promise<GetProductsResp
     const response: ShopifyProductsResponse = await client.request(getProductsQuery, variables);
     return response?.products?.edges?.map(({ node }) => node);
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -631,7 +624,6 @@ export const getProductRecommendations = async (
     );
     return response?.productRecommendations || [];
   } catch (error) {
-    console.error(error);
     return [];
   }
 };
@@ -765,7 +757,6 @@ export const getCollectionByHandle = async (
     const response: ShopifyCollectionByHandleResponse = await client.request(getCollectionByHandleQuery, variables);
     return response?.collectionByHandle;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -922,7 +913,6 @@ export const getCollectionFiltersByHandle = async (handle: string): Promise<GetC
 
     return allFilters.length > 0 ? allFilters : null;
   } catch (error) {
-    console.error('Error fetching collection filters:', error);
     return null;
   }
 };
@@ -944,7 +934,6 @@ export const getCollectionSubCollectionFiltersById = async (
   collectionId?: string
 ): Promise<GetCollectionSubCollectionFiltersByIdResponse> => {
   if (!collectionId) {
-    console.error('Collection ID is required');
     return null;
   }
 
@@ -1040,7 +1029,6 @@ export const getCollectionSubCollectionFiltersById = async (
 
     return subCollectionFilters;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };

@@ -15,14 +15,14 @@ try {
   const redirectsModule = await import('./config/redirects.js');
   redirects = redirectsModule.default || redirectsModule;
 } catch (error) {
-  console.warn('Failed to load redirects.js, using empty array:', error.message);
+  // Silently handle missing redirects
 }
 
 try {
   const rewritesModule = await import('./config/rewrites.js');
   rewrites = rewritesModule.default || rewritesModule;
 } catch (error) {
-  console.warn('Failed to load rewrites.js, using empty array:', error.message);
+  // Silently handle missing rewrites
 }
 
 const nextConfig = {
@@ -59,17 +59,14 @@ const nextConfig = {
   redirects: async () => {
     // Check if Sanity environment variables are available
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
-      console.warn('Sanity projectId missing - using only static redirects');
       return redirects;
     }
 
     try {
       const fetchSanityRedirects = (await import('./tools/sanity/helpers/fetchSanityRedirects.js')).default;
       const sanityRedirects = await fetchSanityRedirects();
-      console.log(`Loaded ${sanityRedirects.length} redirects from Sanity`);
       return [...redirects, ...sanityRedirects];
     } catch (error) {
-      console.error('Error loading Sanity redirects:', error);
       return redirects; // Fallback to static redirects only
     }
   },

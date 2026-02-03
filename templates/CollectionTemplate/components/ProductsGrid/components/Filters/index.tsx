@@ -27,13 +27,6 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [hydrated, setHydrated] = useState(false);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Filters data:', filters);
-    console.log('SubCollection filters:', subCollectionFilters);
-    console.log('Search params:', searchParams?.toString());
-  }, [filters, subCollectionFilters, searchParams]);
-
   useEffect(() => {
     setHydrated(true);
   }, []);

@@ -15,12 +15,10 @@ type SendEmailProps = {
 const sendEmail = async (values: SendEmailProps) => {
   // Check if required environment variables are set
   if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY environment variable is missing');
     return false;
   }
 
   if (!process.env.FORM_ENQUIRY_EMAIL_RECIPIENT) {
-    console.error('FORM_ENQUIRY_EMAIL_RECIPIENT environment variable is missing');
     return false;
   }
 
@@ -63,14 +61,11 @@ const sendEmail = async (values: SendEmailProps) => {
     });
 
     if (data?.error) {
-      console.error('Resend API error:', data.error);
       return false;
     }
 
-    console.log('Email sent successfully:', data);
     return true;
   } catch (error) {
-    console.error('An error occurred while sending email with Resend:', error);
     return false;
   }
 };

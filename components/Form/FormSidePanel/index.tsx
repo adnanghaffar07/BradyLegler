@@ -57,7 +57,6 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
         setStatus('idle');
       }, SUCCESS_DURATION);
     } catch (error) {
-      console.error('Form submission error:', error);
       setStatus('error');
       setTimeout(() => {
         setStatus('idle');

@@ -67,11 +67,6 @@ const Products = async ({
     }
   };
 
-  // Log to verify merging worked
-  console.log('🔍 Products - Sanity data count:', sanityProductData.length);
-  console.log('🔍 Products - First product gallery:', sanityProductData[0]?.gallery);
-  console.log('🔍 Products - Merged edges count:', enrichedInitialDataEdges?.length);
-
   // ---- OTHER SHOPIFY FILTERS ----
   const productCount = await getCollectionProductCountByHandle(sanityCollectionData?.store?.slug?.current);
   const filters = await getCollectionFiltersByHandle(sanityCollectionData?.store?.slug?.current);

@@ -19,8 +19,6 @@ export async function POST(req: NextRequest) {
     const data: Payload = await req.json();
     const { type } = data;
 
-    console.log('API received:', data); // Add logging
-
     let response = { status: 'error', message: 'Unknown error' };
 
     if (type === 'newsletter') {
@@ -33,9 +31,6 @@ export async function POST(req: NextRequest) {
       };
 
       const klaviyoResp = await klaviyo.submitForm(payloadForKl);
-
-      // Log Klaviyo response for debugging
-      console.log('Klaviyo response:', klaviyoResp);
 
       // Optionally send email notification (you can uncomment this)
       // const emailResp = await sendEmail(data);
@@ -52,10 +47,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'error', message: 'Invalid form type' }, { status: 400 });
     }
 
-    console.log('API response:', response); // Log final response
     return NextResponse.json(response);
   } catch (error: any) {
-    console.error('API error:', error);
     return NextResponse.json({ status: 'error', message: error.message || 'Server error' }, { status: 500 });
   }
 }

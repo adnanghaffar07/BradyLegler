@@ -23,8 +23,6 @@ const submitForm = async (data: {
       throw new Error('Missing required fields.');
     }
 
-    console.log('Processing form submission for:', email);
-
     // Clean and validate List ID
     let cleanListId = KLAVIYO_LIST_ID;
 
@@ -35,8 +33,6 @@ const submitForm = async (data: {
         cleanListId = match[1];
       }
     }
-
-    console.log('Cleaned List ID:', cleanListId);
 
     // 1️⃣ Create or update profile
     let profileId: string | undefined;
@@ -70,14 +66,12 @@ const submitForm = async (data: {
         const duplicateProfile = errors.find((e: any) => e.code === 'duplicate_profile');
         if (duplicateProfile) {
           profileId = duplicateProfile.meta?.duplicate_profile_id;
-          console.log('Found duplicate profile, ID:', profileId);
         } else {
           throw new Error(errors[0]?.detail || 'Failed to create profile.');
         }
       }
     } else {
       profileId = profileData.data.id;
-      console.log('Created new profile, ID:', profileId);
     }
 
     // ✅ Ensure profileId exists
@@ -87,10 +81,8 @@ const submitForm = async (data: {
 
     // 2️⃣ Subscribe profile to the list (FIXED CONDITION)
     if (cleanListId && cleanListId.trim() !== '') {
-      console.log('Subscribing profile to list:', cleanListId);
-
       try {
-        const subscribeResp = await fetch(`https://a.klaviyo.com/api/lists/${cleanListId}/relationships/profiles/`, {
+        await fetch(`https://a.klaviyo.com/api/lists/${cleanListId}/relationships/profiles/`, {
           method: 'POST',
           headers: {
             accept: 'application/json',
@@ -102,32 +94,9 @@ const submitForm = async (data: {
             data: [{ type: 'profile', id: profileId }]
           })
         });
-
-        console.log('Subscription response status:', subscribeResp.status);
-
-        // Get response for debugging
-        let responseText = '';
-        try {
-          responseText = await subscribeResp.text();
-          if (responseText) {
-            const subscribeData = JSON.parse(responseText);
-            console.log('Subscription response data:', subscribeData);
-          }
-        } catch (e) {
-          // Response might be empty or non-JSON
-        }
-
-        if (subscribeResp.status === 204 || subscribeResp.status === 200) {
-          console.log('Successfully subscribed profile to list');
-        } else {
-          console.error('Failed to subscribe to list. Status:', subscribeResp.status);
-          console.error('Response:', responseText);
-        }
       } catch (subscribeError) {
-        console.error('List subscription error:', subscribeError);
+        // Silently handle subscription errors
       }
-    } else {
-      console.error('No valid List ID found. Check KLAVIYO_LIST_ID environment variable.');
     }
 
     // 3️⃣ Create form submission event
@@ -171,15 +140,8 @@ const submitForm = async (data: {
           }
         })
       });
-
-      if (!eventResp.ok) {
-        const eventData = await eventResp.json();
-        console.warn('Event creation warning:', eventData.errors?.[0]?.detail);
-      } else {
-        console.log('Event created successfully');
-      }
     } catch (eventError) {
-      console.warn('Event creation error:', eventError);
+      // Silently handle event creation errors
     }
 
     return {
@@ -187,7 +149,6 @@ const submitForm = async (data: {
       message: 'Form submitted successfully'
     };
   } catch (error: any) {
-    console.error('Klaviyo submission error:', error);
     return {
       status: 'error',
       message: error.message || 'Unexpected error occurred'

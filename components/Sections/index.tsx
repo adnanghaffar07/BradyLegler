@@ -45,10 +45,6 @@ const Sections = async (props: SectionProps) => {
         const sectionExtraData = extraData?.find(data => data?.[sectionType]);
 
         if (sectionComponent) {
-          if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-            console.info('Section -----', type, sectionProps);
-          }
-
           return createElement(sectionComponent, {
             ...sectionProps,
             extraData: sectionExtraData,
@@ -61,7 +57,6 @@ const Sections = async (props: SectionProps) => {
           });
         } else {
           if (!IS_DEV) return null;
-          console.log(`○ Section component not found for type "${type}"`);
           return (
             <section
               key={key}

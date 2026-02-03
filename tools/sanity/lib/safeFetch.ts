@@ -6,7 +6,6 @@ export async function safeSanityFetch(query: string, params: Record<string, any>
 
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined) {
-      console.warn(`⚠️ Replacing undefined parameter "${key}" with null`);
       cleanParams[key] = null;
     } else if (Array.isArray(value)) {
       // Clean arrays to remove undefined values
@@ -19,9 +18,6 @@ export async function safeSanityFetch(query: string, params: Record<string, any>
   try {
     return await client.fetch(query, cleanParams);
   } catch (error) {
-    console.error('💥 Sanity fetch error:', error);
-    console.error('📋 Query:', query);
-    console.error('🔧 Params:', cleanParams);
     return null;
   }
 }

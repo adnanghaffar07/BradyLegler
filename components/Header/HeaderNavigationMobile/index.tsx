@@ -126,10 +126,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
 
       try {
         const data = await client.fetch(query);
-        console.log('Navigation data loaded');
         setNavItems(data?.header?.navItems || []);
       } catch (error) {
-        console.error('Error fetching navigation:', error);
         setNavItems([]);
       }
     };

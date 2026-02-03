@@ -41,7 +41,6 @@ const FieldFile = (props: FieldFileProps) => {
       setFilename(file.name);
       setStatus('success');
     } catch (error: any) {
-      console.log('An error occured while uploading a file.', error?.message);
       setMessage('An error occured while uploading your file. Please try again.');
       setStatus('idle');
       onClear();

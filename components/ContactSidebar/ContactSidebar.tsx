@@ -95,7 +95,6 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
         throw new Error(result.message);
       }
     } catch (error: any) {
-      console.error('Form submission error:', error);
       setSubmitStatus({
         type: 'error',
         message: error.message || 'Failed to submit your enquiry. Please try again.'

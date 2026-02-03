@@ -67,8 +67,6 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return new Response(response);
   } catch (error) {
-    console.error('Error uploading image', error);
-
     return new Response(`Error uploading image: ${error.message}`, {
       status: 500
     });

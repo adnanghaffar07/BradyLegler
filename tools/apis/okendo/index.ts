@@ -76,7 +76,6 @@ export const getReviews = async (targetId: string, type: ReviewType): Promise<Ge
 
     return await iterateThroughReviews(url);
   } catch (error) {
-    console.error(error);
     return null;
   }
 };

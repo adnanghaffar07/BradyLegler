@@ -21,9 +21,8 @@ const rebuildSite = async (cleanCache, previewEnv, previewBranch) => {
     const paramStringified = params?.toString();
     const response = await fetch(`${buildHook}${paramStringified ? `?${paramStringified}` : ''}`, options);
     const result = await response.text();
-    console.log('Build triggered successfully', result);
   } catch (error) {
-    console.error('Error triggering build', error);
+    // Silently handle build trigger errors
   }
 };
 

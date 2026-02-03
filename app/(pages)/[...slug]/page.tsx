@@ -23,9 +23,6 @@ const Document = async (props: PageProps) => {
   const pathname = `/${slugArray.join('/')}/`;
   const shopifySlug = slugArray[slugArray.length - 1];
 
-  console.log('🔍 Fetching document for pathname:', pathname);
-  console.log('🔍 Shopify slug:', shopifySlug);
-
   try {
     const document = await sanityFetch<SanityDocument>({
       query: DOCUMENT_QUERY,
@@ -36,11 +33,7 @@ const Document = async (props: PageProps) => {
       }
     });
 
-    console.log('📄 Document fetched:', document);
-    console.log('📄 Document type:', document?._type);
-
     if (!document) {
-      console.log('❌ No document found for:', pathname);
       return notFound();
     }
 
@@ -49,38 +42,31 @@ const Document = async (props: PageProps) => {
     switch (documentType) {
       case 'page':
         if (document?.page) {
-          console.log('📄 Rendering page template');
           return <PageTemplate data={document?.page} searchParams={searchParams} params={params} />;
         }
         break;
       case 'artwork':
         if (document?.artwork) {
-          console.log('🎨 Rendering artwork template');
           return <ArtworkTemplate data={document?.artwork} searchParams={searchParams} params={params} />;
         }
         break;
       case 'product':
         if (document?.product) {
-          console.log('🛍️ Rendering product template');
           return <ProductTemplate data={document?.product} searchParams={searchParams} params={params} />;
         }
         break;
       case 'collection':
         if (document?.collection) {
-          console.log('📦 Rendering collection template');
           return <CollectionTemplate data={document?.collection} searchParams={searchParams} params={params} />;
         }
         break;
       default:
-        console.log('❌ Unknown document type:', documentType);
         return notFound();
     }
 
     // If we get here, it means the document type was found but the specific data wasn't
-    console.log('❌ Document type found but data missing for:', documentType);
     return notFound();
   } catch (error) {
-    console.error('💥 Error fetching document:', error);
     return notFound();
   }
 };
@@ -91,8 +77,6 @@ export const generateMetadata = generateSanityMetadata({
     const slugAsArray = Array.isArray(slug) ? slug : [slug];
     const pathname = `/${slugAsArray.join('/')}/`;
     const shopifySlug = slugAsArray[slugAsArray.length - 1];
-
-    console.log('🔍 Generating metadata for:', pathname);
 
     try {
       const document = await sanityFetch<SanityDocument>({
@@ -109,8 +93,6 @@ export const generateMetadata = generateSanityMetadata({
 
       const documentType = document?._type;
       const canonicalPath = params?.slug?.join('/');
-
-      console.log('📄 Metadata document type:', documentType);
 
       switch (documentType) {
         case 'page':
@@ -157,7 +139,6 @@ export const generateMetadata = generateSanityMetadata({
           };
       }
     } catch (error) {
-      console.error('💥 Error generating metadata:', error);
       return {
         seoTitle: `${metadata.title}`,
         seoDescription: ''
@@ -299,8 +280,6 @@ export const generateStaticParams = async () => {
   ];
 
   try {
-    console.log('🔧 Generating static params...');
-
     const docSlugs: any[] = await client.fetch(
       `
       *[_type in $types && !(_id in path("drafts.**"))]{
@@ -319,8 +298,6 @@ export const generateStaticParams = async () => {
       }
     );
 
-    console.log('📄 Raw documents from Sanity:', docSlugs);
-
     // Process and filter slugs
     const validSlugs = docSlugs
       .map(doc => {
@@ -338,10 +315,8 @@ export const generateStaticParams = async () => {
       })
       .filter(Boolean) as { slug: string[] }[];
 
-    console.log('✅ Final static params:', validSlugs);
     return validSlugs;
   } catch (error) {
-    console.error('💥 Error generating static params:', error);
     return [];
   }
 };
