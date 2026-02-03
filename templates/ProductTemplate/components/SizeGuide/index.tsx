@@ -50,27 +50,28 @@ const SizeGuide = (props: SizeGuideProps) => {
               return (
                 <div key={`${_key}_${index}`} className={styles.guide}>
                   <Text text={title} size="b3" />
-                  <div className={styles.table}>
-                    {/* Header Row */}
-                    <div className={styles.headerRow}>
-                      {rows[0]?.cells.map((header, index: number) => (
-                        <div key={`header-${index}`} className={styles.headerCell}>
-                          <Text text={header} size="b2" />
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Body Rows */}
-                    {rows.slice(1).map((row: { cells: string[] }, rowIndex: number) => (
-                      <div key={`row-${rowIndex}`} className={styles.row}>
-                        {row.cells.map((cell: string, cellIndex: number) => (
-                          <div key={`cell-${rowIndex}-${cellIndex}`} className={styles.cell}>
-                            <Text text={cell} size="b3" />
-                          </div>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        {rows[0]?.cells.map((header, index: number) => (
+                          <th key={`header-${index}`} className={styles.headerCell}>
+                            {header}
+                          </th>
                         ))}
-                      </div>
-                    ))}
-                  </div>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.slice(1).map((row: { cells: string[] }, rowIndex: number) => (
+                        <tr key={`row-${rowIndex}`}>
+                          {row.cells.map((cell: string, cellIndex: number) => (
+                            <td key={`cell-${rowIndex}-${cellIndex}`} className={styles.cell}>
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               );
             })}
