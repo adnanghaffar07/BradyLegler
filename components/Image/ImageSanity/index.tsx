@@ -97,8 +97,9 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
       }
     }
     
-    // Disable blur placeholder to prevent blurry images - use empty for sharp loading
-    const defaultPlaceholder = 'empty';
+    // Check for LQIP blur data for loading indicator
+    const lqip = asset?.metadata?.lqip;
+    const defaultPlaceholder = lqip ? 'blur' : 'empty';
     
     // If we modified the URL for focal point, remove the loader so Next.js uses our custom src
     const modifiedForFocalPoint = isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined;
@@ -126,6 +127,12 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
         imageProps = { ...sanityImage, src: imageSrc, placeholder: defaultPlaceholder };
       }
     }
+    
+    // Add blur data URL if LQIP exists (lqip already declared above)
+    if (lqip) {
+      imageProps.blurDataURL = lqip;
+      imageProps.placeholder = 'blur';
+    }
   } else {
     // When using fill prop, exclude width and height from fallback
     if (fill) {
@@ -142,7 +149,10 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     }
   }
 
-  if (placeholder) imageProps.placeholder = placeholder;
+  // Override with explicit placeholder if provided
+  if (placeholder) {
+    imageProps.placeholder = placeholder;
+  }
 
   return (
     <NextImage

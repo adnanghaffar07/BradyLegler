@@ -2,6 +2,7 @@
   position: relative;
   width: 100%;
   height: 100%;
+  background: transparent;
 
   &::after {
     content: '';
@@ -15,6 +16,12 @@
     height: 100%;
     object-position: 50% 50%;
     object-fit: cover;
+    background: transparent;
+    
+    // Make blur placeholder neutral (remove blue tint)
+    &[data-placeholder='blur'] {
+      filter: grayscale(0.3) brightness(1.1);
+    }
   }
 }
 
@@ -35,6 +42,7 @@
 // Ratios
 .ratio_natural {
   position: relative;
+  background: transparent;
 
   .image {
     position: relative;
@@ -42,6 +50,12 @@
     width: 100%;
     height: 100%;
     object-position: center;
+    background: transparent;
+    
+    // Make blur placeholder neutral (remove blue tint)
+    &[data-placeholder='blur'] {
+      filter: grayscale(0.3) brightness(1.1);
+    }
   }
 }
 

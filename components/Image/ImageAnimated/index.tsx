@@ -74,7 +74,7 @@ const Image = (props: ImageProps) => {
           quality={quality}
           priority={priority}
           blurDataURL={asset?.metadata?.lqip}
-          placeholder={asset?.metadata?.lqip ? 'blur' : placeholder}
+          placeholder={asset?.metadata?.lqip ? 'blur' : 'empty'}
         />
       );
     }

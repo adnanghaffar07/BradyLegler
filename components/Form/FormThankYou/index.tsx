@@ -36,8 +36,10 @@ const FormThankYou: React.FC<FormThankYouProps> = props => {
 
   if (!portalRoot) return null;
 
+  const isVisible = status === 'loading' || status === 'success';
+
   return createPortal(
-    <div className={styles.container}>
+    <div className={`${styles.container} ${isVisible ? styles.visible : ''}`}>
       <div className={styles.body}>
         <motion.div
           animate={status}
