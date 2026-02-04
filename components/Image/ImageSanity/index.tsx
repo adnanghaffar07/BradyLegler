@@ -63,6 +63,20 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
   if (sanityImage && sanityImage?.src && !error) {
     let imageSrc = sanityImage.src;
     
+    // Ensure quality and format parameters are set in URL for sharp images
+    try {
+      const url = new URL(imageSrc);
+      // Force high quality
+      url.searchParams.set('q', quality.toString());
+      // Auto format (webp, etc.) for better compression without quality loss
+      url.searchParams.set('auto', 'format');
+      // Disable blur/downsampling
+      url.searchParams.set('sharp', '10');
+      imageSrc = url.toString();
+    } catch (e) {
+      // Silent error handling
+    }
+    
     // Manually add focal point parameters on mobile if hotspot exists
     if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined) {
       try {
@@ -77,13 +91,14 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
         url.searchParams.set('crop', 'focalpoint');
         url.searchParams.set('fp-x', hotspot.x.toString());
         url.searchParams.set('fp-y', hotspot.y.toString());
-        // Add cache buster to force fresh image
-        url.searchParams.set('v', Date.now().toString());
         imageSrc = url.toString();
       } catch (e) {
         // Silent error handling
       }
     }
+    
+    // Disable blur placeholder to prevent blurry images - use empty for sharp loading
+    const defaultPlaceholder = 'empty';
     
     // If we modified the URL for focal point, remove the loader so Next.js uses our custom src
     const modifiedForFocalPoint = isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined;
@@ -92,30 +107,24 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
       if (fill) {
         imageProps = { 
           src: imageSrc, 
-          placeholder: 'empty'
+          placeholder: defaultPlaceholder
         };
       } else {
         imageProps = { 
           src: imageSrc, 
           width: sanityImage.width,
           height: sanityImage.height,
-          placeholder: 'empty'
+          placeholder: defaultPlaceholder
         };
       }
     } else {
       // When using fill prop, exclude width and height from sanityImage
       if (fill) {
         const { width, height, ...restSanityImage } = sanityImage;
-        imageProps = { ...restSanityImage, src: imageSrc, placeholder: 'empty' };
+        imageProps = { ...restSanityImage, src: imageSrc, placeholder: defaultPlaceholder };
       } else {
-        imageProps = { ...sanityImage, src: imageSrc, placeholder: 'empty' };
+        imageProps = { ...sanityImage, src: imageSrc, placeholder: defaultPlaceholder };
       }
-    }
-    
-    const lqip = asset?.metadata?.lqip;
-    if (lqip) {
-      imageProps.blurDataURL = lqip;
-      imageProps.placeholder = 'blur';
     }
   } else {
     // When using fill prop, exclude width and height from fallback
@@ -142,9 +151,11 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
       quality={quality}
       sizes={sizes}
       priority={priority}
+      loading={priority ? 'eager' : 'lazy'}
       alt={alt}
       fill={fill}
       onError={onError}
+      unoptimized={false}
       {...imageProps}
     />
   );

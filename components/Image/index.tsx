@@ -54,7 +54,7 @@ export type ImageProps = ImagePropsStandard | ImagePropsSanity;
 const Image = (props: ImageProps) => {
   const {
     className,
-    quality = 80,
+    quality = 90,
     priority = false,
     sizes,
     objectFit = 'cover',
