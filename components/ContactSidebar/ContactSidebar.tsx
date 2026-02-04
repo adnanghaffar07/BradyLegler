@@ -205,7 +205,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                 {/* STEP 1: Show action buttons (default view) */}
                 <div className={styles.contactActions}>
                   <div className={styles.inquirySection}>
-                    <strong className={styles.inquiryTitle}>Make an Inquiry</strong>
+                    <strong className={styles.inquiryTitle}>Make an Enquiry</strong>
                     <button className={styles.messageButton} onClick={() => setShowForm(true)}>
                       Send us a Message
                     </button>
