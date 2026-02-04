@@ -298,18 +298,45 @@ $transition-speed: 300ms;
   min-height: 48px;
   pointer-events: all;
   position: relative;
+  outline: none;
 
   &:hover {
     color: var(--navigation-color, #1a1a1a);
     opacity: 0.7;
+    text-decoration: none;
   }
 
   &:active {
     opacity: 0.5;
+    text-decoration: none;
+    outline: none;
+  }
+
+  &:focus {
+    text-decoration: none;
+    outline: none;
+  }
+
+  &:visited {
+    text-decoration: none;
+    color: var(--navigation-color, #1a1a1a);
   }
 }
 
 .navLink {
+  text-decoration: none !important;
+  border: none !important;
+  outline: none !important;
+
+  &:hover,
+  &:active,
+  &:focus,
+  &:visited {
+    text-decoration: none !important;
+    border: none !important;
+    outline: none !important;
+  }
+
   span {
     flex: 1;
     text-align: center;
@@ -319,6 +346,7 @@ $transition-speed: 300ms;
     line-height: 17.28px !important;
     letter-spacing: 0.05em !important;
     pointer-events: none;
+    text-decoration: none !important;
   }
 }
 
