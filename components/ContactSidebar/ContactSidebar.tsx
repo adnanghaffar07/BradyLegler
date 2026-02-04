@@ -167,7 +167,16 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay */}
-      {isOpen && <div className={classNames(styles.overlay, styles.contactOverlay)} onClick={handleClose} />}
+      <div 
+        className={classNames(styles.overlay, styles.contactOverlay, {
+          [styles.overlayVisible]: isOpen
+        })} 
+        onClick={handleClose}
+        style={{ 
+          pointerEvents: isOpen ? 'auto' : 'none',
+          opacity: isOpen ? 1 : 0
+        }}
+      />
       {/* Sidebar */}
       <div
         className={classNames(styles.sidebarRight, {
