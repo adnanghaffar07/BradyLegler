@@ -60,7 +60,7 @@
   
   // Force contain on all nested image elements
   img {
-    object-fit: contain !important;
+    object-fit: cover !important;
     object-position: center center !important;
   }
   
@@ -72,14 +72,14 @@
     padding: 0 !important;
     
     img {
-      object-fit: contain !important;
+      object-fit: cover !important;
     }
   }
   
   // Desktop: Show full image, centered
   @include media-up(tablet) {
     img {
-      object-fit: contain !important;
+      object-fit: cover !important;
       object-position: center center !important;
     }
   }

@@ -15,16 +15,17 @@ const submitForm = async (data: {
   contactMethod?: string;
   message?: string;
   formName?: string;
+  listId?: string; // Optional custom list ID
 }): Promise<SubmitFormResponse> => {
   try {
-    const { email, firstName, lastName, phone, contactMethod, message = '', formName } = data || {};
+    const { email, firstName, lastName, phone, contactMethod, message = '', formName, listId } = data || {};
 
     if (!email || !firstName || !lastName || !formName) {
       throw new Error('Missing required fields.');
     }
 
-    // Clean and validate List ID
-    let cleanListId = KLAVIYO_LIST_ID;
+    // Use custom list ID if provided, otherwise use default
+    let cleanListId = listId || KLAVIYO_LIST_ID;
 
     // Remove URL prefix if present
     if (cleanListId.includes('klaviyo.com')) {
