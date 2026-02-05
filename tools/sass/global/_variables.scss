@@ -1,7 +1,8 @@
 :root {
   /* Layout */
   --layout-container-spacing: 24px;
-  --layout-container-max-width: 100vw;
+  /* Use 100% so padding doesn't overflow viewport and cause horizontal scroll */
+  --layout-container-max-width: 100%;
 
   @media (min-width: 769px) {
     --layout-container-spacing: 48px;

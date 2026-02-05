@@ -25,12 +25,13 @@
   // Mobile full-width/full-height styling (like FullscreenImageSection)
   @include media-down(tablet) {
     min-height: 100vh;
-    min-width: 100vw;
+    /* Use 100% so we don't overflow viewport width on mobile */
+    min-width: 100%;
     
     video {
       object-fit: cover;
       min-height: 100vh;
-      min-width: 100vw;
+      min-width: 100%;
       transition: opacity 150ms ease;
     }
   }

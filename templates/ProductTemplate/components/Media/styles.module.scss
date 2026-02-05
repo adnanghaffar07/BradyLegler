@@ -8,16 +8,26 @@
     display: block;
     width: 100%;
     height: auto;
+
+    // Ensure the inner Next.js image from the shared `Image` component
+    // keeps its natural aspect ratio (like before) and scales responsively.
+    .image,
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
   }
 
   &.size {
     &_centered {
       .media {
-        //max-width: 224px;
-        max-width: 66.6%;
+        // Mobile: full width within the gallery column
+        max-width: 100%;
 
         @include media-up(tablet) {
-          max-width: 33%;
+          // Tablet and desktop: use the full gallery column width
+          max-width: 100%;
         }
       }
     }
