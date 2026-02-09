@@ -2,43 +2,6 @@ $button-thickness: 2px;
 $mobile-breakpoint: 890px; // Match $desktop-start from __media.scss
 $transition-speed: 300ms;
 
-
-
-/* Remove blue line/outline on all interactive elements */
-.navButton,
-.navLink,
-.backButton {
-  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
-}
-
-/* Specifically for links */
-.navLink {
-  text-decoration: none !important;
-  outline: none !important;
-  
-  &:hover,
-  &:focus,
-  &:active,
-  &:visited {
-    text-decoration: none !important;
-    outline: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-}
-
-/* Specifically for buttons */
-.navButton,
-.backButton {
-  &:focus {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-  
-  &:active {
-    -webkit-tap-highlight-color: transparent !important;
-  }
-}
-
 .container {
   z-index: 0;
   display: flex;
@@ -337,23 +300,6 @@ $transition-speed: 300ms;
   position: relative;
   outline: none;
 
-  &:hover {
-    color: var(--navigation-color, #1a1a1a);
-    opacity: 0.7;
-    text-decoration: none;
-  }
-
-  &:active {
-    opacity: 0.5;
-    text-decoration: none;
-    outline: none;
-  }
-
-  &:focus {
-    text-decoration: none;
-    outline: none;
-  }
-
   &:visited {
     text-decoration: none;
     color: var(--navigation-color, #1a1a1a);
@@ -522,5 +468,34 @@ $transition-speed: 300ms;
       font-size: 12px !important;
       line-height: 17.28px !important;
     }
+  }
+}
+
+
+/* HARD RESET FOR MOBILE NAV LINKS & BUTTONS */
+.navLink,
+.navButton {
+  text-decoration: none !important;
+  color: var(--navigation-color, #1a1a1a) !important;
+  background: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  opacity: 1 !important;
+
+  /* remove mobile tap highlight */
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover,
+  &:active,
+  &:focus,
+  &:focus-visible,
+  &:visited {
+    text-decoration: none !important;
+    color: var(--navigation-color, #1a1a1a) !important;
+    background: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
   }
 }

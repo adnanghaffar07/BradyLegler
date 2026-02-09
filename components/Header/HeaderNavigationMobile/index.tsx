@@ -141,7 +141,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   // Deduplicate items by title (what user sees)
   const deduplicateItems = (items: any[]) => {
     if (!items || !Array.isArray(items)) return [];
-
+    
     const seen = new Map();
     return items.filter((item) => {
       // Use title as the primary key for deduplication since that's what's visible
@@ -373,9 +373,9 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                       return (
                         <li key={navItem.title} className={styles.linkItem}>
                           {navTitle === 'concierge' ? (
-                            <button
+                            <button 
                               type="button"
-                              className={styles.navButton}
+                              className={styles.navButton} 
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -393,11 +393,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleMenuItemClick(navItem, () => openMenu(navItem));
-
-                                // Remove focus state
-                                e.currentTarget.blur();
                               }}
-                              onMouseDown={e => e.preventDefault()} // Prevent focus on mousedown
                             >
                               <span>{navItem.title}</span>
                               <div className={styles.iconWrapper}>
@@ -421,12 +417,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                     closeAllMenus();
                                   });
                                 } else {
-                                  e.preventDefault(); // Add this line
                                   closeAllMenus();
                                 }
-
-                                // Remove any focus ring if present
-                                e.currentTarget.blur();
                               }}
                               className={styles.navLink}
                             >
@@ -439,7 +431,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                         </li>
                       );
                     })}
-
+                    
                     {/* Cart/Yours Button */}
                     <li className={styles.linkItem}>
                       <div className={styles.mobileCartWrapper}>
@@ -454,9 +446,9 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
               {currentLevel && (
                 <div className={styles.menuLevel}>
                   <div className={styles.submenuHeader}>
-                    <button
+                    <button 
                       type="button"
-                      className={styles.backButton}
+                      className={styles.backButton} 
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
