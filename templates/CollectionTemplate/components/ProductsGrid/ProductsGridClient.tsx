@@ -57,6 +57,7 @@ const ProductsGridClient = ({
 
   const renderItems = useMemo(() => {
     const items: React.ReactNode[] = [];
+    let injected = false;
 
     shopifyCollectionData?.products?.edges?.forEach(({ node }, index) => {
       items.push(
@@ -74,6 +75,7 @@ const ProductsGridClient = ({
       const injectMiddleSectionsAfterProductCardIndex = 7;
 
       if (layoutType === 'fluidAndGrid' && index === injectMiddleSectionsAfterProductCardIndex && sectionsMiddle) {
+        injected = true;
         items.push(
           <div key="middle-sections" className={styles.middleSections}>
             {sectionsMiddle}
@@ -81,6 +83,17 @@ const ProductsGridClient = ({
         );
       }
     });
+
+    // If we didn't inject in the loop (because there were fewer products than the
+    // configured index), append the middle sections after the last product so
+    // they are still shown for small collections/pages.
+    if (!injected && sectionsMiddle && shopifyCollectionData?.products?.edges?.length) {
+      items.push(
+        <div key="middle-sections" className={styles.middleSections}>
+          {sectionsMiddle}
+        </div>
+      );
+    }
 
     return items;
   }, [layout, sanityCollectionData, sectionsMiddle, layoutType, shopifyCollectionData, layoutVariant]);
