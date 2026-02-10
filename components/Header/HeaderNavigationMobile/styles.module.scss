@@ -88,6 +88,13 @@ $transition-speed: 300ms;
     }
   }
 }
+.navigation {
+  display: none;          // hidden by default
+}
+
+.navigation.navigationOpen {
+  display: block;         // show when menu is open
+}
 
 .navigation {
   position: fixed;
@@ -99,6 +106,8 @@ $transition-speed: 300ms;
   padding: 80px 0 80px 0;
   z-index: 2;
   overflow-y: auto;
+    background-color: var(--brand-white); // ← add this
+
 
   .navigationContainer {
     height: 100%;
@@ -115,15 +124,7 @@ $transition-speed: 300ms;
 
   &::before {
     content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    background-color: var(--brand-white);
-    transform-origin: top center;
-    transform: scaleY(0);
-    transition: transform #{$transition-speed} ease 100ms;
-    z-index: 1;
+      display: none; // optional, remove the pseudo-element
   }
 
   &.navigationOpen {
@@ -276,6 +277,15 @@ $transition-speed: 300ms;
   }
 }
 
+.a span {
+  text-align: left;
+  font-family: var(--primary-font), sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
+  line-height: 17.28px !important;
+  letter-spacing: 0.05em !important;
+  pointer-events: none;
+}
 .navButton,
 .navLink {
   display: flex;
@@ -322,7 +332,7 @@ $transition-speed: 300ms;
 
   span {
     flex: 1;
-    text-align: center;
+    text-align: left;
     font-family: var(--primary-font), sans-serif !important;
     font-weight: 400 !important;
     font-size: 12px !important;
@@ -472,30 +482,20 @@ $transition-speed: 300ms;
 }
 
 
-/* HARD RESET FOR MOBILE NAV LINKS & BUTTONS */
+
+
+.navButton,
 .navLink,
-.navButton {
-  text-decoration: none !important;
-  color: var(--navigation-color, #1a1a1a) !important;
-  background: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  opacity: 1 !important;
+.backButton {
+  -webkit-tap-highlight-color: transparent; // iOS Safari
+  -webkit-user-select: none;                // prevent text selection during tap
+  user-select: none;
+  outline: none;
+}
 
-  /* remove mobile tap highlight */
-  -webkit-tap-highlight-color: transparent;
 
-  &:hover,
-  &:active,
-  &:focus,
-  &:focus-visible,
-  &:visited {
-    text-decoration: none !important;
-    color: var(--navigation-color, #1a1a1a) !important;
-    background: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    opacity: 1 !important;
-  }
+.navButton:active,
+.navLink:active,
+.backButton:active {
+  background-color: transparent;
 }

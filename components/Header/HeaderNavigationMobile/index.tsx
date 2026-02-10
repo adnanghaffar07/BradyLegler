@@ -497,13 +497,11 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 {item.requiresPasscode && !hasAccess && (
                                   <Icon title="lock" className={styles.lockIcon} />
                                 )}
-                                {item.navSublinks?.length && (
-                                  <Icon title="chevronRight" className={styles.navIcon} />
-                                )}
+                          
                               </div>
                             </button>
                           ) : (
-                            <Link
+                            <a
                               variant="normal-sm"
                               href={hasAccess ? resolveLink(item.link, item.title) : '#'}
                               onClick={(e) => {
@@ -523,7 +521,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                               {item.requiresPasscode && !hasAccess && (
                                 <Icon title="lock" className={styles.lockIcon} />
                               )}
-                            </Link>
+                            </a>
                           )}
                         </li>
                       );
