@@ -57,9 +57,8 @@ const ProductsGridClient = ({
 
   const renderItems = useMemo(() => {
     const items: React.ReactNode[] = [];
-    let injected = false;
 
-    shopifyCollectionData?.products?.edges?.forEach(({ node }, index) => {
+    shopifyCollectionData?.products?.edges?.forEach(({ node }) => {
       items.push(
         <ProductCard
           key={node?.id}
@@ -71,52 +70,40 @@ const ProductsGridClient = ({
           collectionTitle={sanityCollectionData?.store?.title}
         />
       );
-
-      const injectMiddleSectionsAfterProductCardIndex = 7;
-
-      if (layoutType === 'fluidAndGrid' && index === injectMiddleSectionsAfterProductCardIndex && sectionsMiddle) {
-        injected = true;
-        items.push(
-          <div key="middle-sections" className={styles.middleSections}>
-            {sectionsMiddle}
-          </div>
-        );
-      }
     });
 
-    // If we didn't inject in the loop (because there were fewer products than the
-    // configured index), append the middle sections after the last product so
-    // they are still shown for small collections/pages.
-    if (!injected && sectionsMiddle && shopifyCollectionData?.products?.edges?.length) {
-      items.push(
-        <div key="middle-sections" className={styles.middleSections}>
-          {sectionsMiddle}
-        </div>
-      );
-    }
-
     return items;
-  }, [layout, sanityCollectionData, sectionsMiddle, layoutType, shopifyCollectionData, layoutVariant]);
+  }, [sanityCollectionData, layoutType, shopifyCollectionData]);
+
+  const hasProducts = shopifyCollectionData?.products?.edges?.length ? 
+    shopifyCollectionData.products.edges.length > 0 : false;
+  const productsCount = shopifyCollectionData?.products?.edges?.length || 0;
 
   return (
     <>
-      {shopifyCollectionData?.products?.edges?.length === 0 && (
+      {productsCount === 0 && (
         <div className={styles.noProducts}>
           <Text text="No products found" size="b2" />
         </div>
       )}
-      <Layout 
-        variant={layoutVariant} 
-        id="bl-collection-grid"
-        className={numVisibleProducts <= 2 ? styles.centeredGrid : ''}
-      >
-        <QuoteOverlay
-          quote={sanityCollectionData?.quote}
-          show={layoutType === 'list'}
-          itemsCount={renderItems.length}
-        />
-        {renderItems}
-      </Layout>
+      
+      {/* Product Grid - Always just products */}
+      {hasProducts && (
+        <Layout 
+          variant={layoutVariant} 
+          id="bl-collection-grid"
+          className={numVisibleProducts <= 2 ? styles.centeredGrid : ''}
+        >
+          <QuoteOverlay
+            quote={sanityCollectionData?.quote}
+            show={layoutType === 'list'}
+            itemsCount={renderItems.length}
+          />
+          {renderItems}
+        </Layout>
+      )}
+
+         {/* Load More Section */}
       {numVisibleProducts < productCount && (
         <div className={styles.loadMoreContainer}>
           <Button variant="square" onClick={nextPage}>
@@ -125,6 +112,15 @@ const ProductsGridClient = ({
           <Text text={`Showing ${numVisibleProducts}/${productCount}`} size="b3" />
         </div>
       )}
+      
+      {/* Middle Sections - Always rendered BELOW the product grid */}
+      {sectionsMiddle && hasProducts && (
+        <div className={styles.middleSections}>
+          {sectionsMiddle}
+        </div>
+      )}
+      
+   
     </>
   );
 };
