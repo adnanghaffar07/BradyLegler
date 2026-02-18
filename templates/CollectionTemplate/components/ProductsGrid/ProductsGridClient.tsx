@@ -55,73 +55,85 @@ const ProductsGridClient = ({
 
   const layoutVariant = layoutType === 'list' ? 'list' : 'grid';
 
-  const renderItems = useMemo(() => {
-    const items: React.ReactNode[] = [];
+const renderItems = useMemo(() => {
+  const items: React.ReactNode[] = [];
+  const totalProducts = shopifyCollectionData?.products?.edges?.length || 0;
+  
+  // Only insert in grid if more than 7 products
+  const insertMiddleInGrid = totalProducts > 7;
 
-    shopifyCollectionData?.products?.edges?.forEach(({ node }) => {
+  shopifyCollectionData?.products?.edges?.forEach(({ node }, index) => {
+    items.push(
+      <ProductCard
+        key={node?.id}
+        shopifyProduct={node}
+        layoutType={layoutType}
+        className={styles.productCard}
+        overlayDetailsOnMobile={false}
+        collectionId={sanityCollectionData?.store?.id}
+        collectionTitle={sanityCollectionData?.store?.title}
+      />
+    );
+
+    // Only insert middle sections WITHIN the grid for collections with enough products
+    if (insertMiddleInGrid && 
+        layoutType === 'fluidAndGrid' && 
+        index === 7 && 
+        sectionsMiddle) {
       items.push(
-        <ProductCard
-          key={node?.id}
-          shopifyProduct={node}
-          layoutType={layoutType}
-          className={styles.productCard}
-          overlayDetailsOnMobile={false}
-          collectionId={sanityCollectionData?.store?.id}
-          collectionTitle={sanityCollectionData?.store?.title}
-        />
-      );
-    });
-
-    return items;
-  }, [sanityCollectionData, layoutType, shopifyCollectionData]);
-
-  const hasProducts = shopifyCollectionData?.products?.edges?.length ? 
-    shopifyCollectionData.products.edges.length > 0 : false;
-  const productsCount = shopifyCollectionData?.products?.edges?.length || 0;
-
-  return (
-    <>
-      {productsCount === 0 && (
-        <div className={styles.noProducts}>
-          <Text text="No products found" size="b2" />
-        </div>
-      )}
-      
-      {/* Product Grid - Always just products */}
-      {hasProducts && (
-        <Layout 
-          variant={layoutVariant} 
-          id="bl-collection-grid"
-          className={numVisibleProducts <= 2 ? styles.centeredGrid : ''}
-        >
-          <QuoteOverlay
-            quote={sanityCollectionData?.quote}
-            show={layoutType === 'list'}
-            itemsCount={renderItems.length}
-          />
-          {renderItems}
-        </Layout>
-      )}
-
-         {/* Load More Section */}
-      {numVisibleProducts < productCount && (
-        <div className={styles.loadMoreContainer}>
-          <Button variant="square" onClick={nextPage}>
-            Load More
-          </Button>
-          <Text text={`Showing ${numVisibleProducts}/${productCount}`} size="b3" />
-        </div>
-      )}
-      
-      {/* Middle Sections - Always rendered BELOW the product grid */}
-      {sectionsMiddle && hasProducts && (
-        <div className={styles.middleSections}>
+        <div key="middle-sections" className={styles.middleSections}>
           {sectionsMiddle}
         </div>
-      )}
-      
-   
-    </>
+      );
+    }
+  });
+
+  return items;
+}, [layout, sanityCollectionData, sectionsMiddle, layoutType, shopifyCollectionData, layoutVariant]);
+
+// Determine if this is a small collection that needs sections after the grid
+const isSmallCollection = (shopifyCollectionData?.products?.edges?.length || 0) <= 7;
+const shouldShowMiddleAfterGrid = sectionsMiddle && 
+  layoutType === 'fluidAndGrid' && 
+  isSmallCollection;
+
+return (
+  <>
+    {shopifyCollectionData?.products?.edges?.length === 0 && (
+      <div className={styles.noProducts}>
+        <Text text="No products found" size="b2" />
+      </div>
+    )}
+    
+    <Layout 
+      variant={layoutVariant} 
+      id="bl-collection-grid"
+      className={numVisibleProducts <= 2 ? styles.centeredGrid : ''}
+    >
+      <QuoteOverlay
+        quote={sanityCollectionData?.quote}
+        show={layoutType === 'list'}
+        itemsCount={renderItems.length}
+      />
+      {renderItems}
+    </Layout>
+
+    {/* Render middle sections AFTER the grid for small collections */}
+    {shouldShowMiddleAfterGrid && (
+      <div className={styles.middleSectionsAfterGrid}>
+        {sectionsMiddle}
+      </div>
+    )}
+
+    {numVisibleProducts < productCount && (
+      <div className={styles.loadMoreContainer}>
+        <Button variant="square" onClick={nextPage}>
+          Load More
+        </Button>
+        <Text text={`Showing ${numVisibleProducts}/${productCount}`} size="b3" />
+      </div>
+    )}
+  </>
   );
 };
 

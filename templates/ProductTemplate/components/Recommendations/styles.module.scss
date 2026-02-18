@@ -38,6 +38,30 @@
   }
 }
 
+// Center alignment for fewer products
+.grid-1 {
+  display: flex;
+  justify-content: center;
+  
+  .productWrapper {
+    max-width: 400px; // Adjust based on your design
+    width: 100%;
+  }
+}
+
+.grid-2 {
+  @media (min-width: 769px) {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    
+    .productWrapper {
+      max-width: calc(50% - 1rem);
+      width: 100%;
+    }
+  }
+}
+
 .productWrapper {
   width: 100%;
   
