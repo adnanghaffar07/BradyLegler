@@ -48,6 +48,17 @@ const ProductTemplate = async (props: WebPageProps) => {
     'nova', 'pencil', 'saturn-collection', 'wave', 'revel'
   ];
 
+  // Define generic collections to exclude - add your generic collection handles here
+  const EXCLUDED_COLLECTIONS = [
+    'ring', 'rings',
+    'necklace', 'necklaces',
+    'bracelet', 'bracelets',
+    'earring', 'earrings',
+    'pendant', 'pendants',
+    'jewelry'
+    // Add more generic collection handles as needed
+  ];
+
   let primaryCollection: CollectionData | null = null;
 
   // First, try to find specific collections
@@ -93,9 +104,14 @@ const ProductTemplate = async (props: WebPageProps) => {
     }
   }
 
-  // If no specific collection found, try any collection
+  // If no specific collection found, try any collection (excluding generic ones)
   if (!primaryCollection && shopifyCollections.length > 0) {
     for (const shopifyCollection of shopifyCollections) {
+      // Skip excluded generic collections
+      if (EXCLUDED_COLLECTIONS.includes(shopifyCollection.handle)) {
+        continue;
+      }
+
       try {
         const collection = await sanityFetch<any>({
           query: groq`
