@@ -4,35 +4,16 @@
   padding-left: 0;
   padding-right: 0;
   max-width: 100% !important;
+  width: 100%;
+  height: 100vh;
+  overflow-x: hidden;
 }
 
-.logos {
+.section {
   display: flex;
-  align-items: center;
-  gap: 80px;
-  margin: 0 auto;
-  max-width: 1200px;
-
-  @include media-down(tablet) {
-    flex-wrap: wrap;
-    column-gap: 32px;
-    row-gap: 24px;
-  }
-}
-
-.title {
-  max-width: 450px;
-  margin: 0 auto;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.logo {
-  flex: 1;
-
-  @include media-down(tablet) {
-    flex: 25%;
-  }
+  height: auto;
+  min-height: 100vh;
+  background-color: white;
 }
 
 .layout {
@@ -41,7 +22,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  // padding: var(--layout-container-spacing);
+  z-index: 1;
+  padding: var(--layout-container-spacing);
 
   position: absolute !important;
   top: 0;
@@ -50,21 +32,34 @@
   bottom: 0;
   z-index: 1000;
 
-  @include media-up(tablet) {
+  @include media-up-desktop {
     justify-content: center;
     align-items: flex-end;
   }
 
   .containerSticky {
     height: 100%;
+    min-height: 100%;
     position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    @include media-up-desktop {
+      top: 100px;
+      justify-content: center;
+      padding-bottom: 100px;
+    }
   }
 
   .button {
     position: sticky;
     top: 50%;
-    @include media-up(tablet) {
-      top: 400px;
+    max-width: 200px;
+    @include media-up-desktop {
+      top: 100px;
     }
   }
 }
