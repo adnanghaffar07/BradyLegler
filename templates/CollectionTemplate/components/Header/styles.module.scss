@@ -3,18 +3,17 @@
   top: 50%;
   right: var(--layout-container-spacing);
   display: flex;
-  flex-direction: column; // stack tagline above button
-  align-items: flex-end; // right-align
-  gap: 1rem; // spacing between tagline and button
+  flex-direction: column;
+  align-items: flex-start; /* align tagline left edge inside container */
+  gap: 1rem;
   z-index: 2;
   transform: translateY(-50%);
 
-  @include media-down(tablet) {
-    // For mobile, reposition the entire overlay container
-    right: auto;
+  @media (max-width: 768px) {
     left: 50%;
-    align-items: center; // center align for mobile
-    text-align: center; // center text for mobile
+    right: auto;
+    align-items: center; // everything centered on mobile
+    text-align: center;
     transform: translate(-50%, -50%);
   }
 }
@@ -25,16 +24,28 @@
   color: #ffffff;
   position: relative;
   z-index: 3;
+  font-family: var(--primary-font), sans-serif;
 
-  @include media-down(tablet) {
-    margin-bottom: 1rem; // Reduce spacing for mobile
-    font-size: 1.2rem; // Smaller font for mobile
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
   }
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center; /* center button relative to overlay content */
+  width: 100%; /* take full width of overlayContent */
+
+  @media (max-width: 768px) {
+    justify-content: center; /* center button on mobile */
+  }
+  
 }
 
 .header {
   position: sticky;
-  top: 60px;
+  top: 80px;
   left: 0;
   width: 100%;
   height: 100vh;
@@ -115,21 +126,7 @@
   }
 }
 
-.buttonContainer {
-  width: auto; // ensure it takes natural width
-  min-width: 200px; // optional: prevent it from being too small
-  display: flex; // allows internal content (text) to layout naturally
-  justify-content: flex-end; // keep text inside aligned if needed
 
-  @include media-down(tablet) {
-    justify-content: center; // center button on mobile
-  }
-
-  // Remove these conflicting mobile styles - they should be on the parent .overlayContent
-  // left: 50%;
-  // right: auto;
-  // transform: translate(-50%, -50%);
-}
 
 .mediaContainer {
   position: relative;
@@ -154,7 +151,7 @@
       width: 100%;
       height: 100vh;
       object-fit: cover;
-      object-position: top; // X-axis 50% (center), Y-axis 25% (between top and center)
+      object-position: center; // X-axis 50% (center), Y-axis 25% (between top and center)
       // You can adjust the Y-axis value (25%) to your preference - try 20%, 30%, etc.
 
       @include media-down(tablet) {
