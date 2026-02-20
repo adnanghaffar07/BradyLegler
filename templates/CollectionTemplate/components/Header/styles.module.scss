@@ -1,167 +1,152 @@
-.overlayContent {
-  position: absolute;
-  top: 50%;
-  right: var(--layout-container-spacing);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* align tagline left edge inside container */
-  gap: 1rem;
-  z-index: 2;
-  transform: translateY(-50%);
-
-  @media (max-width: 768px) {
-    left: 50%;
-    right: auto;
-    align-items: center; // everything centered on mobile
-    text-align: center;
-    transform: translate(-50%, -50%);
-  }
-}
-
-.tagline {
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-  color: #ffffff;
-  position: relative;
-  z-index: 3;
-  font-family: var(--primary-font), sans-serif;
-
-  @media (max-width: 768px) {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-  }
-}
-
-.buttonContainer {
-  display: flex;
-  justify-content: center; /* center button relative to overlay content */
-  width: 100%; /* take full width of overlayContent */
-
-  @media (max-width: 768px) {
-    justify-content: center; /* center button on mobile */
-  }
-  
-}
+/* ========================================
+   HEADER BASE
+======================================== */
 
 .header {
   position: sticky;
   top: 80px;
-  left: 0;
   width: 100%;
   height: 100vh;
+  overflow: hidden;
   color: var(--brand-white);
   z-index: 0;
-  overflow-x: hidden;
-
-  @include media-down(tablet) {
-    height: 100vh;
-  }
-
-  &.layout_fullWidth {
-    height: 100vh;
-
-    @include media-down(tablet) {
-      height: 100vh;
-    }
-  }
-
-  &.layout_split {
-    height: 100vh;
-
-    @include media-down(tablet) {
-      height: 100vh;
-    }
-    
-    @include media-down(tablet) {
-      .mediaContainer {
-        &:nth-child(2) {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 60%;
-          height: auto;
-          max-height: 50%;
-        }
-      }
-    }
-  }
-
-  &.layout_text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-
-    @include media-down(tablet) {
-      height: 100vh;
-    }
-
-    .textContainer {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-
-      p {
-        text-align: center;
-      }
-    }
-  }
 }
 
-// Layout
+/* Layout variants share same height */
+.header.layout_fullWidth,
+.header.layout_split,
+.header.layout_text {
+  height: 100vh;
+}
+
+/* ========================================
+   CONTAINER
+======================================== */
+
 .container {
   position: relative;
   width: 100%;
-  height: 100vh;
-  overflow-x: hidden;
-
-  @include media-down(tablet) {
-    height: 100vh;
-  }
+  height: 100%;
 }
 
-
+/* ========================================
+   MEDIA
+======================================== */
 
 .mediaContainer {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+}
 
-  @include media-down(tablet) {
-    height: 60vh;
-  }
+.media {
+  width: 100%;
+  height: 100%;
+}
 
-  .media {
-    display: block;
-    width: 100%;
-    height: 100vh;
+.media img,
+.media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 
-    @include media-down(tablet) {
-      height: 100vh;
-    }
+/* ========================================
+   OVERLAY CONTENT (TAGLINE + BUTTON)
+======================================== */
 
-    img,
-    video {
-      width: 100%;
-      height: 100vh;
-      object-fit: cover;
-      object-position: center; // X-axis 50% (center), Y-axis 25% (between top and center)
-      // You can adjust the Y-axis value (25%) to your preference - try 20%, 30%, etc.
+.overlayContent {
+  position: absolute;
+  top: 50%;
+  right: var(--layout-container-spacing);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  z-index: 2;
+  max-width: 500px;
+}
 
-      @include media-down(tablet) {
-        height: 100vh;
-        object-position: center; // Same for mobile
-      }
-    }
+/* MOBILE CENTER FIX */
+@media (max-width: 768px) {
+  .overlayContent {
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    text-align: center;
+    width: 90%;
   }
 }
 
+/* ========================================
+   TAGLINE
+======================================== */
+
+.tagline {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  font-family: var(--primary-font), sans-serif;
+}
+
+@media (max-width: 768px) {
+  .tagline {
+    font-size: 1.2rem;
+  }
+}
+
+/* ========================================
+   BUTTON
+======================================== */
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ========================================
+   TEXT LAYOUT
+======================================== */
+
+.header.layout_text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .textContainer {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+  }
+}
+
+/* ========================================
+   SPLIT LAYOUT
+======================================== */
+
+.header.layout_split {
+  display: flex;
+}
+
+/* MOBILE FIX FOR SPLIT */
+@media (max-width: 768px) {
+  .header.layout_split {
+    flex-direction: column;
+  }
+
+  .header.layout_split .mediaContainer {
+    height: 50vh;
+  }
+}
+
+/* ========================================
+   SPACER
+======================================== */
+
 .spacer {
-   background-color: #ffffff;
+  background-color: #ffffff;
 }
