@@ -207,7 +207,7 @@
 // Image dots indicator - also make transparent
 .imageDots {
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   left: 0;
   right: 0;
   display: flex;
@@ -240,13 +240,11 @@
 
 // Smaller dots on mobile
 @include media-down(large-tablet) {
-  .imageDots {
-    bottom: 16px; // Move dots up slightly on mobile
-  }
+
 
   .imageDot {
-    width: 6px; // Smaller dots on mobile
-    height: 6px;
+    width: 4px; // Smaller dots on mobile
+    height: 4px;
 
     &.active {
       transform: scale(1.4); // Slightly larger relative scale

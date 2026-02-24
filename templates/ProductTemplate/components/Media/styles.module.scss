@@ -8,6 +8,10 @@
     display: block;
     width: 100%;
     height: auto;
+    object-fit: cover;
+    object-position: center;
+
+
 
     // Ensure the inner Next.js image from the shared `Image` component
     // keeps its natural aspect ratio (like before) and scales responsively.
@@ -16,6 +20,7 @@
       width: 100%;
       height: auto;
       object-fit: cover;
+      object-position: center;
     }
   }
 

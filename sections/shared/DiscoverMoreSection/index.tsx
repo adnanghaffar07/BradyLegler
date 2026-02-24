@@ -73,13 +73,8 @@ type ExtendedProduct = {
       height?: number;
     }>;
     priceRange?: {
-      minVariantPrice:
-        | number
-        | string
-        | {
-            amount: string | number;
-            currencyCode?: string;
-          };
+      minVariantPrice?: number;
+      maxVariantPrice?: number;
     };
     slug?: {
       current: string;
@@ -132,34 +127,8 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   let secondaryText = '';
 
   if (_type === 'product') {
-    let priceAmount: number | null = null;
-    let currencyCode = 'USD';
-
-    // Handle different price structures
-    const minVariantPrice = store?.priceRange?.minVariantPrice;
-
-    // Case 1: Price is an object with amount and currencyCode
-    if (minVariantPrice && typeof minVariantPrice === 'object' && 'amount' in minVariantPrice) {
-      priceAmount =
-        typeof minVariantPrice.amount === 'string'
-          ? parseFloat(minVariantPrice.amount)
-          : Number(minVariantPrice.amount);
-      currencyCode = minVariantPrice.currencyCode || 'USD';
-    }
-    // Case 2: Price is a direct number or string
-    else if (minVariantPrice !== undefined && minVariantPrice !== null) {
-      priceAmount = typeof minVariantPrice === 'string' ? parseFloat(minVariantPrice) : Number(minVariantPrice);
-    }
-
-    // Format the price if we have a valid amount
-    if (priceAmount !== null && !isNaN(priceAmount)) {
-      secondaryText = formatCurrency({
-        amount: priceAmount,
-        currencyCode
-      });
-    } else {
-      secondaryText = '$0.00';
-    }
+    const priceAmount = store?.priceRange?.minVariantPrice ?? 0;
+    secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
   } else if (_type === 'artwork') {
     secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
   }
@@ -232,10 +201,10 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
     }
   };
 
-  const handleTouchStart = () => {};
+  const handleTouchStart = () => { };
 
   const handleTouchEnd = () => {
-    setTimeout(() => {}, 3000);
+    setTimeout(() => { }, 3000);
   };
 
   // Render media based on type

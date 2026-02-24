@@ -17,15 +17,9 @@ const discoverMoreSectionProjection = groq`
       store {
         title,
         status,
-        priceRange {
-          minVariantPrice {
-            amount,
-            currencyCode
-          },
-          maxVariantPrice {
-            amount,
-            currencyCode
-          }
+       priceRange {
+  minVariantPrice,
+  maxVariantPrice
         },
         previewImageUrl,
         slug {
