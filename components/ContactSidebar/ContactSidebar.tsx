@@ -73,7 +73,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
       if (result.status === 'success') {
         setSubmitStatus({
           type: 'success',
-          message: 'Thank you! Your enquiry has been submitted successfully.'
+          message: 'Thank you! Your inquiry has been submitted successfully.'
         });
 
         // Reset form
@@ -205,7 +205,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                 {/* STEP 1: Show action buttons (default view) */}
                 <div className={styles.contactActions}>
                   <div className={styles.inquirySection}>
-                    <strong className={styles.inquiryTitle}>Make an Enquiry</strong>
+                    <strong className={styles.inquiryTitle}>Make an Inquiry</strong>
                     <button className={styles.messageButton} onClick={() => setShowForm(true)}>
                       Send us a Message
                     </button>
@@ -222,9 +222,9 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                     </button> */}
 
                     <button className={styles.contactOptionBtn} onClick={() => handleContactButtonClick('press')}>
-                      <div className={styles.pressTitle}>Press Enquiries</div>
+                      <div className={styles.pressTitle}>Press Inquiries</div>
                       <div className={styles.pressText}>
-                        If you would like to discuss press enquiries, please contact:
+                        If you would like to discuss press inquiries, please contact:
                         <a href="mailto:info@bradylegler.com" className={styles.emailLink}>
                           info@bradylegler.com
                         </a>
@@ -243,7 +243,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                 </button>
 
                 <h3 className={styles.formHeading}>
-                  Please send an enquiry and one of our experts will get back to you as soon as possible.
+                  Please send an Inquiry and one of our experts will get back to you as soon as possible.
                 </h3>
 
                 {/* Status Messages */}
@@ -318,7 +318,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="enquiry">Your Enquiry</label>
+                    <label htmlFor="enquiry">Your Inquiry</label>
                     <textarea
                       id="enquiry"
                       name="enquiry"

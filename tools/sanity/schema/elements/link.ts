@@ -42,7 +42,16 @@ const linkElementFields: ObjectDefinition['fields'] = [
     name: 'internalLink',
     title: 'Internal Link',
     type: 'reference',
-    to: [{ type: 'page' }, { type: 'route' }, { type: 'artwork' }, { type: 'collection' }, { type: 'product' }],
+    to: [
+      { type: 'page' },
+      { type: 'route' },
+      { type: 'artwork' },
+      { type: 'collection' },
+      { type: 'product' }
+    ],
+    options: {
+      disableNew: false,
+    },
     hidden: ({ parent }) => parent?.linkType !== 'internal'
   },
   {

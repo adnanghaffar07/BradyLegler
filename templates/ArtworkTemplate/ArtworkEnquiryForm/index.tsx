@@ -21,9 +21,9 @@ const ArtworkEnquiryForm: React.FC<ArtworkEnquiryFormProps> = props => {
 
   return (
     <>
-      <Button onClick={handleClick} text={isOnSale ? 'Enquire' : 'Sold'} disabled={!isOnSale} variant="square" />
+      <Button onClick={handleClick} text={isOnSale ? 'Inquire' : 'Sold'} disabled={!isOnSale} variant="square" />
 
-      <FormSidePanel show={showForm} onClose={() => setShowForm(false)} formName="Artwork Enquiry Form">
+      <FormSidePanel show={showForm} onClose={() => setShowForm(false)} formName="Artwork Inquiry Form">
         <Field.Text name="firstName" placeholder="Answer" label="What's your first name?" required />
         <Field.Text name="lastName" placeholder="Answer" label="What's your last name?" required />
         <Field.Email name="email" placeholder="Answer" label="What's your email address?" required />
