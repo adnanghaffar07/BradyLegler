@@ -19,8 +19,8 @@ const FormThankYou: React.FC<FormThankYouProps> = props => {
   const {
     status = 'idle',
     message = {
-      loading: 'Your enquiry is processing...',
-      success: 'Thank you for your enquiry.'
+      loading: 'Your inquiry is processing...',
+      success: 'Thank you for your inquiry.'
     }
   } = props;
 

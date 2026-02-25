@@ -15,7 +15,7 @@ interface FormData {
   lastName: string;
   email: string;
   phone: string;
-  enquiry: string;
+  inquiry: string;
   contactMethod: string;
 }
 
@@ -26,7 +26,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     lastName: '',
     email: '',
     phone: '',
-    enquiry: '',
+    inquiry: '',
     contactMethod: 'email'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,13 +57,13 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          type: 'enquiry',
+          type: 'inquiry',
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone, // Make sure this is included
           contactMethod: formData.contactMethod, // Make sure this is included
-          message: formData.enquiry, // This should map to the enquiry field
+          message: formData.inquiry, // This should map to the inquiry field
           formName: 'Contact Sidebar Form'
         })
       });
@@ -82,7 +82,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           lastName: '',
           email: '',
           phone: '',
-          enquiry: '',
+          inquiry: '',
           contactMethod: 'email'
         });
 
@@ -107,7 +107,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
 
   const handleContactButtonClick = (action: string) => {
     switch (action) {
-      case 'enquiry':
+      case 'inquiry':
         // Handled by showForm state
         break;
       case 'message':
@@ -132,7 +132,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
       lastName: '',
       email: '',
       phone: '',
-      enquiry: '',
+      inquiry: '',
       contactMethod: 'email'
     });
     setSubmitStatus(null);
@@ -234,8 +234,8 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                 </div>
               </>
             ) : (
-              /* STEP 2: Show enquiry form */
-              <div className={styles.enquiryFormSection}>
+              /* STEP 2: Show inquiry form */
+              <div className={styles.inquiryFormSection}>
                 {/* Back button to return to action buttons */}
                 <button className={styles.backButton} onClick={() => setShowForm(false)}>
                   <Icon title="chevronLeft" className={styles.backIcon} />
@@ -318,11 +318,11 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="enquiry">Your Inquiry</label>
+                    <label htmlFor="inquiry">Your Inquiry</label>
                     <textarea
-                      id="enquiry"
-                      name="enquiry"
-                      value={formData.enquiry}
+                      id="inquiry"
+                      name="inquiry"
+                      value={formData.inquiry}
                       onChange={handleFormChange}
                       placeholder="Let us know how we can help..."
                       required
