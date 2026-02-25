@@ -68,7 +68,8 @@
   // left: 0;
   // z-index: -1; // Same as bgImage
   width: 100%;
-  height: auto;
+  height: 100vh;
+  object-fit: cover;
   z-index: 0;
   overflow: hidden;
 
