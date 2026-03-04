@@ -12,6 +12,7 @@ import { groq } from 'next-sanity';
 import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
+import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
 
 type SubMenuState = {
   level: number;
@@ -29,7 +30,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
   const [subMenuStack, setSubMenuStack] = useState<SubMenuState[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
+  const { isOpen: contactSidebarOpen, openContactSidebar, closeContactSidebar } = useContactSidebar();
   // In your component
   const [menuOffsets, setMenuOffsets] = useState([0, 70, 140, 210]);
   const [passcodeModal, setPasscodeModal] = useState<{
@@ -374,7 +375,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
             {navItem.title?.toLowerCase() === 'concierge' ? (
               <button
                 className={styles.navigationLink}
-                onClick={() => setContactSidebarOpen(true)}
+                onClick={() => openContactSidebar()}
               >
                 <span className={styles.navText}>{navItem.title}</span>
               </button>
@@ -514,7 +515,7 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
       </div>
 
       {/* Contact Sidebar */}
-      <ContactSidebar isOpen={contactSidebarOpen} onClose={() => setContactSidebarOpen(false)} />
+      <ContactSidebar isOpen={contactSidebarOpen} onClose={closeContactSidebar} />
 
       {/* Passcode Modal */}
       {passcodeModal && (

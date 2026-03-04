@@ -14,6 +14,7 @@ import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
 import HeaderNavigationCart from '../HeaderNavigation/HeaderNavigationCart';
+import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
 
 type HeaderNavigationMobileProps = {
   navItems: IHeaderDocument['header']['navItems'];
@@ -26,7 +27,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   const [navItems, setNavItems] = useState<any[]>([]);
   const [subMenuStack, setSubMenuStack] = useState<any[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
+  const { isOpen: contactSidebarOpen, openContactSidebar, closeContactSidebar } = useContactSidebar();
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
   const [currentPasscodeItem, setCurrentPasscodeItem] = useState<any | null>(null);
   const [onPasscodeSuccess, setOnPasscodeSuccess] = useState<(() => void) | null>(null);
@@ -208,7 +209,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
 
     setIsAnimating(true);
     setMobileNavOpen(false);
-    setContactSidebarOpen(false);
+    closeContactSidebar();
 
     // Clear the menu stack immediately
     setSubMenuStack([]);
@@ -222,7 +223,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   const handleHamburgerClick = () => {
     if (contactSidebarOpen) {
       // When contact sidebar is open, close it and go back to main menu
-      setContactSidebarOpen(false);
+      closeContactSidebar();
       setSubMenuStack([]);
     } else {
       // Toggle main mobile navigation
@@ -243,7 +244,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     // Close any open submenus
     setSubMenuStack([]);
     // Open contact sidebar
-    setContactSidebarOpen(true);
+    openContactSidebar();
     // Also close the mobile menu overlay
     setMobileNavOpen(false);
   };
@@ -538,7 +539,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
       <ContactSidebar
         isOpen={contactSidebarOpen}
         onClose={() => {
-          setContactSidebarOpen(false);
+          closeContactSidebar();
           setMobileNavOpen(false);
         }}
       />

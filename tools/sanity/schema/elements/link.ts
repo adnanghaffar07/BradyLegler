@@ -14,7 +14,7 @@ interface ILinkElement {
   externalLink?: string;
   phone?: string;
   email?: string;
-  action?: string;
+  action?: 'openContactSidebar';
 
   // Catch
   href?: string;
@@ -76,6 +76,12 @@ const linkElementFields: ObjectDefinition['fields'] = [
     name: 'action',
     title: 'Action',
     type: 'string',
+    options: {
+      list: [
+        { value: 'openContactSidebar', title: 'Open Concierge Sidebar' }
+      ],
+      layout: 'dropdown'
+    },
     hidden: ({ parent }) => parent?.linkType !== 'action'
   }
 ];

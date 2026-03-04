@@ -2,6 +2,7 @@ import React from 'react';
 import type { Viewport } from 'next';
 import fonts from '@/config/fonts';
 import Scripts from '@/components/Scripts';
+import { Providers } from './providers';
 import '@/sass/global/styles.scss';
 
 type RootLayoutProps = {
@@ -12,7 +13,9 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
   const { children } = props;
   return (
     <html lang="en-AU">
-      <body className={fonts}>{children}</body>
+      <body className={fonts}>
+        <Providers>{children}</Providers>
+      </body>
       <Scripts loadAll />
     </html>
   );

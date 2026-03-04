@@ -6,6 +6,7 @@ import Text from '../Text';
 import classNames from '@/helpers/classNames';
 import stringClean from '@/tools/helpers/stringClean';
 import { ILinkElement } from '@/tools/sanity/schema/elements/link';
+import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
 import styles from '../Button/styles.module.scss';
 
 export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -60,6 +61,8 @@ const Link = (props: LinkProps) => {
     outline = false,
     ...rest
   } = props;
+
+  const { openContactSidebar } = useContactSidebar();
 
   const linkType = stringClean(rawLinkType);
 
@@ -144,6 +147,22 @@ const Link = (props: LinkProps) => {
       <a href={`mailto:${email || href}`} className={classes} id={id} title={title} target={linkTarget} {...rest}>
         {children || <Text as="span" text={text || title} />}
       </a>
+    );
+  }
+
+  if (linkType === 'action') {
+    const handleActionClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (action === 'openContactSidebar') {
+        openContactSidebar();
+      }
+      rest.onClick?.(e as any);
+    };
+
+    return (
+      <button className={classes} id={id} title={title} onClick={handleActionClick} {...rest}>
+        {children || <Text as="span" text={text || title} />}
+      </button>
     );
   }
 
