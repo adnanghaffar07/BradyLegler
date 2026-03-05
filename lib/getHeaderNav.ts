@@ -11,17 +11,75 @@ export const getHeaderNav = async (): Promise<IHeaderDocument> => {
           title,
           side,
           dropdown,
-          link,
+          link{
+            ...,
+            internalLink->{
+              _type,
+              title,
+              "slug": coalesce(store.slug.current, slug.current, pathname),
+              pathname
+            }
+          },
           navSublinks[]{
             title,
-            link,
+            requiresPasscode,
+            passcode,
+            image{
+              asset->{
+                _id,
+                url
+              },
+              alt
+            },
+            link{
+              ...,
+              internalLink->{
+                _type,
+                title,
+                "slug": coalesce(store.slug.current, slug.current, pathname),
+                pathname
+              }
+            },
             navSublinks[]{
               title,
-              link,
+              requiresPasscode,
+              passcode,
+              image{
+                asset->{
+                  _id,
+                  url
+                },
+                alt
+              },
+              link{
+                ...,
+                internalLink->{
+                  _type,
+                  title,
+                  "slug": coalesce(store.slug.current, slug.current, pathname),
+                  pathname
+                }
+              },
               navSublinks[]{
                 title,
-                link
-                // Add more nested levels if needed
+                requiresPasscode,
+                passcode,
+                image{
+                  asset->{
+                    _id,
+                    url
+                  },
+                  alt
+                },
+                link{
+                  ...,
+                  internalLink->{
+                    _type,
+                    title,
+                    "slug": coalesce(store.slug.current, slug.current, pathname),
+                    pathname
+                  }
+                }
               }
             }
           }

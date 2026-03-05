@@ -45,13 +45,43 @@ export const HEADER_QUERY = groq`
   *[_type == "headerDocument" && _id == "headerDocument"][0]{
     header {
       navItems[]{
+        _key,
         title,
         link${linkProjection},
         dropdown,
         side,
+        image${imageProjection},
         navSublinks[]{
+          _key,
           title,
-          link${linkProjection}
+          requiresPasscode,
+          passcode,
+          image${imageProjection},
+          link${linkProjection},
+          navSublinks[]{
+            _key,
+            title,
+            requiresPasscode,
+            passcode,
+            image${imageProjection},
+            link${linkProjection},
+            navSublinks[]{
+              _key,
+              title,
+              requiresPasscode,
+              passcode,
+              image${imageProjection},
+              link${linkProjection},
+              navSublinks[]{
+                _key,
+                title,
+                requiresPasscode,
+                passcode,
+                image${imageProjection},
+                link${linkProjection}
+              }
+            }
+          }
         }
       }
     }

@@ -8,8 +8,6 @@ import Icon from '@/components/Icon';
 import Text from '@/components/Text';
 import Image from 'next/image';
 import styles from './styles.module.scss';
-import { groq } from 'next-sanity';
-import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
 import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
@@ -23,9 +21,15 @@ type SubMenuState = {
   inheritedImage?: any; // Track inherited image from parent
 };
 
-const HeaderNavigation = ({ className, display }: { className?: string; display: 'left' | 'right' | 'all' }) => {
+interface HeaderNavigationProps {
+  className?: string;
+  display: 'left' | 'right' | 'all';
+  navItems?: any[];
+}
+
+const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: HeaderNavigationProps) => {
   const classes = classNames(styles.container, className);
-  const [navItems, setNavItems] = useState<any[]>([]);
+  const [navItems] = useState<any[]>(propNavItems);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [subMenuStack, setSubMenuStack] = useState<SubMenuState[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -61,126 +65,41 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
     return () => window.removeEventListener('resize', updateOffsets);
   }, []);
 
-  // Fetch header nav via GROQ
-  useEffect(() => {
-    const fetchNav = async () => {
-      const query = groq`
-        *[_type == "headerDocument"][0]{
-          header{
-            navItems[]{
-              title,
-              side,
-              dropdown,
-              link{
-                ...,
-                internalLink->{
-                  _type,
-                  title,
-                  "slug": coalesce(store.slug.current, slug.current, pathname),
-                  pathname
-                }
-              },
-              navSublinks[]{
-                title,
-                requiresPasscode,
-                passcode,
-                image{
-                  asset->{
-                    _id,
-                    url
-                  },
-                  alt
-                },
-                link{
-                  ...,
-                  internalLink->{
-                    _type,
-                    title,
-                    "slug": coalesce(store.slug.current, slug.current, pathname),
-                    pathname
-                  }
-                },
-                // Level 2 - Collections
-                navSublinks[]{
-                  title,
-                  requiresPasscode,
-                  passcode,
-                  image{
-                    asset->{
-                      _id,
-                      url
-                    },
-                    alt
-                  },
-                  link{
-                    ...,
-                    internalLink->{
-                      _type,
-                      title,
-                      "slug": coalesce(store.slug.current, slug.current, pathname),
-                      pathname
-                    }
-                  },
-                  // Level 3 - VIP (nested items)
-                  navSublinks[]{
-                    title,
-                    requiresPasscode,
-                    passcode,
-                    image{
-                      asset->{
-                        _id,
-                        url
-                      },
-                      alt
-                    },
-                    link{
-                      ...,
-                      internalLink->{
-                        _type,
-                        title,
-                        "slug": coalesce(store.slug.current, slug.current, pathname),
-                        pathname
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-
-      try {
-        const data = await client.fetch(query);
-        setNavItems(data?.header?.navItems || []);
-      } catch (error) {
-        setNavItems([]);
-      }
-    };
-    fetchNav();
-  }, []);
-
   const filteredLinks = navItems.filter(navItem => navItem.side === display || display === 'all');
 
-  // Deduplicate items by title (what user sees)
+  // Deduplicate items by title (what user sees) - only remove exact duplicates within same level
   const deduplicateItems = (items: any[]) => {
     if (!items || !Array.isArray(items)) return [];
     
     const seen = new Map();
-    return items.filter((item) => {
-      // Use title as the primary key for deduplication since that's what's visible
-      const key = item.title?.toLowerCase().trim();
-      if (!key || seen.has(key)) {
-        return false;
+    const deduplicated: any[] = [];
+    
+    items.forEach((item) => {
+      // Ensure item has a title
+      if (!item.title) {
+        console.warn('Item without title found in navigation:', item);
+        return;
       }
-      seen.set(key, true);
-      return true;
+      
+      // Use title as the primary key for deduplication since that's what's visible
+      const key = item.title.toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.set(key, true);
+        deduplicated.push(item);
+      }
     });
+    
+    return deduplicated;
   };
 
   // Open menu at any level
   const openMenu = (items: any[], title: string, image?: any, level?: number, parentImage?: any) => {
-    if (isAnimating || !items?.length) return;
+    if (isAnimating || !items?.length) {
+      // If trying to open an empty menu, don't proceed
+      if (!items || items.length === 0) {
+        return;
+      }
+    }
 
     setIsAnimating(true);
 
@@ -192,8 +111,6 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
 
     if (level !== undefined) {
       // Opening nested menu - keep previous levels
-      const currentLevelImage = subMenuStack[level]?.image;
-
       setSubMenuStack(prev => {
         const updated = prev.slice(0, level + 1);
         updated[level] = {
@@ -307,30 +224,34 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
   const resolveLink = (link: any, itemTitle?: string) => {
     if (!link) return '#';
 
-    // Handle external links
+    // If it's an external link
     if (link.linkType === 'external') {
-      return link.href || '#';
+      return link.externalLink || link.href || '#';
     }
 
-    // Handle internal links
-    if (link.linkType === 'internal') {
-      const internalLink = link.internalLink;
-      if (!internalLink) return '#';
-
-      // Priority order for determining URL
-      if (internalLink.pathname) return internalLink.pathname;
-      if (internalLink.slug) return `/${internalLink.slug}`;
-
-      // Fallback to title-based slug generation
-      if (itemTitle) return `/${generateSlug(itemTitle)}`;
-      if (internalLink.title) return `/${generateSlug(internalLink.title)}`;
-
-      return '#';
-    }
-
-    // Handle action links
+    // If it's an action link
     if (link.linkType === 'action') {
       return '#';
+    }
+
+    // Handle internal links - prioritize fetched data from backend
+    if (link.linkType === 'internal' && link.internalLink) {
+      const internalLink = link.internalLink;
+
+      // Always use fetched pathname first (contains full path)
+      if (internalLink.pathname) {
+        return internalLink.pathname;
+      }
+
+      // Then use fetched slug (coalesced from store.slug, slug, or pathname)
+      if (internalLink.slug) {
+        return `/${internalLink.slug}`;
+      }
+    }
+
+    // Fallback to title-based slug generation only if no backend data
+    if (itemTitle) {
+      return `/${generateSlug(itemTitle)}`;
     }
 
     return '#';
@@ -433,9 +354,15 @@ const HeaderNavigation = ({ className, display }: { className?: string; display:
                 <div className={styles.levelLayout}>
                   {/* LEFT: Links */}
                   <ul className={styles.sidebarNavigation}>
-                    {deduplicateItems(menuLevel.items).map((item: any, index: number) => {
+                    {menuLevel.items.map((item: any, index: number) => {
                       const hasNestedItems = item.navSublinks?.length > 0;
-                      const isDropdownItem = hasNestedItems || !item.link;
+                      const hasLink = item.link && item.link.linkType;
+                      const isDropdownItem = hasNestedItems || !hasLink;
+
+                      // Skip items that have neither link nor nested items
+                      if (!isDropdownItem && !hasLink && !hasNestedItems) {
+                        return null;
+                      }
 
                       return (
                         <li

@@ -9,8 +9,6 @@ import Icon from '@/components/Icon';
 import Image from 'next/image';
 import { IHeaderDocument } from '@/tools/sanity/schema/documents/headerDocument';
 import styles from './styles.module.scss';
-import { groq } from 'next-sanity';
-import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
 import HeaderNavigationCart from '../HeaderNavigation/HeaderNavigationCart';
@@ -23,117 +21,14 @@ type HeaderNavigationMobileProps = {
 };
 
 const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
-  const { mobileNavOpen, setMobileNavOpen } = props;
-  const [navItems, setNavItems] = useState<any[]>([]);
+  const { mobileNavOpen, setMobileNavOpen, navItems: propNavItems } = props;
+  const [navItems] = useState<any[]>(propNavItems || []);
   const [subMenuStack, setSubMenuStack] = useState<any[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const { isOpen: contactSidebarOpen, openContactSidebar, closeContactSidebar } = useContactSidebar();
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
   const [currentPasscodeItem, setCurrentPasscodeItem] = useState<any | null>(null);
   const [onPasscodeSuccess, setOnPasscodeSuccess] = useState<(() => void) | null>(null);
-
-  // Fetch header nav via GROQ
-  useEffect(() => {
-    const fetchNav = async () => {
-      const query = groq`
-        *[_type == "headerDocument"][0]{
-          header{
-            navItems[]{
-              _key,
-              title,
-              side,
-              dropdown,
-              link{
-                ...,
-                internalLink->{
-                  _type,
-                  title,
-                  "slug": coalesce(store.slug.current, slug.current, pathname),
-                  pathname
-                }
-              },
-              navSublinks[]{
-                _key,
-                title,
-                requiresPasscode,
-                passcode,
-                image{
-                  asset->{
-                    _id,
-                    url
-                  },
-                  alt
-                },
-                link{
-                  ...,
-                  internalLink->{
-                    _type,
-                    title,
-                    "slug": coalesce(store.slug.current, slug.current, pathname),
-                    pathname
-                  }
-                },
-                // Level 2 - Collections
-                navSublinks[]{
-                  _key,
-                  title,
-                  requiresPasscode,
-                  passcode,
-                  image{
-                    asset->{
-                      _id,
-                      url
-                    },
-                    alt
-                  },
-                  link{
-                    ...,
-                    internalLink->{
-                      _type,
-                      title,
-                      "slug": coalesce(store.slug.current, slug.current, pathname),
-                      pathname
-                    }
-                  },
-                  // Level 3 - VIP (nested items)
-                  navSublinks[]{
-                    _key,
-                    title,
-                    requiresPasscode,
-                    passcode,
-                    image{
-                      asset->{
-                        _id,
-                        url
-                      },
-                      alt
-                    },
-                    link{
-                      ...,
-                      internalLink->{
-                        _type,
-                        title,
-                        "slug": coalesce(store.slug.current, slug.current, pathname),
-                        pathname
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-
-      try {
-        const data = await client.fetch(query);
-        setNavItems(data?.header?.navItems || []);
-      } catch (error) {
-        setNavItems([]);
-      }
-    };
-    fetchNav();
-  }, []);
 
   // Show all nav items for mobile (both left and right)
   const mobileNavItems = navItems;
@@ -144,10 +39,16 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     if (!items || !Array.isArray(items)) return [];
     
     const seen = new Map();
-    return items.filter((item) => {
+    return items.filter((item, index) => {
+      // Ensure item has a title
+      if (!item.title) {
+        console.warn('Item without title found in navigation:', item);
+        return false;
+      }
+      
       // Use title as the primary key for deduplication since that's what's visible
-      const key = item.title?.toLowerCase().trim();
-      if (!key || seen.has(key)) {
+      const key = item.title.toLowerCase().trim();
+      if (seen.has(key)) {
         return false;
       }
       seen.set(key, true);
@@ -479,7 +380,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                   )}
 
                   <ul className={styles.links}>
-                    {deduplicateItems(currentLevel.items).map((item: any) => {
+                    {currentLevel.items.map((item: any) => {
                       const hasAccess = hasPasscodeAccess(item);
                       return (
                         <li key={`${item._key}-${subMenuStack.length}`} className={styles.linkItem}>
