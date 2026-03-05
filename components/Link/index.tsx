@@ -153,6 +153,7 @@ const Link = (props: LinkProps) => {
   if (linkType === 'action') {
     const handleActionClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
+      e.stopPropagation();
       if (action === 'openContactSidebar') {
         openContactSidebar();
       }
@@ -160,7 +161,14 @@ const Link = (props: LinkProps) => {
     };
 
     return (
-      <button className={classes} id={id} title={title} onClick={handleActionClick} {...rest}>
+      <button 
+        type="button"
+        className={classes} 
+        id={id} 
+        title={title} 
+        onClick={handleActionClick} 
+        {...rest}
+      >
         {children || <Text as="span" text={text || title} />}
       </button>
     );

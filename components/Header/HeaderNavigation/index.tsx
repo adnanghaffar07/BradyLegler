@@ -295,8 +295,13 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
           >
             {navItem.title?.toLowerCase() === 'concierge' ? (
               <button
+                type="button"
                 className={styles.navigationLink}
-                onClick={() => openContactSidebar()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openContactSidebar();
+                }}
               >
                 <span className={styles.navText}>{navItem.title}</span>
               </button>
