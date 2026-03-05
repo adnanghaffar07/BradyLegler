@@ -4,9 +4,9 @@
 
 .header {
   position: sticky;
-  top: 80px;
+  top: 20px;
   width: 100%;
-  height: 100vh;
+  height: 140vh;
   overflow: hidden;
   color: var(--brand-white);
   z-index: 0;
@@ -16,7 +16,13 @@
 .header.layout_fullWidth,
 .header.layout_split,
 .header.layout_text {
-  height: 100vh;
+  height: 120vh;
+}
+
+@media (max-width: 768px) {
+  .header.layout_split {
+    height: auto !important;
+  }
 }
 
 /* ========================================
@@ -130,16 +136,56 @@
 
 .header.layout_split {
   display: flex;
+  flex-direction: row;
+}
+
+.header.layout_split .container {
+  display: flex;
+  flex-direction: row;
+}
+
+.header.layout_split .mediaContainer {
+  flex: 1;
+  width: 50%;
+  min-height: 100vh;
 }
 
 /* MOBILE FIX FOR SPLIT */
 @media (max-width: 768px) {
+  .header {
+    height: auto !important;
+    overflow: visible;
+  }
+
   .header.layout_split {
     flex-direction: column;
   }
 
+  .header.layout_split .container {
+    flex-direction: column;
+  }
+
   .header.layout_split .mediaContainer {
-    height: 50vh;
+    width: 100%;
+    height: 45vh;
+    min-height: unset;
+    flex-basis: auto;
+  }
+
+  /* When second media container is empty */
+  .header.layout_split .mediaContainer:last-child:empty {
+    height: 0;
+    display: none;
+  }
+
+  /* First container becomes full height if second is empty */
+  .header.layout_split .mediaContainer:first-child:only-of-type {
+    height: 100vh;
+  }
+
+  /* Full width layout on mobile */
+  .header.layout_fullWidth .mediaContainer {
+    height: 100vh;
   }
 }
 

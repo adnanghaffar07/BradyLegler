@@ -79,9 +79,9 @@ const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDoc
             </div>
           )}
 
-          {layout === 'split' && (
+          {layout === 'split' && mediaTwo && (
             <div className={styles.mediaContainer}>
-              {mediaTwo && <Media type={mediaTwo.mediaType} image={mediaTwo.image} video={mediaTwo.video} />}
+              <Media type={mediaTwo.mediaType} image={mediaTwo.image} video={mediaTwo.video} />
             </div>
           )}
 
