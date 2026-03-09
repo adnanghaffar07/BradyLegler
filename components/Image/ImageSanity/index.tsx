@@ -84,9 +84,10 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
         // Remove existing fit and crop parameters
         url.searchParams.delete('fit');
         url.searchParams.delete('crop');
-        // Add focal point parameters with dimensions
-        url.searchParams.set('w', '800');
-        url.searchParams.set('h', '1200');
+        // Add focal point parameters - use viewport-width based dimensions for better responsiveness
+        // This ensures hotspot works properly on different layouts (fullWidth vs split)
+        url.searchParams.set('w', '1000');
+        url.searchParams.set('h', '800');
         url.searchParams.set('fit', 'crop');
         url.searchParams.set('crop', 'focalpoint');
         url.searchParams.set('fp-x', hotspot.x.toString());
