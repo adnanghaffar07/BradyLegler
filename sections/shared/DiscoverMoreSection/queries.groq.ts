@@ -11,6 +11,7 @@ const discoverMoreSectionProjection = groq`
       _type,
       pathname,
       title,
+      subtitle,
       status,
       featureImage${imageProjection},      
             

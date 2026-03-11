@@ -86,6 +86,7 @@ type ExtendedProduct = {
   pathname?: string;
   _type?: string;
   status?: string;
+  subtitle?: string;
   featureImage?: any;
   featureMedia?: {
     enable?: boolean;
@@ -113,7 +114,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 
-  const { _type, pathname, store, title, status, featureImage = {}, featureMedia = {} } = item;
+  const { _type, pathname, store, title, status, subtitle, featureImage = {}, featureMedia = {} } = item;
 
   // Determine media sources based on ProductCard logic
   const isCollectionMediaEnabled = store?.collectionMedia?.enable;
@@ -121,7 +122,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   const featureMediaEnabled = featureMedia?.enable;
 
   const slug = store?.slug?.current ? `/${store?.slug?.current}/` : pathname || '#';
-  const itemTitle = _type === 'artwork' ? title : store?.title || title;
+  const itemTitle = _type === 'artwork' ? title : _type === 'press' ? title : store?.title || title;
 
   // FIXED: Proper price extraction and formatting
   let secondaryText = '';
@@ -131,6 +132,8 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
     secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
   } else if (_type === 'artwork') {
     secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
+  } else if (_type === 'press') {
+    secondaryText = subtitle || '';
   }
 
   // Priority 1: collectionMedia with mediaItems array

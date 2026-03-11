@@ -46,6 +46,7 @@ const linkElementFields: ObjectDefinition['fields'] = [
       { type: 'page' },
       { type: 'route' },
       { type: 'artwork' },
+      { type: 'press' },
       { type: 'collection' },
       { type: 'product' }
     ],

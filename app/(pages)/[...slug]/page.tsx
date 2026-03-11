@@ -9,6 +9,7 @@ import { client } from '@/tools/sanity/lib/client';
 // Templates
 import PageTemplate from '@/templates/PageTemplate';
 import ArtworkTemplate from '@/templates/ArtworkTemplate';
+import PressTemplate from '@/templates/PressTemplate';
 import ProductTemplate from '@/templates/ProductTemplate';
 import CollectionTemplate from '@/templates/CollectionTemplate';
 
@@ -29,7 +30,7 @@ const Document = async (props: PageProps) => {
       params: {
         pathname,
         shopifySlug,
-        types: ['page', 'artwork', 'product', 'collection']
+        types: ['page', 'artwork', 'press', 'product', 'collection']
       }
     });
 
@@ -48,6 +49,11 @@ const Document = async (props: PageProps) => {
       case 'artwork':
         if (document?.artwork) {
           return <ArtworkTemplate data={document?.artwork} searchParams={searchParams} params={params} />;
+        }
+        break;
+      case 'press':
+        if (document?.press) {
+          return <PressTemplate data={document?.press} searchParams={searchParams} params={params} />;
         }
         break;
       case 'product':
@@ -81,7 +87,7 @@ export const generateMetadata = generateSanityMetadata({
     try {
       const document = await sanityFetch<SanityDocument>({
         query: DOCUMENT_QUERY,
-        params: { pathname, shopifySlug, types: ['page', 'artwork', 'product', 'collection'] }
+        params: { pathname, shopifySlug, types: ['page', 'artwork', 'press', 'product', 'collection'] }
       });
 
       if (!document) {
@@ -112,6 +118,15 @@ export const generateMetadata = generateSanityMetadata({
               canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/${canonicalPath}/`
             },
             robots: document?.artwork?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+          };
+        case 'press':
+          return {
+            seoTitle: document?.press?.seoData?.seoTitle || `${document?.press?.title} | ${metadata.title}`,
+            seoDescription: document?.press?.seoData?.seoDescription,
+            alternates: {
+              canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/${canonicalPath}/`
+            },
+            robots: document?.press?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
         case 'product':
           return {

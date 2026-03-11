@@ -1,0 +1,40 @@
+.section {
+  display: block;
+  width: 100%;
+  height: auto !important;
+  background-color: white;
+  overflow: visible !important;
+}
+
+.container {
+  width: 100%;
+  height: auto !important;
+  display: block;
+  overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.pressImage {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: scale-down;
+  object-position: top;
+  z-index: 0;
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+
+  image,
+  .image {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: scale-down;
+    object-position: top;
+    display: block;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}

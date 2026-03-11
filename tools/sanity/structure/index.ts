@@ -1,6 +1,7 @@
 import { StructureResolver } from 'sanity/structure';
 import PageMenuItem from './pages';
 import ArtworkMenuItem from './artwork';
+import PressMenuItem from './press';
 import GlobalMenuItem from './global';
 import SettingsMenuItem from './settings';
 import RoutesMenuItem from './routes';
@@ -13,6 +14,7 @@ const structure: StructureResolver = S =>
     .items([
       PageMenuItem(S),
       ArtworkMenuItem(S),
+      PressMenuItem(S),
       S.divider(),
       ProductsMenuItem(S),
       CollectionsMenuItem(S),

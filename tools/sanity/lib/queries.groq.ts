@@ -1,6 +1,7 @@
 import { groq } from 'next-sanity';
 import pageProjection from '../projections/documents/page.groq';
 import artworkProjection from '../projections/documents/artwork.groq';
+import pressProjection from '../projections/documents/press.groq';
 import linkProjection from '../projections/common/link.groq';
 import blockContentProjection from '../projections/common/blockContent.groq';
 import buttonProjection from '../projections/common/button.groq';
@@ -25,6 +26,12 @@ export const DOCUMENT_QUERY = groq`
     // Artwork
     _type == 'artwork' => {
       "artwork": ${artworkProjection}
+    },
+
+    // ------------------
+    // Press
+    _type == 'press' => {
+      "press": ${pressProjection}
     },
 
     // ------------------

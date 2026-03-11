@@ -17,6 +17,7 @@ import { socialMediaDocument, socialMediaItem } from './documents/socialMediaDoc
 
 // Artwork
 import artwork from './documents/artwork';
+import press from './documents/press';
 
 // Objects
 import {
@@ -62,6 +63,7 @@ import buttonElement from './elements/button';
 
 // Shared Sections
 import headerHeroSection from './sections/shared/headerHeroSection';
+import pressHeaderSection from './sections/shared/pressHeaderSection';
 import logosSection from './sections/shared/logosSection';
 import productsSection from './sections/shared/productsSection';
 import quoteSection from './sections/shared/quoteSection';
@@ -84,6 +86,7 @@ import { homeCollections } from './sections/shared/homeCollections';
 const schema: SchemaTypeDefinition[] = [
   // Documents
   artwork,
+  press,
   collection,
   footerDocument,
   headerDocument,
@@ -148,6 +151,7 @@ const schema: SchemaTypeDefinition[] = [
 
   // Sections
   headerHeroSection,
+  pressHeaderSection,
   productsSection,
   quoteSection,
   twoColMediaSection,
