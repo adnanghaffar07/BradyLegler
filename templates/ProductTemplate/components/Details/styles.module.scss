@@ -4,7 +4,7 @@
 
 .section {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   width: 100%;
   gap: 2rem;
   padding: 5rem 1.5rem 0;
@@ -37,9 +37,11 @@
 .leftColumn {
   width: 100%;
   margin-bottom: 1rem;
-  display: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   order: 3;
-  /* Hidden on mobile by default */
+  /* Third on mobile - after right column and gallery */
 
   @include media-up(tablet) {
     display: flex;
@@ -53,10 +55,12 @@
     max-width: 280px;
     margin-bottom: 0;
     position: sticky;
-    top: 100px;
+    top: 25vh;
     height: fit-content;
-    max-height: calc(100vh - 150px);
+    min-height: 60vh;
+    max-height: 70vh;
     align-self: flex-start;
+        top: 45vh;
   }
 
   @media (min-width: 1024px) {
@@ -72,6 +76,10 @@
     min-width: 380px;
     max-width: 380px;
   }
+
+  @media (min-width: 1500px) {
+    top: 45vh;
+  }
 }
 
 /* Collection Info Styles - LEFT COLUMN ONLY */
@@ -79,7 +87,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1.5rem;
   padding: 0;
   width: 100%;
@@ -133,11 +141,11 @@
 
 .gallery {
   width: 100%;
-  order: 2;
+  order: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Gallery second on mobile */
+  /* Gallery first on mobile */
 
   img {
     max-width: 100% !important;
@@ -167,8 +175,8 @@
 /* Container Styles - RIGHT COLUMN ONLY */
 .rightColumn {
   width: 100%;
-  order: 1;
-  /* Product details first on mobile */
+  order: 2;
+  /* Product details second on mobile */
 
   @include media-up(tablet) {
     display: flex;
@@ -183,10 +191,13 @@
     margin-top: 0;
     margin-bottom: 0;
     position: sticky;
-    top: 100px;
+    top: 25vh;
     height: fit-content;
-    max-height: calc(100vh - 150px);
+    min-height: 60vh;
+    max-height: 70vh;
+    overflow-y: auto;
     align-self: flex-start;
+        top: 45vh;
   }
 
   @media (min-width: 1024px) {
@@ -202,18 +213,18 @@
     min-width: 380px;
     max-width: 380px;
   }
+
+  @media (min-width: 1500px) {
+    top: 45vh;
+  }
 }
 
 .containerStickyRight {
   width: 100%;
 
   @include media-up(tablet) {
-    position: sticky;
-    top: 128px;
-    height: fit-content;
-    max-height: calc(100vh - 150px);
-    // overflow: auto;
-    align-self: flex-start;
+    // Sticky positioning handled by parent .rightColumn
+    width: 100%;
   }
 }
 
@@ -221,7 +232,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: medium;
   gap: 2rem;
   width: 100%;
@@ -250,15 +261,23 @@
   align-items: center;
   text-align: center;
   width: 100%;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .headerRight span {
   font-size: 12px;
-
 }
 
 .productDescriptionRight {
   width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 /* ===========================================
@@ -297,7 +316,7 @@
   }
 
   .gallery {
-    order: 2;
+    order: 1;
   }
 
   .leftColumn {
@@ -309,7 +328,7 @@
   }
 
   .rightColumn {
-    order: 1;
+    order: 2;
   }
 
   .storyTextLeft {

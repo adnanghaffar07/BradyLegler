@@ -73,13 +73,8 @@ type ExtendedProduct = {
       height?: number;
     }>;
     priceRange?: {
-      minVariantPrice:
-        | number
-        | string
-        | {
-            amount: string | number;
-            currencyCode?: string;
-          };
+      minVariantPrice?: number;
+      maxVariantPrice?: number;
     };
     slug?: {
       current: string;
@@ -91,6 +86,7 @@ type ExtendedProduct = {
   pathname?: string;
   _type?: string;
   status?: string;
+  subtitle?: string;
   featureImage?: any;
   featureMedia?: {
     enable?: boolean;
@@ -118,7 +114,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 
-  const { _type, pathname, store, title, status, featureImage = {}, featureMedia = {} } = item;
+  const { _type, pathname, store, title, status, subtitle, featureImage = {}, featureMedia = {} } = item;
 
   // Determine media sources based on ProductCard logic
   const isCollectionMediaEnabled = store?.collectionMedia?.enable;
@@ -126,42 +122,18 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   const featureMediaEnabled = featureMedia?.enable;
 
   const slug = store?.slug?.current ? `/${store?.slug?.current}/` : pathname || '#';
-  const itemTitle = _type === 'artwork' ? title : store?.title || title;
+  const itemTitle = _type === 'artwork' ? title : _type === 'press' ? title : store?.title || title;
 
   // FIXED: Proper price extraction and formatting
   let secondaryText = '';
 
   if (_type === 'product') {
-    let priceAmount: number | null = null;
-    let currencyCode = 'USD';
-
-    // Handle different price structures
-    const minVariantPrice = store?.priceRange?.minVariantPrice;
-
-    // Case 1: Price is an object with amount and currencyCode
-    if (minVariantPrice && typeof minVariantPrice === 'object' && 'amount' in minVariantPrice) {
-      priceAmount =
-        typeof minVariantPrice.amount === 'string'
-          ? parseFloat(minVariantPrice.amount)
-          : Number(minVariantPrice.amount);
-      currencyCode = minVariantPrice.currencyCode || 'USD';
-    }
-    // Case 2: Price is a direct number or string
-    else if (minVariantPrice !== undefined && minVariantPrice !== null) {
-      priceAmount = typeof minVariantPrice === 'string' ? parseFloat(minVariantPrice) : Number(minVariantPrice);
-    }
-
-    // Format the price if we have a valid amount
-    if (priceAmount !== null && !isNaN(priceAmount)) {
-      secondaryText = formatCurrency({
-        amount: priceAmount,
-        currencyCode
-      });
-    } else {
-      secondaryText = '$0.00';
-    }
+    const priceAmount = store?.priceRange?.minVariantPrice ?? 0;
+    secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
   } else if (_type === 'artwork') {
     secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
+  } else if (_type === 'press') {
+    secondaryText = subtitle || '';
   }
 
   // Priority 1: collectionMedia with mediaItems array
@@ -232,10 +204,10 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
     }
   };
 
-  const handleTouchStart = () => {};
+  const handleTouchStart = () => { };
 
   const handleTouchEnd = () => {
-    setTimeout(() => {}, 3000);
+    setTimeout(() => { }, 3000);
   };
 
   // Render media based on type

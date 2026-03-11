@@ -11,9 +11,6 @@ type PriceProps = {
 const Price: React.FC<PriceProps> = props => {
   const { price, compareAtPrice } = props;
 
-  // Debug what's coming in
-  console.log('Price component received:', { price, compareAtPrice });
-
   // Convert empty strings or invalid values
   const priceValue = price && price !== '0' ? price : '0';
   const compareAtPriceValue = compareAtPrice && compareAtPrice !== '0' ? compareAtPrice : undefined;

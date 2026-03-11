@@ -43,7 +43,7 @@ const discoverMoreSection = defineType({
       name: 'links',
       title: 'Links',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'artwork' }, { type: 'product' }] }],
+      of: [{ type: 'reference', to: [{ type: 'artwork' }, { type: 'product' }, { type: 'press' }] }],
       group: 'data'
     }
   ],

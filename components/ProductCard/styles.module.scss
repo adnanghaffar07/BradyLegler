@@ -207,7 +207,7 @@
 // Image dots indicator - also make transparent
 .imageDots {
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   left: 0;
   right: 0;
   display: flex;
@@ -240,13 +240,11 @@
 
 // Smaller dots on mobile
 @include media-down(large-tablet) {
-  .imageDots {
-    bottom: 16px; // Move dots up slightly on mobile
-  }
+
 
   .imageDot {
-    width: 6px; // Smaller dots on mobile
-    height: 6px;
+    width: 4px; // Smaller dots on mobile
+    height: 4px;
 
     &.active {
       transform: scale(1.4); // Slightly larger relative scale
@@ -363,6 +361,11 @@
 // Container fixes for product grid
 @media (min-width: 768px) {
   .productCard {
+     .imageLink {
+      .img{
+        object-fit: contain; // Ensure image fills the container on small screens
+      }
+    }
     .productDetails {
       padding: 0 4px; // Less padding on desktop
     }
@@ -370,14 +373,17 @@
 }
 
 // Extra small phones (320px - 375px)
-@media (max-width: 475px) {
+@media (max-width: 500px) {
   .productCard {
     .imageLink {
       max-width: 240px;
+      .img{
+        object-fit: contain; // Ensure image fills the container on small screens
+      }
     }
 
     .productDetails {
-      max-width: 220px;
+      max-width: 170px;
 
       .productTitle {
         font-size: 10px;

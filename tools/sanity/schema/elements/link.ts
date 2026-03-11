@@ -14,7 +14,7 @@ interface ILinkElement {
   externalLink?: string;
   phone?: string;
   email?: string;
-  action?: string;
+  action?: 'openContactSidebar';
 
   // Catch
   href?: string;
@@ -42,7 +42,17 @@ const linkElementFields: ObjectDefinition['fields'] = [
     name: 'internalLink',
     title: 'Internal Link',
     type: 'reference',
-    to: [{ type: 'page' }, { type: 'route' }, { type: 'artwork' }, { type: 'collection' }, { type: 'product' }],
+    to: [
+      { type: 'page' },
+      { type: 'route' },
+      { type: 'artwork' },
+      { type: 'press' },
+      { type: 'collection' },
+      { type: 'product' }
+    ],
+    options: {
+      disableNew: false,
+    },
     hidden: ({ parent }) => parent?.linkType !== 'internal'
   },
   {
@@ -67,6 +77,12 @@ const linkElementFields: ObjectDefinition['fields'] = [
     name: 'action',
     title: 'Action',
     type: 'string',
+    options: {
+      list: [
+        { value: 'openContactSidebar', title: 'Open Concierge Sidebar' }
+      ],
+      layout: 'dropdown'
+    },
     hidden: ({ parent }) => parent?.linkType !== 'action'
   }
 ];

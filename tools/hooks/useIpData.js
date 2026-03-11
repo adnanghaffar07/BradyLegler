@@ -16,7 +16,6 @@ const useIpData = props => {
 
       setIpData(data);
     } catch (error) {
-      console.log('An error occured while fetching IP data.', error?.message);
       return null;
     }
   };

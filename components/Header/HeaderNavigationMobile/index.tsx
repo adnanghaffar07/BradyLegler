@@ -9,11 +9,10 @@ import Icon from '@/components/Icon';
 import Image from 'next/image';
 import { IHeaderDocument } from '@/tools/sanity/schema/documents/headerDocument';
 import styles from './styles.module.scss';
-import { groq } from 'next-sanity';
-import { client } from '@/tools/sanity/lib/client';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
 import HeaderNavigationCart from '../HeaderNavigation/HeaderNavigationCart';
+import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
 
 type HeaderNavigationMobileProps = {
   navItems: IHeaderDocument['header']['navItems'];
@@ -22,119 +21,14 @@ type HeaderNavigationMobileProps = {
 };
 
 const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
-  const { mobileNavOpen, setMobileNavOpen } = props;
-  const [navItems, setNavItems] = useState<any[]>([]);
+  const { mobileNavOpen, setMobileNavOpen, navItems: propNavItems } = props;
+  const [navItems] = useState<any[]>(propNavItems || []);
   const [subMenuStack, setSubMenuStack] = useState<any[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [contactSidebarOpen, setContactSidebarOpen] = useState(false);
+  const { isOpen: contactSidebarOpen, openContactSidebar, closeContactSidebar } = useContactSidebar();
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
   const [currentPasscodeItem, setCurrentPasscodeItem] = useState<any | null>(null);
   const [onPasscodeSuccess, setOnPasscodeSuccess] = useState<(() => void) | null>(null);
-
-  // Fetch header nav via GROQ
-  useEffect(() => {
-    const fetchNav = async () => {
-      const query = groq`
-        *[_type == "headerDocument"][0]{
-          header{
-            navItems[]{
-              _key,
-              title,
-              side,
-              dropdown,
-              link{
-                ...,
-                internalLink->{
-                  _type,
-                  title,
-                  "slug": coalesce(store.slug.current, slug.current, pathname),
-                  pathname
-                }
-              },
-              navSublinks[]{
-                _key,
-                title,
-                requiresPasscode,
-                passcode,
-                image{
-                  asset->{
-                    _id,
-                    url
-                  },
-                  alt
-                },
-                link{
-                  ...,
-                  internalLink->{
-                    _type,
-                    title,
-                    "slug": coalesce(store.slug.current, slug.current, pathname),
-                    pathname
-                  }
-                },
-                // Level 2 - Collections
-                navSublinks[]{
-                  _key,
-                  title,
-                  requiresPasscode,
-                  passcode,
-                  image{
-                    asset->{
-                      _id,
-                      url
-                    },
-                    alt
-                  },
-                  link{
-                    ...,
-                    internalLink->{
-                      _type,
-                      title,
-                      "slug": coalesce(store.slug.current, slug.current, pathname),
-                      pathname
-                    }
-                  },
-                  // Level 3 - VIP (nested items)
-                  navSublinks[]{
-                    _key,
-                    title,
-                    requiresPasscode,
-                    passcode,
-                    image{
-                      asset->{
-                        _id,
-                        url
-                      },
-                      alt
-                    },
-                    link{
-                      ...,
-                      internalLink->{
-                        _type,
-                        title,
-                        "slug": coalesce(store.slug.current, slug.current, pathname),
-                        pathname
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-
-      try {
-        const data = await client.fetch(query);
-        console.log('Navigation data loaded');
-        setNavItems(data?.header?.navItems || []);
-      } catch (error) {
-        console.error('Error fetching navigation:', error);
-        setNavItems([]);
-      }
-    };
-    fetchNav();
-  }, []);
 
   // Show all nav items for mobile (both left and right)
   const mobileNavItems = navItems;
@@ -145,10 +39,16 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     if (!items || !Array.isArray(items)) return [];
     
     const seen = new Map();
-    return items.filter((item) => {
+    return items.filter((item, index) => {
+      // Ensure item has a title
+      if (!item.title) {
+        console.warn('Item without title found in navigation:', item);
+        return false;
+      }
+      
       // Use title as the primary key for deduplication since that's what's visible
-      const key = item.title?.toLowerCase().trim();
-      if (!key || seen.has(key)) {
+      const key = item.title.toLowerCase().trim();
+      if (seen.has(key)) {
         return false;
       }
       seen.set(key, true);
@@ -210,7 +110,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
 
     setIsAnimating(true);
     setMobileNavOpen(false);
-    setContactSidebarOpen(false);
+    closeContactSidebar();
 
     // Clear the menu stack immediately
     setSubMenuStack([]);
@@ -224,7 +124,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   const handleHamburgerClick = () => {
     if (contactSidebarOpen) {
       // When contact sidebar is open, close it and go back to main menu
-      setContactSidebarOpen(false);
+      closeContactSidebar();
       setSubMenuStack([]);
     } else {
       // Toggle main mobile navigation
@@ -245,7 +145,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
     // Close any open submenus
     setSubMenuStack([]);
     // Open contact sidebar
-    setContactSidebarOpen(true);
+    openContactSidebar();
     // Also close the mobile menu overlay
     setMobileNavOpen(false);
   };
@@ -480,7 +380,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                   )}
 
                   <ul className={styles.links}>
-                    {deduplicateItems(currentLevel.items).map((item: any) => {
+                    {currentLevel.items.map((item: any) => {
                       const hasAccess = hasPasscodeAccess(item);
                       return (
                         <li key={`${item._key}-${subMenuStack.length}`} className={styles.linkItem}>
@@ -499,13 +399,11 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                                 {item.requiresPasscode && !hasAccess && (
                                   <Icon title="lock" className={styles.lockIcon} />
                                 )}
-                                {item.navSublinks?.length && (
-                                  <Icon title="chevronRight" className={styles.navIcon} />
-                                )}
+                          
                               </div>
                             </button>
                           ) : (
-                            <Link
+                            <a
                               variant="normal-sm"
                               href={hasAccess ? resolveLink(item.link, item.title) : '#'}
                               onClick={(e) => {
@@ -525,7 +423,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                               {item.requiresPasscode && !hasAccess && (
                                 <Icon title="lock" className={styles.lockIcon} />
                               )}
-                            </Link>
+                            </a>
                           )}
                         </li>
                       );
@@ -542,7 +440,7 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
       <ContactSidebar
         isOpen={contactSidebarOpen}
         onClose={() => {
-          setContactSidebarOpen(false);
+          closeContactSidebar();
           setMobileNavOpen(false);
         }}
       />

@@ -43,5 +43,6 @@
   object-fit: cover;
   transition: opacity 150ms ease;
   min-height: 100vh;
-  min-width: 100vw;
+  /* Use 100% so the image doesn't extend past the viewport and cause horizontal scroll */
+  min-width: 100%;
 }

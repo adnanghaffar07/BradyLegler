@@ -84,7 +84,6 @@ function VideoUrlInput({ type, value, onChange, path, elementProps, schemaType, 
         });
       }
     } catch (error) {
-      console.error(error);
       toast.push({
         status: 'error',
         title: 'Failed to generate thumbnail',

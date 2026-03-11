@@ -39,7 +39,6 @@ const Form = (props: FormProps) => {
       if (values._gotcha) return;
       setIsSubmitting(true);
       if (onSubmit) await onSubmit(values, methods);
-      console.log('Form Submit ===', values);
       setIsSubmitting(false);
     },
     [onSubmit, methods]

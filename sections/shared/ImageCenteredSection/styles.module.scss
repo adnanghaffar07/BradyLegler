@@ -57,4 +57,30 @@
 .image {
   margin: 0 auto;
   height: auto;
+  
+  // Force contain on all nested image elements
+  img {
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+  
+  // Mobile: Portrait orientation with contain
+  @include media-down(large-tablet) {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 3 / 4;
+    padding: 0 !important;
+    
+    img {
+      object-fit: cover !important;
+    }
+  }
+  
+  // Desktop: Show full image, centered
+  @include media-up(tablet) {
+    img {
+      object-fit: cover !important;
+      object-position: center center !important;
+    }
+  }
 }

@@ -122,12 +122,6 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ title, prod
 
   // EXACT COPY of ProductCard's image logic for gallery
   const getProductImages = (product: IProduct) => {
-    console.log(`🔍 Getting images for "${product.store.title}":`, {
-      gallery: product.gallery,
-      galleryImages: product.galleryImages,
-      collectionMedia: product.collectionMedia
-    });
-
     let images: any[] = [];
     let source = 'none';
 
@@ -136,13 +130,11 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ title, prod
     const collectionMediaItems = product?.collectionMedia?.mediaItems || [];
 
     if (isCollectionMediaEnabled && collectionMediaItems.length > 0) {
-      console.log('✅ Using COLLECTION MEDIA with mediaItems array');
       source = 'collectionMedia';
       images = collectionMediaItems;
     }
     // Priority 2: collectionMedia single item
     else if (isCollectionMediaEnabled && product.collectionMedia?.mediaType) {
-      console.log('✅ Using COLLECTION MEDIA single item');
       source = 'collectionMedia (single)';
       const singleMediaItem = {
         mediaType: product.collectionMedia.mediaType,
@@ -158,26 +150,14 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ title, prod
       const sanityImages = galleryImages.filter((img: any) => {
         // Check if it's an image with src or url
         const hasImage = img._type === 'image' && (img.src || img.url);
-        console.log('Checking gallery item:', { img, hasImage });
         return hasImage;
       });
 
       if (sanityImages.length > 0) {
-        console.log('✅ Using SANITY GALLERY images');
         source = 'sanityGallery';
         images = sanityImages;
       }
     }
-
-    console.log(`📊 Final image decision for "${product.store.title}":`, {
-      source,
-      imagesCount: images.length,
-      images: images.map(img => ({
-        type: img._type || img.mediaType,
-        src: img.src || img.url || img.image?.asset?.url,
-        alt: img.altText || img.alt
-      }))
-    });
 
     return images;
   };
@@ -347,14 +327,6 @@ const HomeCollectionsSection: React.FC<IHomeCollectionsSection> = ({ title, prod
             const imagesLength = images.length || (product.store.previewImageUrl ? 1 : 0);
             const hasMultipleImages = imagesLength > 1;
             const currentImage = getCurrentImage(product);
-
-            console.log(`🎯 Rendering "${product.store.title}":`, {
-              imagesCount: images.length,
-              imagesLength,
-              hasMultipleImages,
-              hasCurrentImage: !!currentImage,
-              currentImageSrc: currentImage?.src?.substring(0, 50)
-            });
 
             return (
               <div

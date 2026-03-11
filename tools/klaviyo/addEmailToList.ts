@@ -1,5 +1,6 @@
 const KLAVIYO_PRIVATE_API_KEY = process.env.KLAVIYO_PRIVATE_API_KEY!;
-const KLAVIYO_LIST_ID = process.env.KLAVIYO_LIST_ID!;
+// Use newsletter-specific list ID if provided, otherwise fall back to default list ID
+const KLAVIYO_LIST_ID = process.env.KLAVIYO_NEWSLETTER_LIST_ID || process.env.KLAVIYO_LIST_ID!;
 const KLAVIYO_API_REVISION = '2024-05-15';
 
 type AddEmailToListResponse = {
@@ -19,6 +20,16 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
       throw new Error('Email is required to create a profile.');
     }
 
+    // Validate environment variables
+    if (!KLAVIYO_PRIVATE_API_KEY) {
+      throw new Error('KLAVIYO_PRIVATE_API_KEY is not configured');
+    }
+
+    if (!KLAVIYO_LIST_ID) {
+      throw new Error('KLAVIYO_NEWSLETTER_LIST_ID or KLAVIYO_LIST_ID is not configured');
+    }
+
+    // Step 1: Create or get profile
     const response = await fetch(`https://a.klaviyo.com/api/profiles/`, {
       method: 'POST',
       headers: {
@@ -48,14 +59,18 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
         if (duplicateProfileError) {
           profileId = duplicateProfileError.meta?.duplicate_profile_id;
         } else {
-          throw new Error('Failed to create profile.');
+          throw new Error(errors[0]?.detail || 'Failed to create profile.');
         }
       }
     } else {
       profileId = responseData.data.id;
     }
 
-    // Subscribe profile to list
+    if (!profileId) {
+      throw new Error('Failed to get profile ID');
+    }
+
+    // Step 2: Subscribe profile to list
     const subscribeResponse = await fetch(
       `https://a.klaviyo.com/api/lists/${KLAVIYO_LIST_ID}/relationships/profiles/`,
       {
@@ -72,7 +87,8 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
       }
     );
 
-    if (subscribeResponse?.ok) {
+    // Klaviyo returns 204 No Content on success (no response body to parse)
+    if (subscribeResponse.status === 204 || subscribeResponse.ok) {
       return {
         status: 'success',
         message: 'Profile subscribed to list',
@@ -80,8 +96,16 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
       };
     }
 
-    const subscribeData = await subscribeResponse.json();
-    throw new Error(subscribeData.errors?.[0]?.detail || 'Failed to subscribe profile.');
+    // Only try to parse JSON if there's an error response
+    let errorMessage = 'Failed to subscribe profile.';
+    try {
+      const subscribeData = await subscribeResponse.json();
+      errorMessage = subscribeData.errors?.[0]?.detail || errorMessage;
+    } catch (e) {
+      // No JSON body to parse
+    }
+    
+    throw new Error(errorMessage);
   } catch (error: any) {
     return {
       status: 'error',

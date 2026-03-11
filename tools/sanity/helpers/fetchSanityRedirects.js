@@ -27,7 +27,6 @@ const fetchSanityRedirects = async () => {
       return accumulator;
     }, []);
   } catch (error) {
-    console.log('An error occurred while fetching Sanity redirects: ', error);
     return [];
   }
 };

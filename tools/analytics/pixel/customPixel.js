@@ -35,7 +35,6 @@ gtag('js', new Date());
       // });
     }
   } catch (error) {
-    console.error('Analytics Pixel - Error getting client_id');
     return null;
   }
 })();
@@ -54,7 +53,7 @@ const sendEvent = data => {
 
     window.dataLayer.push(enrichedData);
   } catch (error) {
-    console.error('Analytics Pixel - Error while sending event', error);
+    // Silently handle error
   }
 };
 

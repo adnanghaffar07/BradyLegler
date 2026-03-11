@@ -263,48 +263,16 @@ const ProductCard = ({
   }
 
   if (shopifyProduct) {
-    console.log('='.repeat(50));
-    console.log('🔍 PRODUCT CARD START - Product:', shopifyProduct.title);
-    console.log('='.repeat(50));
-
-    // STEP 1: Log all incoming data
-    console.log('📦 STEP 1 - All incoming data:', {
-      title: shopifyProduct.title,
-      hasCollectionMedia: !!shopifyProduct.collectionMedia,
-      collectionMedia: shopifyProduct.collectionMedia,
-      hasGallery: !!shopifyProduct.gallery,
-      galleryItems: shopifyProduct.gallery?.media?.length || 0,
-      hasShopifyImages: !!shopifyProduct.images?.edges?.length,
-      shopifyImagesCount: shopifyProduct.images?.edges?.length || 0
-    });
-
-    // STEP 2: Check collection media
+    // Check collection media
     const isCollectionMediaEnabled = shopifyProduct?.collectionMedia?.enable;
     const collectionMediaItems = shopifyProduct?.collectionMedia?.mediaItems || [];
 
-    console.log('🔍 STEP 2 - Collection Media Analysis:', {
-      isCollectionMediaEnabled,
-      collectionMediaItemsCount: collectionMediaItems.length,
-      collectionMediaItems: collectionMediaItems,
-      hasMediaType: !!shopifyProduct.collectionMedia?.mediaType,
-      mediaType: shopifyProduct.collectionMedia?.mediaType,
-      hasImage: !!shopifyProduct.collectionMedia?.image?.asset?.url,
-      hasVideo: !!shopifyProduct.collectionMedia?.video?.asset?.url
-    });
-
-    // STEP 3: Check other image sources
+    // Check other image sources
     const galleryImages = shopifyProduct.gallery?.media || shopifyProduct.galleryImages || [];
     const sanityImages = galleryImages.filter((img: any) => img._type === 'image' && img.src);
     const shopifyImages = shopifyProduct.images?.edges || [];
 
-    console.log('🔍 STEP 3 - Other Image Sources:', {
-      sanityImagesCount: sanityImages.length,
-      shopifyImagesCount: shopifyImages.length,
-      sanityImages: sanityImages.slice(0, 2), // Show first 2 for debugging
-      shopifyImages: shopifyImages.slice(0, 2).map((img: any) => img.node?.src)
-    });
-
-    // STEP 4: Determine which images to use (priority order)
+    // Determine which images to use (priority order)
     let images: any[] = [];
     let currentImageSrc: string | undefined;
     let currentImageAlt: string | undefined;
@@ -314,28 +282,21 @@ const ProductCard = ({
 
     // Priority 1: collectionMedia with mediaItems array
     if (isCollectionMediaEnabled && collectionMediaItems.length > 0) {
-      console.log('✅ STEP 4 - Using COLLECTION MEDIA with mediaItems array');
       useCollectionMedia = true;
       source = 'collectionMedia (multiple)';
       images = collectionMediaItems;
 
       const currentMedia = images[currentImageIndex];
-      console.log('📸 Current collection media item:', currentMedia);
 
       if (currentMedia?.mediaType === 'image' && currentMedia.image?.asset?.url) {
         currentImageSrc = currentMedia.image.asset.url;
         currentImageAlt = currentMedia.alt;
-        console.log('🖼️ Found image URL:', currentImageSrc);
       } else if (currentMedia?.mediaType === 'video' && currentMedia.video?.asset?.url) {
         currentImageSrc = currentMedia.video.asset.url;
-        console.log('🎬 Found video URL:', currentImageSrc);
-      } else {
-        console.log('⚠️ Collection media item has no valid image/video URL');
       }
     }
     // Priority 2: collectionMedia single item (backward compatibility)
     else if (isCollectionMediaEnabled && shopifyProduct.collectionMedia?.mediaType) {
-      console.log('✅ STEP 4 - Using COLLECTION MEDIA single item (backward compatibility)');
       useCollectionMedia = true;
       source = 'collectionMedia (single)';
 
@@ -350,67 +311,37 @@ const ProductCard = ({
       if (shopifyProduct.collectionMedia.mediaType === 'image' && shopifyProduct.collectionMedia.image?.asset?.url) {
         currentImageSrc = shopifyProduct.collectionMedia.image.asset.url;
         currentImageAlt = shopifyProduct.title;
-        console.log('🖼️ Found single image URL:', currentImageSrc);
       } else if (
         shopifyProduct.collectionMedia.mediaType === 'video' &&
         shopifyProduct.collectionMedia.video?.asset?.url
       ) {
         currentImageSrc = shopifyProduct.collectionMedia.video.asset.url;
-        console.log('🎬 Found single video URL:', currentImageSrc);
       }
     }
     // Priority 3: Sanity gallery images
     else if (sanityImages.length > 0) {
-      console.log('✅ STEP 4 - Using SANITY GALLERY images');
       useSanityGallery = true;
       source = 'sanityGallery';
       images = sanityImages;
       currentImageSrc = (images[currentImageIndex] as any)?.src;
       currentImageAlt = (images[currentImageIndex] as any)?.altText;
-      console.log('🖼️ Found gallery image URL:', currentImageSrc);
     }
     // Priority 4: Shopify images
     else if (shopifyImages.length > 0) {
-      console.log('✅ STEP 4 - Using SHOPIFY images');
       source = 'shopify';
       images = shopifyImages;
       currentImageSrc = (images[currentImageIndex] as any)?.node?.src;
-      console.log('🖼️ Found Shopify image URL:', currentImageSrc);
-    } else {
-      console.log('❌ STEP 4 - NO IMAGE SOURCES FOUND');
     }
 
-    // STEP 5: Final state
+    // Final state
     const hasMultipleImages = images.length > 1;
 
-    console.log('📊 STEP 5 - Final Decision:', {
-      source,
-      useCollectionMedia,
-      useSanityGallery,
-      imagesCount: images.length,
-      hasMultipleImages,
-      currentImageIndex,
-      currentImageSrc,
-      currentImageAlt
-    });
-    console.log('='.repeat(50));
-
     const ShopifyProductMedia = () => {
-      console.log('🎨 RENDERING MEDIA - Product:', shopifyProduct.title);
-      console.log('📱 Render State:', {
-        currentImageIndex,
-        imagesCount: images.length,
-        currentImageSrc,
-        source
-      });
-
       // 1. First check: collectionMedia items
       if (useCollectionMedia && images[currentImageIndex]) {
         const currentMedia = images[currentImageIndex];
-        console.log('🎯 Rendering collection media item:', currentMedia);
 
         if (currentMedia?.mediaType === 'video' && currentMedia.video?.asset?.url) {
-          console.log('▶️  Rendering VIDEO:', currentMedia.video.asset.url);
           return (
             <>
               <Video url={currentMedia.video.asset.url} className={styles.video} objectFit="contain" controls={false} />
@@ -420,12 +351,6 @@ const ProductCard = ({
         }
 
         if (currentMedia?.mediaType === 'image' && currentMedia.image?.asset?.url) {
-          console.log('🖼️  Rendering IMAGE:', {
-            url: currentMedia.image.asset.url,
-            width: currentMedia.image.asset.metadata?.dimensions?.width,
-            height: currentMedia.image.asset.metadata?.dimensions?.height,
-            alt: currentMedia.alt
-          });
           return (
             <Image
               src={currentMedia.image.asset.url}
@@ -434,23 +359,14 @@ const ProductCard = ({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt={currentMedia.alt || shopifyProduct.title || ''}
               quality={90}
-              onError={e => {
-                console.error('❌ IMAGE LOAD ERROR:', e);
-              }}
-              onLoad={() => {
-                console.log('✅ IMAGE LOADED SUCCESSFULLY');
-              }}
             />
           );
         }
-
-        console.log('⚠️ Collection media item is invalid');
       }
 
       // 2. Second check: Sanity gallery images
       if (useSanityGallery && sanityImages[currentImageIndex]?.src) {
         const currentImage = sanityImages[currentImageIndex];
-        console.log('🖼️  Rendering Sanity gallery image:', currentImage.src);
         return (
           <Image
             src={currentImage.src}
@@ -458,26 +374,22 @@ const ProductCard = ({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             alt={currentImage.altText || ''}
             quality={90}
-            onLoad={() => console.log('✅ Sanity gallery image loaded')}
           />
         );
       }
 
       // 3. Fallback: Original Shopify image
       if (currentImageSrc) {
-        console.log('🖼️  Rendering Shopify image:', currentImageSrc);
         return (
           <Image
             src={currentImageSrc}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             alt=""
-            onLoad={() => console.log('✅ Shopify image loaded')}
           />
         );
       }
 
-      console.log('❌ NO MEDIA TO RENDER');
       return null;
     };
 
@@ -524,7 +436,6 @@ const ProductCard = ({
     );
   }
 
-  console.log('❌ PRODUCT CARD - No product data provided');
   return null;
 };
 

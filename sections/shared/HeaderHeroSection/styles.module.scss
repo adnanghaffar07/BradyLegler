@@ -1,15 +1,21 @@
 .section {
   display: flex;
-  height: auto;
-  min-height: 100vh;
- background-color: white;
+  height: 100vh; // Mobile full screen
+  background-color: white;
+  position: relative;
+  overflow: visible;
+
+  @include media-up-desktop {
+    height: auto; // Keep desktop same
+  }
 }
 
 .tagline {
-  margin-bottom: 2rem; // spacing between text and button
+  margin-bottom: 2rem;
   font-size: 1.5rem;
   text-align: center;
   color: #ffffff;
+  font-family: var(--primary-font), sans-serif;
 }
 
 .layout {
@@ -34,15 +40,15 @@
   }
 
   .containerSticky {
-    height: 100%; // Match section height for sticky to work
+    height: 100%;
     min-height: 100%;
     position: relative;
-    z-index: 10; // ensure it's above background
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end; // Bottom on mobile
-    
+    justify-content: flex-end;
+
     @include media-up-desktop {
       top: 100px;
       justify-content: center;
@@ -54,6 +60,7 @@
     position: sticky;
     top: 50%;
     max-width: 200px;
+
     @include media-up-desktop {
       top: 100px;
     }
@@ -61,21 +68,37 @@
 }
 
 .bgImage {
-  // position: absolute !important;
-  // top: 0;
-  // left: 0;
-  // z-index: -1; // Same as bgImage
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
   z-index: 0;
   overflow: hidden;
+  display: block;
 
   image,
   .image {
     width: 100%;
     height: 100%;
-    min-height: 100vh;
-    object-fit: cover;
+    object-fit: cover;        // Mobile crop
+    object-position: center;  // Show center
+    display: block;
+       max-width: 100%;
+    margin: 0;
+  }
+
+  @include media-up-desktop {
+    position: relative;
+    height: auto;
+    overflow: visible;
+
+    image,
+    .image {
+      width: 100%;
+      height: auto;
+      object-fit: contain; // Desktop original behavior
+    }
   }
 }
 
@@ -84,11 +107,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; // Position at bottom on mobile
+  justify-content: center;
   width: 100%;
   height: 100%;
   min-height: 100%;
-  padding-bottom: 80px; // Space from bottom on mobile
+  padding-bottom: 80px;
 
   .tagline {
     text-align: center;
@@ -98,29 +121,43 @@
     align-items: flex-center;
     justify-content: center;
     padding-bottom: 0;
-    // padding-top: 50vh; // Only use padding-top on tablet+
-    
+
     .tagline {
       text-align: right;
     }
   }
 }
-// ADD video with same styles as bgImage
+
+// Video styles
 .videoContainer {
-  position: absolute !important;
+  position: absolute;
   top: 0;
   left: 0;
-  right: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
   overflow: hidden;
+  display: block;
 
   video,
   .video {
     width: 100%;
     height: 100%;
-    min-height: 100vh;
-    object-fit: cover;
+    object-fit: cover;       // Mobile crop
+    object-position: center;
+    display: block;
+  }
+
+  @include media-up-desktop {
+    position: relative;
+    height: auto;
+    overflow: visible;
+
+    video,
+    .video {
+      width: 100%;
+      height: auto;
+      object-fit: contain; // Desktop original behavior
+    }
   }
 }

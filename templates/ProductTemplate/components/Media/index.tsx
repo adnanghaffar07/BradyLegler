@@ -2,7 +2,7 @@ import React from 'react';
 import { SanityFileAsset } from '@sanity/asset-utils';
 import styles from './styles.module.scss';
 import classNames from '@/helpers/classNames';
-import Image from 'next/image';
+import Image from '@/components/Image';
 
 type MediaProps = {
   enable: boolean;
@@ -38,16 +38,16 @@ const Media: React.FC<MediaProps> = props => {
   }
 
   if (type === 'image' && image) {
-    const { asset, altText } = image;
-    const { width, height } = asset.metadata.dimensions;
+    const { asset, altText, crop, hotspot } = image as any;
     return (
       <div className={classes}>
         <Image
           key={asset.url}
-          src={image.asset.url}
-          width={width}
-          height={height}
-          alt={altText || 'Brady Legler'}
+          asset={asset}
+          crop={crop}
+          hotspot={hotspot}
+          altText={altText || 'Brady Legler'}
+          sizes="100vw"
           priority
           className={styles.media}
         />

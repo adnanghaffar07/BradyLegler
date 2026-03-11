@@ -243,6 +243,7 @@ const TextBlock = (props: TextBlockProps) => {
         const externalLink = value?.externalLink || '';
         const phone = value?.phone || '';
         const email = value?.email || '';
+        const action = value?.action || '';
         const linkType = value?.linkType;
         const href = value?.href || ''; // catches links pasted from external sources
 
@@ -254,6 +255,7 @@ const TextBlock = (props: TextBlockProps) => {
             externalLink={externalLink}
             phone={phone}
             email={email}
+            action={action}
             className={styles.link}
           >
             {children}
@@ -284,11 +286,26 @@ const TextBlock = (props: TextBlockProps) => {
         const { value } = props;
         const hasButtons = value?.buttons?.length > 0;
         return hasButtons
-          ? value.buttons.map((button: any, index: number) => (
-              <Link key={index} {...button?.link} title={button?.label} variant="square" size="md" theme="primary">
-                <Text text={button?.label} weight="medium" />
-              </Link>
-            ))
+          ? value.buttons.map((button: any, index: number) => {
+              const buttonLink = button?.link || {};
+              return (
+                <Link
+                  key={index}
+                  linkType={buttonLink?.linkType}
+                  internalLink={buttonLink?.internalLink}
+                  externalLink={buttonLink?.externalLink}
+                  phone={buttonLink?.phone}
+                  email={buttonLink?.email}
+                  action={buttonLink?.action}
+                  title={button?.label}
+                  variant="square"
+                  size="md"
+                  theme="primary"
+                >
+                  <Text text={button?.label} weight="medium" />
+                </Link>
+              );
+            })
           : null;
       },
       divider: () => {

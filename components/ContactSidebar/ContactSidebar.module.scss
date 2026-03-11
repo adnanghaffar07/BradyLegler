@@ -25,9 +25,18 @@
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  animation: fadeIn 0.3s ease forwards;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, z-index 0s 0.3s;
   cursor: pointer;
+
+  &.overlayVisible {
+    z-index: 1000;
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.3s ease, z-index 0s;
+  }
 
   @include mobile {
     background: rgba(0, 0, 0, 0.7);
@@ -445,7 +454,8 @@
   @include mobile {
     font-size: 12px;
     line-height: 17.28px;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
+    margin-top: 10px;
   }
 }
 
@@ -479,7 +489,7 @@
   flex: 1;
 
   @include mobile {
-    gap: 12px;
+    gap: 10px;
   }
 }
 
@@ -545,7 +555,8 @@
   line-height: 1.5;
 
   @include mobile {
-    min-height: 50px;
+    min-height: 40px;
+    max-height: 80px;
   }
 }
 
@@ -561,8 +572,8 @@
   gap: 0.75rem;
 
   @include mobile {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
   }
 }
 
@@ -629,7 +640,7 @@
   font-family: var(--primary-font), sans-serif;
   opacity: 0.7;
 
-  &:hover:not(:disabled) {
+  &:hover:not(:disabled):not(.active) {
     background: #f9f9f9;
     border-color: #bbb;
     color: var(--navigation-color-hover);

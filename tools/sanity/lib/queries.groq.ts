@@ -1,6 +1,7 @@
 import { groq } from 'next-sanity';
 import pageProjection from '../projections/documents/page.groq';
 import artworkProjection from '../projections/documents/artwork.groq';
+import pressProjection from '../projections/documents/press.groq';
 import linkProjection from '../projections/common/link.groq';
 import blockContentProjection from '../projections/common/blockContent.groq';
 import buttonProjection from '../projections/common/button.groq';
@@ -28,6 +29,12 @@ export const DOCUMENT_QUERY = groq`
     },
 
     // ------------------
+    // Press
+    _type == 'press' => {
+      "press": ${pressProjection}
+    },
+
+    // ------------------
     // Product
     _type == 'product' => {
       "product": ${productProjection}
@@ -45,13 +52,43 @@ export const HEADER_QUERY = groq`
   *[_type == "headerDocument" && _id == "headerDocument"][0]{
     header {
       navItems[]{
+        _key,
         title,
         link${linkProjection},
         dropdown,
         side,
+        image${imageProjection},
         navSublinks[]{
+          _key,
           title,
-          link${linkProjection}
+          requiresPasscode,
+          passcode,
+          image${imageProjection},
+          link${linkProjection},
+          navSublinks[]{
+            _key,
+            title,
+            requiresPasscode,
+            passcode,
+            image${imageProjection},
+            link${linkProjection},
+            navSublinks[]{
+              _key,
+              title,
+              requiresPasscode,
+              passcode,
+              image${imageProjection},
+              link${linkProjection},
+              navSublinks[]{
+                _key,
+                title,
+                requiresPasscode,
+                passcode,
+                image${imageProjection},
+                link${linkProjection}
+              }
+            }
+          }
         }
       }
     }

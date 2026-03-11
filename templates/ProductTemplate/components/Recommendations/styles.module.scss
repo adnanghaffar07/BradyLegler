@@ -2,7 +2,6 @@
   width: 100%;
   margin: 3rem 0;
   padding: 6rem 0 2rem 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .container {
@@ -14,7 +13,11 @@
 
 .title {
   text-align: center;
-  padding-bottom: 32px;
+  padding-bottom: 90px;
+
+  @media (max-width: 768px) {
+    padding-bottom: 90px;
+  }
 }
 
 .grid {
@@ -31,7 +34,31 @@
     grid-template-columns: 1fr;
     max-width: 400px;
     margin: 0 auto;
-    gap: 1rem;
+    gap: 8rem;
+  }
+}
+
+// Center alignment for fewer products
+.grid-1 {
+  display: flex;
+  justify-content: center;
+  
+  .productWrapper {
+    max-width: 400px; // Adjust based on your design
+    width: 100%;
+  }
+}
+
+.grid-2 {
+  @media (min-width: 769px) {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    
+    .productWrapper {
+      max-width: calc(50% - 1rem);
+      width: 100%;
+    }
   }
 }
 

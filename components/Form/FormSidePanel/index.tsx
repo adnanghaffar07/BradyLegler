@@ -22,7 +22,7 @@ const LOADING_DURATION = 3000;
 const SUCCESS_DURATION = 3000;
 
 const FormSidePanel: React.FC<FormSidePanelProps> = props => {
-  const { title = 'Enquiry', show = true, submitText = 'Enquire', onClose, children, formName } = props;
+  const { title = 'Inquiry', show = true, submitText = 'Inquire', onClose, children, formName } = props;
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleOnSubmit = async (values: any, methods) => {
@@ -57,7 +57,6 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
         setStatus('idle');
       }, SUCCESS_DURATION);
     } catch (error) {
-      console.error('Form submission error:', error);
       setStatus('error');
       setTimeout(() => {
         setStatus('idle');

@@ -1,38 +1,8 @@
-.container {
-  position: relative;
-  margin: 0;
-  padding-left: 0;
-  padding-right: 0;
-  max-width: 100% !important;
-}
-
-.logos {
+.section {
   display: flex;
-  align-items: center;
-  gap: 80px;
-  margin: 0 auto;
-  max-width: 1200px;
-
-  @include media-down(tablet) {
-    flex-wrap: wrap;
-    column-gap: 32px;
-    row-gap: 24px;
-  }
-}
-
-.title {
-  max-width: 450px;
-  margin: 0 auto;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.logo {
-  flex: 1;
-
-  @include media-down(tablet) {
-    flex: 25%;
-  }
+  // min-height: 100vh;
+  position: relative;
+  background-color: white;
 }
 
 .layout {
@@ -41,8 +11,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  // padding: var(--layout-container-spacing);
-
+  height: 100%;
+  padding: var(--layout-container-spacing);
   position: absolute !important;
   top: 0;
   left: 0;
@@ -50,31 +20,67 @@
   bottom: 0;
   z-index: 1000;
 
-  @include media-up(tablet) {
+  @include media-up-desktop {
     justify-content: center;
     align-items: flex-end;
   }
 
   .containerSticky {
     height: 100%;
-    position: relative;
-  }
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
 
-  .button {
-    position: sticky;
-    top: 50%;
-    @include media-up(tablet) {
-      top: 400px;
+    @include media-up-desktop {
+      justify-content: center;
+      top: 100px;
+      padding-bottom: 1px;
+    }
+
+    .contentGroup {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      padding-bottom: 20px;
+
+      @include media-up-desktop {
+        justify-content: center;
+        padding-bottom: 0;
+      }
+
+      .button {
+        position: sticky;
+        top: 50%;
+        max-width: 200px;
+        @include media-up-desktop {
+          top: 100px;
+          /* desktop offset */
+        }
+      }
     }
   }
 }
 
-// .layout {
-//   position: absolute;
-//   z-index: 10;
-//   top: 0;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   width: 100%;
-// }
+.videoContainer {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+
+  video {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    object-fit: cover;
+  }
+}

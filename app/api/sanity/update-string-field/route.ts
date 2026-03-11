@@ -44,7 +44,6 @@ export const POST = async (req: NextApiRequest, res: NextApiResponse) => {
       status: 200
     });
   } catch (error) {
-    console.error('Error updating string field:', error.message);
     const response = JSON.stringify({ error: 'Internal Server Error', message: error.message });
     return new Response(response, {
       status: 500

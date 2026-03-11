@@ -15,7 +15,7 @@ interface FormData {
   lastName: string;
   email: string;
   phone: string;
-  enquiry: string;
+  inquiry: string;
   contactMethod: string;
 }
 
@@ -26,7 +26,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     lastName: '',
     email: '',
     phone: '',
-    enquiry: '',
+    inquiry: '',
     contactMethod: 'email'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,13 +57,13 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          type: 'enquiry',
+          type: 'inquiry',
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone, // Make sure this is included
           contactMethod: formData.contactMethod, // Make sure this is included
-          message: formData.enquiry, // This should map to the enquiry field
+          message: formData.inquiry, // This should map to the inquiry field
           formName: 'Contact Sidebar Form'
         })
       });
@@ -73,7 +73,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
       if (result.status === 'success') {
         setSubmitStatus({
           type: 'success',
-          message: 'Thank you! Your enquiry has been submitted successfully.'
+          message: 'Thank you! Your inquiry has been submitted successfully.'
         });
 
         // Reset form
@@ -82,7 +82,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           lastName: '',
           email: '',
           phone: '',
-          enquiry: '',
+          inquiry: '',
           contactMethod: 'email'
         });
 
@@ -95,7 +95,6 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
         throw new Error(result.message);
       }
     } catch (error: any) {
-      console.error('Form submission error:', error);
       setSubmitStatus({
         type: 'error',
         message: error.message || 'Failed to submit your enquiry. Please try again.'
@@ -108,7 +107,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
 
   const handleContactButtonClick = (action: string) => {
     switch (action) {
-      case 'enquiry':
+      case 'inquiry':
         // Handled by showForm state
         break;
       case 'message':
@@ -133,7 +132,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
       lastName: '',
       email: '',
       phone: '',
-      enquiry: '',
+      inquiry: '',
       contactMethod: 'email'
     });
     setSubmitStatus(null);
@@ -146,21 +145,15 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
       // Store current scroll position
       const scrollY = window.scrollY;
       
-      // Apply styles to lock scroll
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
+      // Apply overflow hidden to prevent scroll
       document.body.style.overflow = 'hidden';
+      // Use padding instead of position fixed to avoid scroll jump
+      document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
       
       return () => {
-        // Remove scroll lock styles
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
+        // Restore original styles
         document.body.style.overflow = '';
-        
-        // Restore scroll position
-        window.scrollTo(0, scrollY);
+        document.body.style.paddingRight = '';
       };
     }
   }, [isOpen]);
@@ -168,7 +161,16 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay */}
-      {isOpen && <div className={classNames(styles.overlay, styles.contactOverlay)} onClick={handleClose} />}
+      <div 
+        className={classNames(styles.overlay, styles.contactOverlay, {
+          [styles.overlayVisible]: isOpen
+        })} 
+        onClick={handleClose}
+        style={{ 
+          pointerEvents: isOpen ? 'auto' : 'none',
+          opacity: isOpen ? 1 : 0
+        }}
+      />
       {/* Sidebar */}
       <div
         className={classNames(styles.sidebarRight, {
@@ -214,9 +216,9 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                     </button> */}
 
                     <button className={styles.contactOptionBtn} onClick={() => handleContactButtonClick('press')}>
-                      <div className={styles.pressTitle}>Press Enquiries</div>
+                      <div className={styles.pressTitle}>Press Inquiries</div>
                       <div className={styles.pressText}>
-                        If you would like to discuss press enquiries, please contact:
+                        If you would like to discuss press inquiries, please contact:
                         <a href="mailto:info@bradylegler.com" className={styles.emailLink}>
                           info@bradylegler.com
                         </a>
@@ -226,8 +228,8 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                 </div>
               </>
             ) : (
-              /* STEP 2: Show enquiry form */
-              <div className={styles.enquiryFormSection}>
+              /* STEP 2: Show inquiry form */
+              <div className={styles.inquiryFormSection}>
                 {/* Back button to return to action buttons */}
                 <button className={styles.backButton} onClick={() => setShowForm(false)}>
                   <Icon title="chevronLeft" className={styles.backIcon} />
@@ -235,7 +237,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                 </button>
 
                 <h3 className={styles.formHeading}>
-                  Please send an enquiry and one of our experts will get back to you as soon as possible.
+                  Please send an Inquiry and one of our experts will get back to you as soon as possible.
                 </h3>
 
                 {/* Status Messages */}
@@ -280,39 +282,41 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleFormChange}
-                      required
-                      className={styles.formInput}
-                      disabled={isSubmitting}
-                    />
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="email">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleFormChange}
+                        required
+                        className={styles.formInput}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="phone">Phone</label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleFormChange}
+                        className={styles.formInput}
+                        disabled={isSubmitting}
+                      />
+                    </div>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label htmlFor="phone">Phone</label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleFormChange}
-                      className={styles.formInput}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="enquiry">Your Enquiry</label>
+                    <label htmlFor="inquiry">Your Inquiry</label>
                     <textarea
-                      id="enquiry"
-                      name="enquiry"
-                      value={formData.enquiry}
+                      id="inquiry"
+                      name="inquiry"
+                      value={formData.inquiry}
                       onChange={handleFormChange}
                       placeholder="Let us know how we can help..."
                       required

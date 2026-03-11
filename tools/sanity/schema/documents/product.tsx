@@ -91,7 +91,8 @@ const productDocument = defineType({
       type: 'featureMedia',
       title: 'Feature Media',
       description: 'Add a custom feature media for this product',
-      group: 'editorial'
+      group: 'editorial',
+      hidden: true
     }),
     defineField({
       name: 'gallery',

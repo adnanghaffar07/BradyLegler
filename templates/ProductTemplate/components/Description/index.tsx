@@ -20,20 +20,38 @@ const Description = ({
   useEffect(() => {
     if (!descriptionHtml) return;
 
+    // Validate: Check if descriptionHtml contains CSS module classes (invalid data)
+    if (descriptionHtml.includes('styles_') || descriptionHtml.includes('class="styles')) {
+      setDescription(null);
+      return;
+    }
+
     const rawDescriptionSplit = descriptionHtml.split('~section~');
-    setDescription(rawDescriptionSplit[0] ?? null);
+    let cleanedDescription = rawDescriptionSplit[0] ?? null;
+    
+    // Remove any inline text-align styles that might be coming from Shopify
+    if (cleanedDescription) {
+      cleanedDescription = cleanedDescription
+        // Remove all text-align styles
+        .replace(/text-align:\s*[^;]+;?/gi, '')
+        // Remove align attributes
+        .replace(/align=["'][^"']*["']/gi, '')
+        // Remove empty style attributes
+        .replace(/style=["']\s*["']/g, '');
+    }
+    
+    setDescription(cleanedDescription);
   }, [descriptionHtml]);
 
   return (
     <div className={styles.container}>
-            <SizeGuide sanitySizeGuide={sanitySizeGuide} collections={collections} />
+      <SizeGuide sanitySizeGuide={sanitySizeGuide} collections={collections} />
 
       {description && (
-        <p className={styles.description} as="p" size="b3">
+        <div className={styles.description}>
           <span dangerouslySetInnerHTML={{ __html: description }} />
-        </p>
+        </div>
       )}
-
     </div>
   );
 };

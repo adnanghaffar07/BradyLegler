@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import SanityImage from '@/components/Image'; // Import our Sanity Image component
 import Section from '@/components/Section';
 import Layout from '@/components/Layout';
 import TextBlock from '@/components/TextBlock';
@@ -42,18 +43,14 @@ const Media: React.FC<{
   }
 
   if (type === 'image' && image) {
-    const { asset, altText } = image;
-    const { width, height } = asset.metadata.dimensions;
     return (
       <div className={classes}>
-        <Image
-          key={asset.url}
-          src={image.asset.url}
-          width={width}
-          height={height}
-          alt={altText || 'Brady Legler'}
+        <SanityImage
+          {...image}
+          fill
           priority
           className={styles.media}
+          objectFit="cover"
         />
       </div>
     );
@@ -82,9 +79,9 @@ const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDoc
             </div>
           )}
 
-          {layout === 'split' && (
+          {layout === 'split' && mediaTwo && (
             <div className={styles.mediaContainer}>
-              {mediaTwo && <Media type={mediaTwo.mediaType} image={mediaTwo.image} video={mediaTwo.video} />}
+              <Media type={mediaTwo.mediaType} image={mediaTwo.image} video={mediaTwo.video} />
             </div>
           )}
 

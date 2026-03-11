@@ -35,20 +35,28 @@ const ProductTemplate = async (props: WebPageProps) => {
     ? await getProductByHandle(sanityProductData.store.slug.current)
     : null;
 
-  console.log('=== PRODUCT COLLECTIONS DEBUG ===');
   const shopifyCollections = shopifyProductData?.collections?.edges?.map(e => ({
     id: e.node.id.replace('gid://shopify/Collection/', ''),
     title: e.node.title,
     handle: e.node.handle
   })) || [];
 
-  console.log('Shopify collections:', shopifyCollections);
-
   // Define priority: Specific collections first
   const SPECIFIC_COLLECTIONS = [
     'subway', 'subway-collection',
     'bobby', 'centric', 'line', 'lucia', 'noir-collection',
     'nova', 'pencil', 'saturn-collection', 'wave', 'revel'
+  ];
+
+  // Define generic collections to exclude - add your generic collection handles here
+  const EXCLUDED_COLLECTIONS = [
+    'ring', 'rings',
+    'necklace', 'necklaces',
+    'bracelet', 'bracelets',
+    'earring', 'earrings',
+    'pendant', 'pendants',
+    'jewelry'
+    // Add more generic collection handles as needed
   ];
 
   let primaryCollection: CollectionData | null = null;
@@ -77,8 +85,6 @@ const ProductTemplate = async (props: WebPageProps) => {
           tags: ['collection']
         });
 
-        console.log(`Fetched collection "${shopifyCollection.handle}":`, collection);
-
         if (collection?.store?.title) {
           primaryCollection = {
             store: {
@@ -90,21 +96,22 @@ const ProductTemplate = async (props: WebPageProps) => {
               descriptionHtml: collection.store.descriptionHtml
             }
           };
-          console.log(`Selected specific collection: ${collection.store.title}`);
-          console.log(`Collection story: "${collection.collectionStory}"`);
           break;
         }
       } catch (error) {
-        console.error(`Error fetching ${shopifyCollection.handle}:`, error);
+        // Skip failed collection fetch
       }
     }
   }
 
-  // If no specific collection found, try any collection
+  // If no specific collection found, try any collection (excluding generic ones)
   if (!primaryCollection && shopifyCollections.length > 0) {
-    console.log('No specific collection found, trying any collection...');
-
     for (const shopifyCollection of shopifyCollections) {
+      // Skip excluded generic collections
+      if (EXCLUDED_COLLECTIONS.includes(shopifyCollection.handle)) {
+        continue;
+      }
+
       try {
         const collection = await sanityFetch<any>({
           query: groq`
@@ -132,7 +139,6 @@ const ProductTemplate = async (props: WebPageProps) => {
               id: collection.store.id
             }
           };
-          console.log(`Selected collection: ${collection.store.title}`);
           break;
         }
       } catch (error) {
@@ -140,11 +146,6 @@ const ProductTemplate = async (props: WebPageProps) => {
       }
     }
   }
-
-  console.log('=== FINAL PRIMARY COLLECTION ===');
-  console.log('Title:', primaryCollection?.store?.title);
-  console.log('Story:', primaryCollection?.store?.collectionStory);
-  console.log('Full object:', primaryCollection);
 
   // Get recommendations from the same collection instead
   let shopifyProductRecommendations = [];
@@ -162,7 +163,7 @@ const ProductTemplate = async (props: WebPageProps) => {
           .slice(0, 3);
       }
     } catch (error) {
-      console.error('Error fetching collection for recommendations:', error);
+      // Skip failed recommendations fetch
     }
   }
 

@@ -13,6 +13,17 @@
   background-color: var(--brand-ascension-blue);
   color: white;
   z-index: 999999999999;
+  pointer-events: none; // Don't block clicks unless visible
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s 0.3s;
+  
+  &.visible {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s;
+  }
 }
 
 .body {
