@@ -53,6 +53,8 @@ const productProjection = groq`{
     },
   },
   sections[]${sectionsProjection},
+  inquireButtonEnabled,
+  inquireButtonLabel,
   seoData
 }`;
 
