@@ -32,6 +32,7 @@ export type ImagePropsSanity = {
   sizes?: string | Breakpoints;
   fill?: boolean;
   aspectRatio?: SanityAspectRatio;
+  disableHotspotCrop?: boolean;
 };
 
 export type ImagePropsStandard = {
@@ -47,6 +48,7 @@ export type ImagePropsStandard = {
   sizes?: string | Breakpoints;
   fill?: boolean;
   aspectRatio?: SanityAspectRatio;
+  disableHotspotCrop?: boolean;
 };
 
 export type ImageProps = ImagePropsStandard | ImagePropsSanity;
@@ -60,7 +62,8 @@ const Image = (props: ImageProps) => {
     objectFit = 'cover',
     aspectRatio = 'natural',
     placeholder,
-    fill
+    fill,
+    disableHotspotCrop = false
   } = props;
 
   const [error, setError] = useState<any>(null);
@@ -112,6 +115,7 @@ const Image = (props: ImageProps) => {
           priority={priority}
           fill={fill}
           placeholder={placeholder}
+          disableHotspotCrop={disableHotspotCrop}
         />
       </div>
     );

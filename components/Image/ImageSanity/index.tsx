@@ -24,10 +24,11 @@ type ImageSanityProps = {
   };
   priority: boolean;
   placeholder?: 'blur' | 'empty';
+  disableHotspotCrop?: boolean;
 };
 
 const ImageSanity: React.FC<ImageSanityProps> = props => {
-  const { asset, crop, hotspot, sizes, className, quality, alt, fill, placeholder, onError, priority, error, fallback } = props;
+  const { asset, crop, hotspot, sizes, className, quality, alt, fill, placeholder, onError, priority, error, fallback, disableHotspotCrop = false } = props;
 
   const [isMobile, setIsMobile] = useState(true); // Start with true to show hotspot
 
@@ -78,7 +79,7 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     }
     
     // Manually add focal point parameters on mobile if hotspot exists
-    if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined) {
+    if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined && !disableHotspotCrop) {
       try {
         const url = new URL(imageSrc);
         // Remove existing fit and crop parameters
@@ -103,6 +104,17 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
         url.searchParams.set('crop', 'focalpoint');
         url.searchParams.set('fp-x', hotspot.x.toString());
         url.searchParams.set('fp-y', hotspot.y.toString());
+        imageSrc = url.toString();
+      } catch (e) {
+        // Silent error handling
+      }
+    } else if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined && disableHotspotCrop) {
+      // When hotspot crop is disabled, just show the full image
+      try {
+        const url = new URL(imageSrc);
+        url.searchParams.delete('fit');
+        url.searchParams.delete('crop');
+        url.searchParams.set('fit', 'max');
         imageSrc = url.toString();
       } catch (e) {
         // Silent error handling

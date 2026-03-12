@@ -41,7 +41,7 @@ const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
       <Layout variant={layoutVariant} className={styles.container}>
         {/* Side A */}
         <div className={classNames(styles.sideA, { [styles.hover]: sideAHover })}>
-          <Image {...imageSideA} key="imageSideA" className={styles.image} />
+          <Image {...imageSideA} key="imageSideA" className={styles.image} disableHotspotCrop={true} />
           {addButtonSideA && (buttonSideA?.link || taglineSideA) && (
             <div className={styles.overlayContent}>
               {taglineSideA && <p className={styles.tagline}>{taglineSideA}</p>}
