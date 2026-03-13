@@ -1,13 +1,18 @@
 import Text from '@/components/Text';
 import ProductCard from '@/components/ProductCard';
 import { GetProductRecommendationsResponse } from '@/tools/apis/shopify';
+import { getProductInquiryFlags } from '@/tools/sanity/helpers/getProductInquiryFlags';
 import styles from './styles.module.scss';
 
-const Recommendations = ({ recommendations }: { recommendations: GetProductRecommendationsResponse }) => {
+const Recommendations = async ({ recommendations }: { recommendations: GetProductRecommendationsResponse }) => {
   if (!recommendations || recommendations.length === 0) return null;
 
   const productsToShow = recommendations.slice(0, 3);
   const productsCount = productsToShow.length;
+
+  // Fetch inquiry flags for all products
+  const handles = productsToShow.map(p => p.handle);
+  const inquiryFlags = await getProductInquiryFlags(handles);
 
   return (
     <section className={styles.recommendationsSection}>
@@ -16,7 +21,10 @@ const Recommendations = ({ recommendations }: { recommendations: GetProductRecom
         <div className={`${styles.grid} ${styles[`grid-${productsCount}`]}`}>
           {productsToShow.map(product => (
             <div key={product.id} className={styles.productWrapper}>
-              <ProductCard shopifyProduct={product} />
+              <ProductCard 
+                shopifyProduct={product}
+                inquiryEnabled={inquiryFlags[product.handle]?.inquireButtonEnabled}
+              />
             </div>
           ))}
         </div>

@@ -21,6 +21,8 @@ interface IProductDocument {
   description: SanityTextBlock[];
   specification: SanityTextBlock[];
   collectionMedia: IFeatureMedia;
+  inquireButtonEnabled?: boolean;
+  inquireButtonLabel?: string;
 }
 
 const productDocument = defineType({
@@ -132,6 +134,23 @@ const productDocument = defineType({
       title: 'Collection Media',
       description: 'Add a custom media for this product that will be displayed on collection pages',
       group: 'collection'
+    }),
+    defineField({
+      name: 'inquireButtonEnabled',
+      type: 'boolean',
+      title: 'Enable Inquire Button',
+      description: 'Toggle to enable the Inquire button on this product',
+      group: 'editorial',
+      initialValue: false
+    }),
+    defineField({
+      name: 'inquireButtonLabel',
+      type: 'string',
+      title: 'Inquire Button Label',
+      description: 'Customize the text for the Inquire button',
+      group: 'editorial',
+      initialValue: 'Make an Inquiry',
+      hidden: ({ parent }) => !parent?.inquireButtonEnabled
     }),
     defineField({
       name: `seoData`,

@@ -13,6 +13,8 @@ const discoverMoreSectionProjection = groq`
       title,
       subtitle,
       status,
+      inquireButtonEnabled,
+      inquireButtonLabel,
       featureImage${imageProjection},      
             
       store {

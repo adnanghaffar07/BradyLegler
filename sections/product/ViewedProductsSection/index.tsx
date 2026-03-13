@@ -6,6 +6,7 @@ import Section from '@/components/Section';
 import ProductCard from '@/components/ProductCard';
 import { getProducts, ShopifyProduct } from '@/tools/apis/shopify';
 import { useRecentlyViewed } from '@/tools/store/useRecentlyViewed';
+import { useProductInquiryFlags } from '@/tools/hooks/useProductInquiryFlags';
 // import { IViewedProductsSection } from '@/tools/sanity/schema/sections/viewedProductsSection';
 import styles from './styles.module.scss';
 
@@ -23,6 +24,8 @@ const ViewedProductsSection: React.FC<Props> = props => {
   const productIds = useRecentlyViewed(state => state.productIds);
   const addToRecentlyViewed = useRecentlyViewed(state => state.add);
   const [products, setProducts] = useState<ShopifyProduct[]>();
+  const [handles, setHandles] = useState<string[]>([]);
+  const { flags } = useProductInquiryFlags(handles);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -33,6 +36,7 @@ const ViewedProductsSection: React.FC<Props> = props => {
         fetchedProducts = fetchedProducts.filter(product => product.id !== currentProductId);
 
         setProducts(fetchedProducts);
+        setHandles(fetchedProducts.map(p => p.handle));
       }
     };
     if (productIds.length > 0) {
@@ -53,7 +57,11 @@ const ViewedProductsSection: React.FC<Props> = props => {
       <Text as="h2" text="Recently viewed" size="2xl" />
       <div className={styles.grid}>
         {products.map(product => (
-          <ProductCard key={product.id} shopifyProduct={product} />
+          <ProductCard 
+            key={product.id} 
+            shopifyProduct={product}
+            inquiryEnabled={flags[product.handle]?.inquireButtonEnabled}
+          />
         ))}
       </div>
     </Section>

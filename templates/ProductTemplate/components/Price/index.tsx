@@ -6,10 +6,20 @@ import formatCurrency from '@/helpers/formatCurrency';
 type PriceProps = {
   price: string;
   compareAtPrice?: string;
+  inquiryEnabled?: boolean;
 };
 
 const Price: React.FC<PriceProps> = props => {
-  const { price, compareAtPrice } = props;
+  const { price, compareAtPrice, inquiryEnabled } = props;
+
+  // If inquiry is enabled, show custom message
+  if (inquiryEnabled) {
+    return (
+      <div className={styles.price}>
+        <Text as="span" size="b2" className={styles.price} text="Price Available on Request" />
+      </div>
+    );
+  }
 
   // Convert empty strings or invalid values
   const priceValue = price && price !== '0' ? price : '0';
