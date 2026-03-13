@@ -21,8 +21,9 @@ const Media: React.FC<{
     };
   };
   className?: string;
+  smallImage?: boolean;
 }> = props => {
-  const { type, video, image, className } = props;
+  const { type, video, image, className, smallImage = false } = props;
 
   const classes = classNames(styles.media, className);
 
@@ -51,6 +52,7 @@ const Media: React.FC<{
           priority
           className={styles.media}
           objectFit="cover"
+          smallImage={smallImage}
         />
       </div>
     );
@@ -75,13 +77,13 @@ const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDoc
         <Layout variant={layout === 'split' ? 'leftLargeFullWidth' : 'fullWidth'} className={styles.container}>
           {(layout === 'split' || layout === 'fullWidth') && (
             <div className={styles.mediaContainer}>
-              {mediaOne && <Media type={mediaOne.mediaType} image={mediaOne.image} video={mediaOne.video} />}
+              {mediaOne && <Media type={mediaOne.mediaType} image={mediaOne.image} video={mediaOne.video} smallImage={layout === 'split'} />}
             </div>
           )}
 
           {layout === 'split' && mediaTwo && (
             <div className={styles.mediaContainer}>
-              <Media type={mediaTwo.mediaType} image={mediaTwo.image} video={mediaTwo.video} />
+              <Media type={mediaTwo.mediaType} image={mediaTwo.image} video={mediaTwo.video} smallImage={true} />
             </div>
           )}
 
