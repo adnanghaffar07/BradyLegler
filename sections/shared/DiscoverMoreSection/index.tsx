@@ -128,8 +128,13 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   let secondaryText = '';
 
   if (_type === 'product') {
-    const priceAmount = store?.priceRange?.minVariantPrice ?? 0;
-    secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
+    const inquiryEnabled = (item as any).inquireButtonEnabled;
+    if (inquiryEnabled) {
+      secondaryText = 'Price Available on Request';
+    } else {
+      const priceAmount = store?.priceRange?.minVariantPrice ?? 0;
+      secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
+    }
   } else if (_type === 'artwork') {
     secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
   } else if (_type === 'press') {

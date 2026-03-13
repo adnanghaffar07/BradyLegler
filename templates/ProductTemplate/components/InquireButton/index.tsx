@@ -8,7 +8,7 @@ type InquireButtonProps = {
   label?: string;
 };
 
-const InquireButton: React.FC<InquireButtonProps> = ({ label = 'Inquire' }) => {
+const InquireButton: React.FC<InquireButtonProps> = ({ label = 'Make an Inquiry' }) => {
   const { openContactSidebar } = useContactSidebar();
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {

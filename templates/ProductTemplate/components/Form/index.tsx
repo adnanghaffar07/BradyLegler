@@ -208,13 +208,19 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
           ))}
 
         <div className={styles.price}>
-          <Price price={selectedVariant?.price} compareAtPrice={selectedVariant?.compareAtPrice} />
+          <Price 
+            price={selectedVariant?.price} 
+            compareAtPrice={selectedVariant?.compareAtPrice}
+            inquiryEnabled={sanityProductData?.inquireButtonEnabled}
+          />
         </div>
 
         <div className={styles.action}>
-          <AddToCartButton disabled={!selectedVariant?.inventory.isAvailable} />
+          {!sanityProductData?.inquireButtonEnabled && (
+            <AddToCartButton disabled={!selectedVariant?.inventory.isAvailable} />
+          )}
           {sanityProductData?.inquireButtonEnabled && (
-            <InquireButton label={sanityProductData?.inquireButtonLabel || 'Inquire'} />
+            <InquireButton label={sanityProductData?.inquireButtonLabel || 'Make an Inquiry'} />
           )}
         </div>
       </form>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 import Button from '@/components/Button';
@@ -8,6 +8,7 @@ import Text from '@/components/Text';
 import QuoteOverlay from './components/QuoteOverlay';
 import Layout from '@/components/Layout';
 import useCollectionFilters from './hooks/useCollectionFilters';
+import { useProductInquiryFlags } from '@/tools/hooks/useProductInquiryFlags';
 import {
   GetCollectionByHandleResponse,
   GetCollectionFiltersByHandleResponse,
@@ -39,12 +40,21 @@ const ProductsGridClient = ({
     collectionSlug: sanityCollectionData.store.slug.current
   });
 
+  const [handles, setHandles] = useState<string[]>([]);
+  const { flags } = useProductInquiryFlags(handles);
+
   const layoutType = sanityCollectionData?.layout || 'fluidAndGrid';
   const layout: LayoutOption = 'grid';
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const numVisibleProducts = shopifyCollectionData?.products?.edges?.length || 0;
+
+  // Update handles whenever products change
+  useEffect(() => {
+    const productHandles = shopifyCollectionData?.products?.edges?.map(({ node }) => node?.handle).filter(Boolean) || [];
+    setHandles(productHandles);
+  }, [shopifyCollectionData?.products?.edges]);
 
   const nextPage = () => {
     const params = new URLSearchParams(searchParams);
@@ -72,6 +82,7 @@ const renderItems = useMemo(() => {
         overlayDetailsOnMobile={false}
         collectionId={sanityCollectionData?.store?.id}
         collectionTitle={sanityCollectionData?.store?.title}
+        inquiryEnabled={flags[node?.handle]?.inquireButtonEnabled}
       />
     );
 
@@ -89,7 +100,7 @@ const renderItems = useMemo(() => {
   });
 
   return items;
-}, [layout, sanityCollectionData, sectionsMiddle, layoutType, shopifyCollectionData, layoutVariant]);
+}, [layout, sanityCollectionData, sectionsMiddle, layoutType, shopifyCollectionData, layoutVariant, flags]);
 
 // Determine if this is a small collection that needs sections after the grid
 const isSmallCollection = (shopifyCollectionData?.products?.edges?.length || 0) <= 7;

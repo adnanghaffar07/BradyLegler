@@ -149,7 +149,7 @@ const productDocument = defineType({
       title: 'Inquire Button Label',
       description: 'Customize the text for the Inquire button',
       group: 'editorial',
-      initialValue: 'Inquire',
+      initialValue: 'Make an Inquiry',
       hidden: ({ parent }) => !parent?.inquireButtonEnabled
     }),
     defineField({

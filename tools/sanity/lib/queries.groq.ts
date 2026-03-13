@@ -196,3 +196,11 @@ export const PRODUCT_COLLECTIONS_QUERY = groq`
     }
   } | order(_updatedAt desc)
 `;
+
+export const PRODUCT_INQUIRY_FLAGS_QUERY = groq`
+  *[_type == "product" && store.slug.current in $handles]{
+    "handle": store.slug.current,
+    inquireButtonEnabled,
+    inquireButtonLabel
+  }
+`;

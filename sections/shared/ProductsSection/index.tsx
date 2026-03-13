@@ -15,7 +15,13 @@ const ProductsSection: React.FC<IProductsSection> = props => {
       {products && products.length > 0 && (
         <div className={styles.products}>
           {products.map(product => {
-            return <ProductCard key={product._id} sanityProduct={product.store} />;
+            return (
+              <ProductCard 
+                key={product._id} 
+                sanityProduct={product.store}
+                inquiryEnabled={product.inquireButtonEnabled}
+              />
+            );
           })}
         </div>
       )}

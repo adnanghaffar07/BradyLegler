@@ -82,7 +82,8 @@ const ProductCard = ({
   overlayDetailsOnMobile = false,
   collectionId,
   collectionTitle,
-  layoutType
+  layoutType,
+  inquiryEnabled = false
 }: {
   shopifyProduct?: ExtendedShopifyProduct;
   sanityProduct?: IProductDocument['store'];
@@ -91,6 +92,7 @@ const ProductCard = ({
   collectionId?: string | number;
   collectionTitle?: string;
   layoutType?: string;
+  inquiryEnabled?: boolean;
 }) => {
   const { trackSelectItem } = useAnalytics();
   const [active, setActive] = useState(false);
@@ -251,7 +253,7 @@ const ProductCard = ({
         <div className={styles.productDetails}>
           <Text text={sanityProduct.title} size="b3" className={styles.productTitle} />
           <Text
-            text={formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
+            text={inquiryEnabled ? 'Price Available on Request' : formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
             className={styles.productPrice}
             size="b3"
           />
@@ -423,7 +425,7 @@ const ProductCard = ({
         <div className={styles.productDetails}>
           <Text text={shopifyProduct.title} size="b3" className={styles.productTitle} />
           <Text
-            text={formatCurrency({
+            text={inquiryEnabled ? 'Price Available on Request' : formatCurrency({
               amount: parseFloat(shopifyProduct.priceRange?.minVariantPrice?.amount || '0')
             })}
             className={styles.productPrice}
