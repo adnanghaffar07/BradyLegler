@@ -19,6 +19,7 @@ type SubMenuState = {
   activeItem?: any;
   image?: any;
   inheritedImage?: any; // Track inherited image from parent
+  hoveredItemIndex?: number | null; // Track hovered item in this level
 };
 
 interface HeaderNavigationProps {
@@ -148,6 +149,20 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
     setTimeout(() => setIsAnimating(false), 300);
   };
 
+  // Handle hover on menu items to update the displayed image
+  const handleItemHover = (levelIndex: number, itemIndex: number | null) => {
+    setSubMenuStack(prev => {
+      const updated = [...prev];
+      if (updated[levelIndex]) {
+        updated[levelIndex] = {
+          ...updated[levelIndex],
+          hoveredItemIndex: itemIndex
+        };
+      }
+      return updated;
+    });
+  };
+
   const closeSidebar = () => {
     if (isAnimating) return;
     setIsAnimating(true);
@@ -257,11 +272,19 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
     return '#';
   };
 
-  // Get current image - check current level first, then fall back to parent
+  // Get current image - check hovered item first, then current level, then fall back to parent
   const getCurrentImage = () => {
     if (!subMenuStack.length) return null;
 
     const currentLevel = subMenuStack[subMenuStack.length - 1];
+
+    // Check if there's a hovered item with an image
+    if (currentLevel.hoveredItemIndex !== null && currentLevel.hoveredItemIndex !== undefined) {
+      const hoveredItem = currentLevel.items[currentLevel.hoveredItemIndex];
+      if (hoveredItem?.image?.asset?.url) {
+        return hoveredItem.image;
+      }
+    }
 
     // Check current level image
     if (currentLevel.image?.asset?.url) {
@@ -375,6 +398,8 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
                           className={classNames(styles.sidebarItem, {
                             [styles.active]: menuLevel.activeItem?.title === item.title
                           })}
+                          onMouseEnter={() => handleItemHover(levelIndex, index)}
+                          onMouseLeave={() => handleItemHover(levelIndex, null)}
                         >
                           {isDropdownItem ? (
                             <button
