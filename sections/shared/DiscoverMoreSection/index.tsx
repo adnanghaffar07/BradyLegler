@@ -137,7 +137,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
       secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
     }
   } else if (_type === 'artwork') {
-    secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
+    secondaryText = status === 'onSale' ? 'Available' : 'Sold';
   } else if (_type === 'press') {
     secondaryText = subtitle || '';
   }

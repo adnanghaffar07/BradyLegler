@@ -6,10 +6,11 @@ import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
 
 type ArtworkEnquiryFormProps = {
   isOnSale: boolean;
+  inquireButtonLabel?: string;
 };
 
 const ArtworkEnquiryForm: React.FC<ArtworkEnquiryFormProps> = props => {
-  const { isOnSale } = props;
+  const { isOnSale, inquireButtonLabel = 'Inquire' } = props;
   const { openContactSidebar } = useContactSidebar();
 
   const handleClick = useCallback(() => {
@@ -20,7 +21,7 @@ const ArtworkEnquiryForm: React.FC<ArtworkEnquiryFormProps> = props => {
 
   return (
     <>
-      <Button onClick={handleClick} text={isOnSale ? 'Inquire' : 'Sold'} disabled={!isOnSale} variant="square" />
+      <Button onClick={handleClick} text={isOnSale ? inquireButtonLabel : 'Sold'} disabled={!isOnSale} variant="square" />
     </>
   );
 };

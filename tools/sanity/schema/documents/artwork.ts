@@ -23,6 +23,7 @@ interface IArtwork {
   categories: any[];
   featureImage: SanityImage;
   sections: any[];
+  inquireButtonLabel?: string;
   seoData: ISeoObject;
 }
 
@@ -138,6 +139,14 @@ const artwork = defineType({
       ],
       components: { input: SectionLibrary },
       group: 'data'
+    },
+    {
+      name: 'inquireButtonLabel',
+      type: 'string',
+      title: 'Inquire Button Label',
+      description: 'Customize the text for the Inquire button',
+      group: 'data',
+      initialValue: 'Inquire'
     },
     {
       name: `seoData`,

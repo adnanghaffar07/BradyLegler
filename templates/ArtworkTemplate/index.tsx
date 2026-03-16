@@ -15,7 +15,7 @@ interface WebPageProps extends PageProps {
 
 const ArtworkTemplate = async (props: WebPageProps) => {
   const { data, params, searchParams } = props;
-  const { title, status, specification, content, featureImage } = data || {};
+  const { title, status, specification, content, featureImage, inquireButtonLabel } = data || {};
   const image = data?.featureImage;
   const isOnSale = status === 'onSale';
 
@@ -28,7 +28,7 @@ const ArtworkTemplate = async (props: WebPageProps) => {
           {specification && <Text text={specification} size="b1" />}
           {content && <TextBlock blocks={content} config={{ p: { size: 'b1' } }} />}
         </div>
-        <ArtworkEnquiryForm isOnSale={isOnSale} />
+        <ArtworkEnquiryForm isOnSale={isOnSale} inquireButtonLabel={inquireButtonLabel} />
       </Section>
       <Sections sections={data?.sections} searchParams={searchParams} params={params} />
       <JsonLd.Article document={data} />
