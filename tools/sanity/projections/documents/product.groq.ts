@@ -55,6 +55,7 @@ const productProjection = groq`{
   sections[]${sectionsProjection},
   inquireButtonEnabled,
   inquireButtonLabel,
+  inquirePriceText,
   seoData
 }`;
 

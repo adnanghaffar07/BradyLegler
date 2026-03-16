@@ -13,6 +13,7 @@ const artworkProjection = groq`{
   content,
   featureImage${imageProjection},
   sections[]${sectionsProjection},
+  inquireButtonLabel,
   seoData
 }`;
 

@@ -83,6 +83,7 @@ const renderItems = useMemo(() => {
         collectionId={sanityCollectionData?.store?.id}
         collectionTitle={sanityCollectionData?.store?.title}
         inquiryEnabled={flags[node?.handle]?.inquireButtonEnabled}
+        inquirePriceText={flags[node?.handle]?.inquirePriceText}
       />
     );
 

@@ -24,6 +24,7 @@ const Recommendations = async ({ recommendations }: { recommendations: GetProduc
               <ProductCard 
                 shopifyProduct={product}
                 inquiryEnabled={inquiryFlags[product.handle]?.inquireButtonEnabled}
+                inquirePriceText={inquiryFlags[product.handle]?.inquirePriceText}
               />
             </div>
           ))}

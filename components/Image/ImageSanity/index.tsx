@@ -1,6 +1,6 @@
 'use client';
 
-import NextImage, { ImageProps } from 'next/image';
+import NextImage from 'next/image';
 import { useNextSanityImage } from 'next-sanity-image';
 import { client as sanityClient } from '@/tools/sanity/lib/client';
 import { useState, useEffect, useMemo } from 'react';
@@ -22,145 +22,158 @@ type ImageSanityProps = {
     width: number;
     blurDataURL?: string;
   };
+    smallImage?: boolean;
   priority: boolean;
   placeholder?: 'blur' | 'empty';
   disableHotspotCrop?: boolean;
 };
 
 const ImageSanity: React.FC<ImageSanityProps> = props => {
-  const { asset, crop, hotspot, sizes, className, quality, alt, fill, placeholder, onError, priority, error, fallback, disableHotspotCrop = false } = props;
+  const {
+    asset,
+    crop,
+    hotspot,
+    sizes,
+    className,
+    quality,
+    alt,
+    fill,
+    placeholder,
+    onError,
+    priority,
+    error,
+    fallback,
+    smallImage = false,
+    disableHotspotCrop = false
+  } = props;
 
-  const [isMobile, setIsMobile] = useState(true); // Start with true to show hotspot
+  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
-    // Only run on client
     if (typeof window === 'undefined') return;
-    
+
     const checkMobile = () => {
-      const newIsMobile = window.innerWidth < 768;
-      setIsMobile(newIsMobile);
+      setIsMobile(window.innerWidth < 768);
     };
-    
-    // Check on mount
+
     checkMobile();
-    
+
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Always apply crop (rectangle), but only apply hotspot (circle) on mobile
   const imageObject = useMemo(() => {
-    return isMobile 
-      ? { asset, crop, hotspot }  // Mobile: Use both crop and hotspot
-      : crop 
-        ? { asset, crop }  // Desktop: Only use crop (rectangle), ignore hotspot (circle)
-        : asset;  // No crop or hotspot
+    return isMobile
+      ? { asset, crop, hotspot }
+      : crop
+      ? { asset, crop }
+      : asset;
   }, [isMobile, asset, crop, hotspot]);
-  
+
   const sanityImage: any = useNextSanityImage(sanityClient, imageObject);
 
   let imageProps: any = {};
 
   if (sanityImage && sanityImage?.src && !error) {
     let imageSrc = sanityImage.src;
+
+  try {
+  const url = new URL(imageSrc);
+
+  // Base params
+  url.searchParams.set('q', quality.toString());
+  url.searchParams.set('auto', 'format');
+  url.searchParams.set('sharp', '10');
+  url.searchParams.set('dpr', '2');
+
+  // Apply params for small images (explicit flag) with hotspot support
+  if (smallImage) {
+    url.searchParams.set('w', '800');
+    url.searchParams.set('h', '800');
+    url.searchParams.set('fit', 'crop');
     
-    // Ensure quality and format parameters are set in URL for sharp images
-    try {
-      const url = new URL(imageSrc);
-      // Force high quality
-      url.searchParams.set('q', quality.toString());
-      // Auto format (webp, etc.) for better compression without quality loss
-      url.searchParams.set('auto', 'format');
-      // Disable blur/downsampling
-      url.searchParams.set('sharp', '10');
-      imageSrc = url.toString();
-    } catch (e) {
-      // Silent error handling
+    if (hotspot && hotspot.x !== undefined && hotspot.y !== undefined && !disableHotspotCrop) {
+      url.searchParams.set('crop', 'focalpoint');
+      url.searchParams.set('fp-x', hotspot.x.toString());
+      url.searchParams.set('fp-y', hotspot.y.toString());
     }
-    
-    // Manually add focal point parameters on mobile if hotspot exists
-    if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined && !disableHotspotCrop) {
-      try {
-        const url = new URL(imageSrc);
-        // Remove existing fit and crop parameters
-        url.searchParams.delete('fit');
-        url.searchParams.delete('crop');
-        
-        // Determine image aspect ratio: portrait vs landscape
-        const isPortrait = sanityImage.height > sanityImage.width;
-        
-        // Apply appropriate dimensions based on image orientation
-        if (isPortrait) {
-          // For taller images (portrait)
-          url.searchParams.set('w', '1000');
-          url.searchParams.set('h', '800');
-        } else {
-          // For wider images (landscape)
-          url.searchParams.set('w', '800');
-          url.searchParams.set('h', '1000');
-        }
-        
-        url.searchParams.set('fit', 'crop');
-        url.searchParams.set('crop', 'focalpoint');
-        url.searchParams.set('fp-x', hotspot.x.toString());
-        url.searchParams.set('fp-y', hotspot.y.toString());
-        imageSrc = url.toString();
-      } catch (e) {
-        // Silent error handling
-      }
-    } else if (isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined && disableHotspotCrop) {
-      // When hotspot crop is disabled, just show the full image
-      try {
-        const url = new URL(imageSrc);
-        url.searchParams.delete('fit');
-        url.searchParams.delete('crop');
-        url.searchParams.set('fit', 'max');
-        imageSrc = url.toString();
-      } catch (e) {
-        // Silent error handling
-      }
+  }
+  // Mobile focal point logic (only if smallImage is not active)
+  else if (
+    isMobile &&
+    hotspot &&
+    hotspot.x !== undefined &&
+    hotspot.y !== undefined &&
+    !disableHotspotCrop
+  ) {
+    url.searchParams.delete('fit');
+    url.searchParams.delete('crop');
+
+    const isPortrait = sanityImage.height > sanityImage.width;
+
+    if (isPortrait) {
+      url.searchParams.set('w', '800');
+      url.searchParams.set('h', '1400');
+    } else {
+      url.searchParams.set('w', '800');
+      url.searchParams.set('h', '1000');
     }
-    
-    // Check for LQIP blur data for loading indicator
+
+    url.searchParams.set('fit', 'crop');
+    url.searchParams.set('crop', 'focalpoint');
+    url.searchParams.set('fp-x', hotspot.x.toString());
+    url.searchParams.set('fp-y', hotspot.y.toString());
+  }
+
+  imageSrc = url.toString();
+} catch (e) {}
+
     const lqip = asset?.metadata?.lqip;
     const defaultPlaceholder = lqip ? 'blur' : 'empty';
-    
-    // If we modified the URL for focal point, remove the loader so Next.js uses our custom src
-    const modifiedForFocalPoint = isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined;
+
+    const modifiedForFocalPoint =
+      isMobile && hotspot && hotspot.x !== undefined && hotspot.y !== undefined;
+
     if (modifiedForFocalPoint) {
-      // When using fill prop, don't include width/height
       if (fill) {
-        imageProps = { 
-          src: imageSrc, 
+        imageProps = {
+          src: imageSrc,
           placeholder: defaultPlaceholder
         };
       } else {
-        imageProps = { 
-          src: imageSrc, 
+        imageProps = {
+          src: imageSrc,
           width: sanityImage.width,
           height: sanityImage.height,
           placeholder: defaultPlaceholder
         };
       }
     } else {
-      // When using fill prop, exclude width and height from sanityImage
       if (fill) {
-        const { width, height, ...restSanityImage } = sanityImage;
-        imageProps = { ...restSanityImage, src: imageSrc, placeholder: defaultPlaceholder };
+        const { width, height, ...rest } = sanityImage;
+
+        imageProps = {
+          ...rest,
+          src: imageSrc,
+          placeholder: defaultPlaceholder
+        };
       } else {
-        imageProps = { ...sanityImage, src: imageSrc, placeholder: defaultPlaceholder };
+        imageProps = {
+          ...sanityImage,
+          src: imageSrc,
+          placeholder: defaultPlaceholder
+        };
       }
     }
-    
-    // Add blur data URL if LQIP exists (lqip already declared above)
+
     if (lqip) {
       imageProps.blurDataURL = lqip;
       imageProps.placeholder = 'blur';
     }
   } else {
-    // When using fill prop, exclude width and height from fallback
     if (fill) {
       const { width, height, ...restFallback } = fallback;
+
       imageProps = {
         ...restFallback,
         placeholder: fallback.blurDataURL ? 'blur' : 'empty'
@@ -173,7 +186,6 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     }
   }
 
-  // Override with explicit placeholder if provided
   if (placeholder) {
     imageProps.placeholder = placeholder;
   }

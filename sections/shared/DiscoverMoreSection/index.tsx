@@ -130,13 +130,14 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
   if (_type === 'product') {
     const inquiryEnabled = (item as any).inquireButtonEnabled;
     if (inquiryEnabled) {
-      secondaryText = 'Price Available on Request';
+      const inquirePriceText = (item as any).inquirePriceText || 'Price Available on Request';
+      secondaryText = inquirePriceText;
     } else {
       const priceAmount = store?.priceRange?.minVariantPrice ?? 0;
       secondaryText = priceAmount > 0 ? formatCurrency({ amount: priceAmount }) : '';
     }
   } else if (_type === 'artwork') {
-    secondaryText = status === 'onSale' ? 'Available' : 'Sold out';
+    secondaryText = status === 'onSale' ? 'Available' : 'Sold';
   } else if (_type === 'press') {
     secondaryText = subtitle || '';
   }
