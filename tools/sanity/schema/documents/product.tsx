@@ -23,6 +23,7 @@ interface IProductDocument {
   collectionMedia: IFeatureMedia;
   inquireButtonEnabled?: boolean;
   inquireButtonLabel?: string;
+  inquirePriceText?: string;
 }
 
 const productDocument = defineType({
@@ -134,6 +135,14 @@ const productDocument = defineType({
       title: 'Collection Media',
       description: 'Add a custom media for this product that will be displayed on collection pages',
       group: 'collection'
+    }),
+    defineField({
+      name: 'inquirePriceText',
+      type: 'string',
+      title: 'Inquiry Price Text',
+      description: 'Text to display when inquiry button is enabled. Defaults to "Price Available on Request"',
+      group: 'editorial',
+      initialValue: 'Price Available on Request'
     }),
     defineField({
       name: 'inquireButtonEnabled',

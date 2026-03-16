@@ -61,6 +61,7 @@ const ViewedProductsSection: React.FC<Props> = props => {
             key={product.id} 
             shopifyProduct={product}
             inquiryEnabled={flags[product.handle]?.inquireButtonEnabled}
+            inquirePriceText={flags[product.handle]?.inquirePriceText}
           />
         ))}
       </div>

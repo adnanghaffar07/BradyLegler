@@ -212,6 +212,7 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
             price={selectedVariant?.price} 
             compareAtPrice={selectedVariant?.compareAtPrice}
             inquiryEnabled={sanityProductData?.inquireButtonEnabled}
+            inquirePriceText={sanityProductData?.inquirePriceText}
           />
         </div>
 

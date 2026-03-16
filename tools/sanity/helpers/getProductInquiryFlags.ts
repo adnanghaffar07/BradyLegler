@@ -5,6 +5,7 @@ type ProductInquiryFlag = {
   handle: string;
   inquireButtonEnabled?: boolean;
   inquireButtonLabel?: string;
+  inquirePriceText?: string;
 };
 
 /**

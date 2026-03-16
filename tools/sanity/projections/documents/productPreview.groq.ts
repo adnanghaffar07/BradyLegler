@@ -70,7 +70,10 @@ const productPreviewProjection = groq`{
         }
       }
     }
-  }
+  },
+  inquireButtonEnabled,
+  inquireButtonLabel,
+  inquirePriceText
 }`;
 
 export default productPreviewProjection;

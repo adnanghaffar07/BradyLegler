@@ -20,6 +20,7 @@ const ProductsSection: React.FC<IProductsSection> = props => {
                 key={product._id} 
                 sanityProduct={product.store}
                 inquiryEnabled={product.inquireButtonEnabled}
+                inquirePriceText={product.inquirePriceText}
               />
             );
           })}
