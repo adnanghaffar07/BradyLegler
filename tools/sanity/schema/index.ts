@@ -33,7 +33,7 @@ import { footer, linkGroup } from './objects/footer';
 import { header, navLink, navSublink } from './objects/header';
 import redirect from './objects/redirect';
 import seo from './objects/seo';
-import { sectionFields, spacingOptions, themeOptions } from './objects/sectionFields';
+// sectionFieldsMiddle is no longer used - field definitions are now inline in each section
 import featureCard from './objects/featureCard';
 import featureMedia from './objects/featureMedia';
 import gallery from './objects/gallery';
@@ -120,10 +120,7 @@ const schema: SchemaTypeDefinition[] = [
   navSublink,
   redirect,
   seo,
-  sectionFields,
   socialMediaItem,
-  spacingOptions,
-  themeOptions,
   collectionHeader,
   customMedia,
   sizeGuideTable,
