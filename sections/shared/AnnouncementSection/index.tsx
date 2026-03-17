@@ -15,9 +15,9 @@ const AnnouncementSection: React.FC<IAnnouncementSection> = props => {
 
   const contentSection = (
     <div className={classNames(styles.container, { [styles.centered]: align === 'center' })}>
-      <Text text={title} size="h2" />
+      <Text text={title} size="h1" />
 
-      <TextBlock blocks={content} className={styles.content} />
+      <TextBlock blocks={content} className={styles.content} config={{ p: { size: 'b1' } }} />
 
       {(addButton || (addDownloadButton && downloadFile)) && (
         <div className={styles.actions}>
