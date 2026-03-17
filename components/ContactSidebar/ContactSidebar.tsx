@@ -114,7 +114,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
         // TODO: Open a message modal or link
         break;
       case 'call':
-        window.location.href = 'tel:6465904747';
+        window.location.href = 'tel:2018346710';
         break;
       case 'find-store':
         // TODO: Navigate to store locator
@@ -207,7 +207,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
 
                   <div className={styles.contactOptions}>
                     <button className={styles.contactOptionBtn} onClick={() => handleContactButtonClick('call')}>
-                      <span className={styles.optionMainText}>Call Us (646) 590-4747</span>
+                      <span className={styles.optionMainText}>Call Us (201) 834-6710</span>
                       <span className={styles.optionSubText}>Monday to Saturday 10am to 6pm</span>
                     </button>
 

@@ -101,6 +101,7 @@ const ProductCard = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
+  const finalInquirePriceText = inquirePriceText?.trim() || 'Price Available on Request';
   const isList = layoutType === 'list';
 
   const onProductClick = useCallback(() => {
@@ -255,7 +256,7 @@ const ProductCard = ({
         <div className={styles.productDetails}>
           <Text text={sanityProduct.title} size="b3" className={styles.productTitle} />
           <Text
-            text={inquiryEnabled ? inquirePriceText : formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
+            text={inquiryEnabled ? finalInquirePriceText : formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
             className={styles.productPrice}
             size="b3"
           />
@@ -427,7 +428,7 @@ const ProductCard = ({
         <div className={styles.productDetails}>
           <Text text={shopifyProduct.title} size="b3" className={styles.productTitle} />
           <Text
-            text={inquiryEnabled ? inquirePriceText : formatCurrency({
+            text={inquiryEnabled ? finalInquirePriceText : formatCurrency({
               amount: parseFloat(shopifyProduct.priceRange?.minVariantPrice?.amount || '0')
             })}
             className={styles.productPrice}

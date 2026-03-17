@@ -11,13 +11,14 @@ type PriceProps = {
 };
 
 const Price: React.FC<PriceProps> = props => {
-  const { price, compareAtPrice, inquiryEnabled, inquirePriceText = 'Price Available on Request' } = props;
+  const { price, compareAtPrice, inquiryEnabled, inquirePriceText } = props;
+  const finalInquirePriceText = inquirePriceText?.trim() || 'Price Available on Request';
 
   // If inquiry is enabled, show custom message
   if (inquiryEnabled) {
     return (
       <div className={styles.price}>
-        <Text as="span" size="b2" className={styles.price} text={inquirePriceText} />
+        <Text as="span" size="b2" className={styles.price} text={finalInquirePriceText} />
       </div>
     );
   }

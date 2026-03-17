@@ -71,17 +71,17 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
   // Deduplicate items by title (what user sees) - only remove exact duplicates within same level
   const deduplicateItems = (items: any[]) => {
     if (!items || !Array.isArray(items)) return [];
-    
+
     const seen = new Map();
     const deduplicated: any[] = [];
-    
+
     items.forEach((item) => {
       // Ensure item has a title
       if (!item.title) {
         console.warn('Item without title found in navigation:', item);
         return;
       }
-      
+
       // Use title as the primary key for deduplication since that's what's visible
       const key = item.title.toLowerCase().trim();
       if (!seen.has(key)) {
@@ -89,7 +89,7 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
         deduplicated.push(item);
       }
     });
-    
+
     return deduplicated;
   };
 

@@ -39,10 +39,7 @@ const sectionsProjection = groq`{
   ${spacerSectionProjection}
 ${homeCollectionsProjection}
   sectionFields {
-    spacingOptions {
-      removeTopSpacing,
-      removeBottomSpacing
-    }
+    gridPosition
   }
 }`;
 

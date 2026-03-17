@@ -45,6 +45,30 @@ const discoverMoreSection = defineType({
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'artwork' }, { type: 'product' }, { type: 'press' }] }],
       group: 'data'
+    },
+    {
+      name: 'sectionFields',
+      title: 'Section Fields',
+      type: 'object',
+      group: 'styles',
+      fields: [
+        {
+          name: 'gridPosition',
+          title: 'Grid Position',
+          description: 'Position within the product grid. Top: 25% of products, Middle: 50% of products, Bottom: 75% of products',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Top (25% of products)', value: 'top' },
+              { title: 'Middle (50% of products)', value: 'middle' },
+              { title: 'Bottom (75% of products)', value: 'bottom' }
+            ],
+            layout: 'radio',
+            direction: 'horizontal'
+          },
+          initialValue: 'middle'
+        }
+      ]
     }
   ],
   preview: {

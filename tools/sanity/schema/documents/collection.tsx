@@ -137,7 +137,7 @@ const collectionDocument = defineType({
     defineField({
       name: `sectionsMiddle`,
       title: `Middle Sections`,
-      description: `Add sections to the middle of the collection page`,
+      description: `Add sections to the middle of the collection page. Each section can be positioned independently.`,
       type: `array`,
       of: [
         { type: `headerHeroSection` },

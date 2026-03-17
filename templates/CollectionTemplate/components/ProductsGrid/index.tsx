@@ -18,14 +18,14 @@ const ProductsGrid = ({
   sanityCollectionData,
   filters,
   subCollectionFilters,
-  sectionsMiddle
+  sectionsMiddleData
 }: {
   initialData: GetCollectionByHandleResponse;
   sanityCollectionData: ICollectionDocument;
   initialProductCount: number;
   filters: GetCollectionFiltersByHandleResponse;
   subCollectionFilters: GetCollectionSubCollectionFiltersByIdResponse;
-  sectionsMiddle?: React.ReactNode;
+  sectionsMiddleData?: any[];
 }) => {
   const productCount = initialProductCount;
 
@@ -45,7 +45,7 @@ const ProductsGrid = ({
           sanityCollectionData={sanityCollectionData}
           filters={filters}
           subCollectionFilters={subCollectionFilters}
-          sectionsMiddle={sectionsMiddle}
+          sectionsMiddleData={sectionsMiddleData}
         />
       </Suspense>
     </>

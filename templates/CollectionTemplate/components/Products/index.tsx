@@ -74,7 +74,6 @@ const Products = async ({
   const tempTheme = params?.slug?.[0] === 'jewelry' ? 'dark' : 'dark';
   const currency = initialData?.products?.edges?.[0]?.node?.priceRange?.minVariantPrice?.currencyCode;
   const sectionsMiddleData = sanityCollectionData?.sectionsMiddle;
-  const sectionsMiddle = <Sections sections={sectionsMiddleData} />;
 
   return (
     <>
@@ -100,7 +99,7 @@ const Products = async ({
           initialProductCount={productCount}
           filters={filters}
           subCollectionFilters={subCollectionFilters}
-          sectionsMiddle={sectionsMiddle}
+          sectionsMiddleData={sectionsMiddleData}
         />
       </Section>
     </>
