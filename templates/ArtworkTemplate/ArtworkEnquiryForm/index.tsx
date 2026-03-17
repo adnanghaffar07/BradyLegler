@@ -10,8 +10,9 @@ type ArtworkEnquiryFormProps = {
 };
 
 const ArtworkEnquiryForm: React.FC<ArtworkEnquiryFormProps> = props => {
-  const { isOnSale, inquireButtonLabel = 'Inquire' } = props;
+  const { isOnSale, inquireButtonLabel } = props;
   const { openContactSidebar } = useContactSidebar();
+  const buttonLabel = inquireButtonLabel?.trim() || 'Inquire';
 
   const handleClick = useCallback(() => {
     if (isOnSale) {
@@ -21,7 +22,7 @@ const ArtworkEnquiryForm: React.FC<ArtworkEnquiryFormProps> = props => {
 
   return (
     <>
-      <Button onClick={handleClick} text={isOnSale ? inquireButtonLabel : 'Sold'} disabled={!isOnSale} variant="square" />
+      <Button onClick={handleClick} text={isOnSale ? buttonLabel : 'Sold'} disabled={!isOnSale} variant="square" />
     </>
   );
 };
