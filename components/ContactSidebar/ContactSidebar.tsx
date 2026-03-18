@@ -192,7 +192,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
 
                 {/* Contact Description - only shown when not in form */}
                 <p className={styles.contactDescription}>
-                  Our team of experts is available to answer all your questions from assistance with your orders to
+                  Our team of experts is available to answer all your questions, from assistance with your orders to
                   style advice and gift ideas.
                 </p>
 
