@@ -13,5 +13,6 @@ export { default as ListArtwork } from './shared/ListArtworkSection';
 export { default as DiscoverMoreSection } from './shared/DiscoverMoreSection';
 export { default as AnnouncementSection } from './shared/AnnouncementSection';
 export { default as FullscreenImageSection } from './shared/FullscreenImageSection';
+export { default as PressImageSection } from './shared/PressImageSection';
 export { default as HomeCollectionsSection } from './shared/CollectionRow';
 export { default as SpacerSection } from './shared/SpacerSection';

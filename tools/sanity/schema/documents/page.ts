@@ -92,6 +92,7 @@ const page = defineType({
         { type: `videoSection` },
         { type: 'imageCenteredSection' },
         { type: 'fullscreenImageSection' },
+        { type: 'pressImageSection' },
         { type: `linksSection` },
         { type: `listArtwork` },
         { type: `announcementSection` },
