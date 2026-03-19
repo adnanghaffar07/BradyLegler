@@ -117,6 +117,7 @@ const press = defineType({
         { type: `videoSection` },
         { type: 'imageCenteredSection' },
         { type: 'fullscreenImageSection' },
+        { type: 'pressImageSection' },
         { type: `linksSection` },
         { type: `announcementSection` },
         { type: 'discoverMoreSection' },

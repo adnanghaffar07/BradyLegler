@@ -1,0 +1,86 @@
+.section {
+  background-color: white;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 128px;
+  transition: background-color 150ms $ease;
+
+  &.hover {
+    //background-color: var(--brand-ascension-blue);
+
+    .button {
+      color: var(--brand-ascension-blue);
+    }
+  }
+
+  &.layout {
+    &-small {
+      .image {
+        max-width: 360px;
+      }
+    }
+    &-medium {
+      .image {
+        width: 66%;
+
+        @include media-up(tablet) {
+          width: 33%;
+        }
+      }
+    }
+    &-large {
+      .image {
+        width: 100%;
+        padding: 0 var(--layout-container-spacing);
+
+        @include media-up(tablet) {
+          padding: 0 calc(var(--layout-container-spacing) * 2);
+        }
+      }
+    }
+    &-fullWidth {
+      .image {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.buttonImage {
+  width: 100%;
+}
+
+.image {
+  margin: 0 auto;
+  height: auto;
+  
+  // Force contain on all nested image elements
+  img {
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+  
+  // Mobile: Show full complete image with contain
+  @include media-down(large-tablet) {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    
+    img {
+      object-fit: contain !important;
+      object-position: center center !important;
+    }
+  }
+  
+  // Desktop: Show full image, centered
+  @include media-up(tablet) {
+    img {
+      object-fit: cover !important;
+      object-position: center center !important;
+    }
+  }
+}
