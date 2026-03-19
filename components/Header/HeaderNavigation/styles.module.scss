@@ -414,21 +414,17 @@ button.navigationLink:hover::after {
 }
 
 .levelImageWrapper {
-  opacity: 0;
-  transform: translateX(30px);
-  animation: slideInImage 0.5s ease forwards;
-  animation-delay: 1s; // after menu links (adjust depending on number of items)
+  animation: fadeInImage 0.25s ease forwards;
+  min-height: 0;
 }
 
-@keyframes slideInImage {
+@keyframes fadeInImage {
   0% {
     opacity: 0;
-    transform: translateX(30px);
   }
 
   100% {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -456,7 +452,8 @@ button.navigationLink:hover::after {
   max-height: 200px; 
   object-fit: contain;
   border-radius: 8px;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  opacity: 1;
 }
 
 /* Tablet styles (768px and above) */
