@@ -272,33 +272,26 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
     return '#';
   };
 
-  // Get current image - check hovered item first, then current level, then fall back to parent
+  // Get current image - show hovered item's image, fall back to parent only if item is hovered but has no image
   const getCurrentImage = () => {
     if (!subMenuStack.length) return null;
 
     const currentLevel = subMenuStack[subMenuStack.length - 1];
 
-    // Check if there's a hovered item with an image
+    // If there's an actively hovered item
     if (currentLevel.hoveredItemIndex !== null && currentLevel.hoveredItemIndex !== undefined) {
       const hoveredItem = currentLevel.items[currentLevel.hoveredItemIndex];
+      // Show item's image if it has one, otherwise show parent image
       if (hoveredItem?.image?.asset?.url) {
         return hoveredItem.image;
       }
-    }
-
-    // Check current level image
-    if (currentLevel.image?.asset?.url) {
-      return currentLevel.image;
-    }
-
-    // Fall back to previous level image
-    if (subMenuStack.length > 1) {
-      const parentLevel = subMenuStack[subMenuStack.length - 2];
-      if (parentLevel.image?.asset?.url) {
-        return parentLevel.image;
+      // Fall back to parent image only when item is actively hovered but has no image
+      if (currentLevel.image?.asset?.url) {
+        return currentLevel.image;
       }
     }
 
+    // When no item is hovered (during transitions), show nothing to avoid flashing parent image
     return null;
   };
 
@@ -455,6 +448,7 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
                   {getCurrentImage()?.asset?.url && (
                     <div className={styles.levelImageWrapper}>
                       <Image
+                        key={getCurrentImage().asset.url}
                         src={getCurrentImage().asset.url}
                         alt={getCurrentImage().alt || menuLevel.parentTitle || 'Menu image'}
                         width={200}

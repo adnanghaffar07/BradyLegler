@@ -13,7 +13,10 @@ const blockContentSimple = defineType({
       title: 'Block',
       type: 'block',
       styles: [{ title: 'Normal', value: 'normal' }],
-      lists: [],
+      lists: [
+        { title: 'Bullet List', value: 'bullet' },
+        { title: 'Numbered List', value: 'number' }
+      ],
       marks: {
         decorators: [
           { title: 'Strong', value: 'strong' },

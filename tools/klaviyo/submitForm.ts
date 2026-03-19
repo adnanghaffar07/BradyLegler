@@ -63,11 +63,18 @@ const submitForm = async (data: {
 
     if (!profileResp.ok) {
       const errors = profileData?.errors;
+      console.error('Klaviyo API Error:', profileData);
+      
       if (errors) {
         const duplicateProfile = errors.find((e: any) => e.code === 'duplicate_profile');
         if (duplicateProfile) {
           profileId = duplicateProfile.meta?.duplicate_profile_id;
         } else {
+          // Check for authentication errors
+          const authError = errors.find((e: any) => e.code === 'invalid_credentials' || e.detail?.includes('authentication'));
+          if (authError) {
+            throw new Error(`Klaviyo authentication error: ${authError.detail || 'Invalid credentials. Please check your API key.'}`);
+          }
           throw new Error(errors[0]?.detail || 'Failed to create profile.');
         }
       }
