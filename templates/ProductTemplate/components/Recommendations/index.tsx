@@ -4,10 +4,21 @@ import { GetProductRecommendationsResponse } from '@/tools/apis/shopify';
 import { getProductInquiryFlags } from '@/tools/sanity/helpers/getProductInquiryFlags';
 import styles from './styles.module.scss';
 
+// Shuffle array using Fisher-Yates algorithm
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 const Recommendations = async ({ recommendations }: { recommendations: GetProductRecommendationsResponse }) => {
   if (!recommendations || recommendations.length === 0) return null;
 
-  const productsToShow = recommendations.slice(0, 3);
+  const shuffledRecommendations = shuffleArray(recommendations);
+  const productsToShow = shuffledRecommendations.slice(0, 3);
   const productsCount = productsToShow.length;
 
   // Fetch inquiry flags for all products
