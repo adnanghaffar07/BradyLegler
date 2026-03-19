@@ -57,7 +57,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          type: 'inquiry',
+          type: 'enquiry',
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,

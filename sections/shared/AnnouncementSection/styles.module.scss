@@ -41,6 +41,14 @@
     p, span, div {
       text-align: center;
     }
+
+    // Don't center lists - let them align naturally
+    ul, ol {
+      text-align: left;
+      margin-left: auto;
+      margin-right: auto;
+      display: inline-block;
+    }
   }
 }
 
