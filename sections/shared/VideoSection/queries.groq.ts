@@ -4,6 +4,7 @@ import fileProjection from '@/tools/sanity/projections/common/file.groq';
 
 const videoSectionProjection = groq`
   _type == 'videoSection' => {
+    tagline,
     videoType,
     videoFile${fileProjection},
     videoUrl,

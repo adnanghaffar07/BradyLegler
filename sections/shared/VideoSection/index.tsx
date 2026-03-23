@@ -11,7 +11,7 @@ import classNames from '@/helpers/classNames';
 import styles from './styles.module.scss';
 
 const VideoSection: React.FC<IVideoSection> = props => {
-  const { videoUrl, videoFile, thumbnail, addButton, button } = props;
+  const { videoUrl, videoFile, thumbnail, tagline, addButton, button } = props;
   const mediaUrl = videoUrl || videoFile?.asset?.url;
   const [isHover, setIsHover] = useState(false);
 
@@ -30,6 +30,8 @@ const VideoSection: React.FC<IVideoSection> = props => {
       <Layout variant="fullWidth" className={styles.layout}>
         <div className={styles.containerSticky}>
           <div className={styles.contentGroup}>
+            {tagline && <Text text={tagline} className={styles.tagline} weight="regular" />}
+
             {addButton && button && (
               <Link
                 {...button.link}
