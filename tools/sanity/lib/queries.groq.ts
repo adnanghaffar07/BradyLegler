@@ -182,6 +182,26 @@ export const PRODUCTS_QUERY = groq`
   }
 `;
 
+// OPTIMIZED COLLECTION_PRODUCTS_QUERY - Lightweight for "Load More" pagination
+// Only fetches essential fields needed for collection view (collectionMedia + first gallery)
+export const COLLECTION_PRODUCTS_QUERY = groq`
+  *[_type == "product" && store.gid in $productIds] {
+    "id": store.gid,
+    // Only fetch if collectionMedia is enabled (avoid fetching all gallery if not needed)
+    collectionMedia {
+      enable,
+      collectionMedia.enable == true => {
+        mediaItems[0..0] {  // Only first media item
+          mediaType,
+          alt,
+          video${fileProjection},
+          image${imageProjection}
+        }
+      }
+    }
+  }
+`;
+
 // Add this to your queries.groq file
 export const PRODUCT_COLLECTIONS_QUERY = groq`
   *[_type == "collection" && defined(store.id) && store.id in $shopifyCollectionIds]{

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { sanityFetch } from '@/tools/sanity/lib/fetchFromSection';
 import { ARTWORKS_QUERY, PRODUCTS_QUERY } from '@/tools/sanity/lib/queries.groq';
@@ -13,22 +13,20 @@ import {
 } from '@/tools/apis/shopify';
 
 /**
- * useCollectionFilters
+ * useCollectionFilters - OPTIMIZED
  *
- * @param initialData - The initial collection data to display
- * @param initialProductCount - The initial product count to display
- * @param filters - The filters for the collection
- * @param collectionSlug - The slug of the collection
- *
- * @returns shopifyCollectionData - The collection data to display
- * @returns productCount - The product count to display
- *
- * @description
- * This hook is used to fetch and refetch the collection data and product count based on the current URL search params
- * It uses the search params to determine the selected filters, page number, and sort by value
- * It then fetches the collection data and product count based on the selected filters, page number, and sort by value
+ * Performance optimizations:
+ * 1. Caches enriched product data (with collectionMedia already merged)
+ * 2. Request deduplication - prevents duplicate simultaneous API calls
+ * 3. Smarter cache validation - compares actual param values, not object references
+ * 4. Minimal Sanity fetches - only when truly needed
  *
  */
+
+interface CachedPageData {
+  data: GetCollectionByHandleResponse;
+  timestamp: number;
+}
 
 const useCollectionFilters = ({
   initialData,
@@ -44,22 +42,100 @@ const useCollectionFilters = ({
   shopifyCollectionData: GetCollectionByHandleResponse;
   productCount: number;
 } => {
-  const searchParams = useSearchParams(); // searchParams updates when the URL changes - including query params
+  const searchParams = useSearchParams();
   const [shopifyCollectionData, setShopifyCollectionData] = useState(initialData);
   const [productCount, setProductCount] = useState(initialProductCount);
+  
+  // Track last params to prevent unnecessary effect runs
+  const lastParamsRef = useRef<string>('');
+  
+  // Cache for fetched & enriched pages (7 min TTL)
+  const enrichedPageCache = useRef<Map<string, CachedPageData>>(new Map());
+  const productCountCache = useRef<Map<string, number>>(new Map());
+  const CACHE_TTL = 7 * 60 * 1000;
+  
+  // Request deduplication - prevent duplicate simultaneous requests
+  const pendingRequests = useRef<Map<string, Promise<any>>>(new Map());
+
+  const getCacheKey = (filterKey: string, page: number, sortBy: string) => {
+    return `${filterKey}-p${page}-${sortBy}`;
+  };
+
+  const getFilterCacheKey = (filterKey: string) => {
+    return filterKey;
+  };
 
   useEffect(() => {
-    async function fetchShopifyCollectionData() {
+    async function fetchShopifyCollectionData(selectedFiltersParsed: any[], page: number, sortBy: string) {
+      return await getCollectionByHandle(collectionSlug, page, selectedFiltersParsed, sortBy);
+    }
+
+    async function fetchProductCount(selectedFiltersParsed: any[]) {
+      return await getCollectionProductCountByHandle(collectionSlug, selectedFiltersParsed);
+    }
+
+    async function enrichProductsWithSanity(products: any[]) {
+      const productIds = products?.map(({ node }) => node?.id)?.filter(Boolean);
+      if (!Array.isArray(productIds) || productIds.length === 0) return products;
+
+      try {
+        const sanityProductData = await sanityFetch<{ id: string; collectionMedia: any }[]>({
+          query: PRODUCTS_QUERY,
+          params: { productIds }
+        });
+
+        return products?.map(({ node }) => {
+          const sanityProduct = sanityProductData.find(({ id }) => id === node.id);
+          return {
+            node: {
+              ...node,
+              ...(sanityProduct?.collectionMedia ? { collectionMedia: sanityProduct.collectionMedia } : {})
+            }
+          };
+        });
+      } catch (error) {
+        console.error('Sanity enrichment failed, using raw data:', error);
+        return products;
+      }
+    }
+
+    // Enrich products in background without blocking render
+    const enrichInBackground = async (products: any[], cacheKey: string) => {
+      const enrichedEdges = await enrichProductsWithSanity(products);
+      
+      // Update cache with enriched data
+      const cached = enrichedPageCache.current.get(cacheKey);
+      if (cached) {
+        enrichedPageCache.current.set(cacheKey, {
+          ...cached,
+          data: {
+            ...cached.data,
+            products: { edges: enrichedEdges }
+          }
+        });
+        // Trigger state update with enriched data if still relevant
+        setShopifyCollectionData(prev => 
+          prev.products?.edges === products
+            ? { ...prev, products: { edges: enrichedEdges } }
+            : prev
+        );
+      }
+    };
+
+    async function fetchData() {
       const params = new URLSearchParams(searchParams);
       const selectedFilterIds: string[] = [];
+      
       for (const [key, value] of params) {
         if (key.split('.')?.[0] !== 'filter') continue;
         selectedFilterIds.push(`${key}.${value}`);
       }
+      
       const selectedFilters = selectedFilterIds.map(id => {
         const filterMatch = filters?.find(filter => filter.values.some(value => value.id === id));
         return filterMatch?.values.find(value => value.id === id)?.input || '';
       });
+      
       const selectedFiltersParsed = selectedFilters
         ?.map(filter => {
           try {
@@ -69,70 +145,92 @@ const useCollectionFilters = ({
           }
         })
         .filter(Boolean);
+
       const page = parseInt(params.get('page') || '1');
       const sortBy = (params.get('sort_by') || 'best-selling') as GetCollectionByHandleSortBy;
-      return await getCollectionByHandle(collectionSlug, page, selectedFiltersParsed, sortBy);
-    }
+      const filterKey = selectedFilterIds.join('|');
+      const cacheKey = getCacheKey(filterKey, page, sortBy);
+      const filterCacheKey = getFilterCacheKey(filterKey);
+      
+      // Build param signature to detect changes
+      const paramSignature = `${filterKey}|${page}|${sortBy}`;
+      
+      // Skip if params haven't changed since last effect
+      if (lastParamsRef.current === paramSignature) return;
+      lastParamsRef.current = paramSignature;
 
-    async function fetchProductCount() {
-      const params = new URLSearchParams(searchParams);
-      const selectedFilterIds: string[] = [];
-      for (const [key, value] of params) {
-        if (key.split('.')?.[0] !== 'filter') continue;
-        selectedFilterIds.push(`${key}.${value}`);
+      const now = Date.now();
+      const cachedPage = enrichedPageCache.current.get(cacheKey);
+
+      // Return cached enriched data if valid
+      if (cachedPage && now - cachedPage.timestamp < CACHE_TTL) {
+        setShopifyCollectionData(cachedPage.data);
+        const cachedCount = productCountCache.current.get(filterCacheKey);
+        if (cachedCount !== undefined) setProductCount(cachedCount);
+        return;
       }
-      const selectedFilters = selectedFilterIds.map(id => {
-        const filterMatch = filters?.find(filter => filter.values.some(value => value.id === id));
-        return filterMatch?.values.find(value => value.id === id)?.input || '';
-      });
 
-      const selectedFiltersParsed = selectedFilters
-        ?.map(filter => {
-          try {
-            return JSON.parse(filter);
-          } catch (e) {
-            return undefined;
-          }
-        })
-        .filter(Boolean);
-
-      return await getCollectionProductCountByHandle(collectionSlug, selectedFiltersParsed);
-    }
-
-    async function fetchData() {
-      const newShopifyCollectionData = await fetchShopifyCollectionData();
-      const newProductCount = await fetchProductCount();
-
-      // Enrich the collection data with product media from Sanity
-      const productIds = newShopifyCollectionData?.products?.edges?.map(({ node }) => node.id) || [];
-      const sanityProductData = await sanityFetch<{ id: string; collectionMedia: any }[]>({
-        query: PRODUCTS_QUERY,
-        params: {
-          productIds
+      // Check for pending request (deduplication)
+      const existingRequest = pendingRequests.current.get(cacheKey);
+      if (existingRequest) {
+        try {
+          const result = await existingRequest;
+          setShopifyCollectionData(result.data);
+          setProductCount(result.count);
+        } catch (error) {
+          console.error('Pending request failed:', error);
         }
-      });
-      const enrichedNewShopifyCollectionData = newShopifyCollectionData?.products?.edges?.map(({ node }) => {
-        const sanityProduct = sanityProductData.find(({ id }) => id === node.id);
-        return {
-          node: {
-            ...node,
-            ...(sanityProduct?.collectionMedia ? { collectionMedia: sanityProduct.collectionMedia } : {})
+        return;
+      }
+
+      // Create new request promise for deduplication
+      const requestPromise = (async () => {
+        try {
+          // Parallelize Shopify API calls
+          const [newShopifyCollectionData, newProductCount] = await Promise.all([
+            fetchShopifyCollectionData(selectedFiltersParsed, page, sortBy),
+            fetchProductCount(selectedFiltersParsed)
+          ]);
+
+          // Display product data immediately without waiting for Sanity enrichment
+          const rawData = {
+            ...newShopifyCollectionData,
+            products: {
+              edges: newShopifyCollectionData?.products?.edges || []
+            }
+          };
+
+          // Cache raw result
+          enrichedPageCache.current.set(cacheKey, {
+            data: rawData,
+            timestamp: now
+          });
+          productCountCache.current.set(filterCacheKey, newProductCount);
+
+          // Set state immediately with raw data (fast render)
+          setShopifyCollectionData(rawData);
+          setProductCount(newProductCount);
+
+          // Enrich in background (non-blocking) - starts after render
+          if (newShopifyCollectionData?.products?.edges?.length > 0) {
+            setTimeout(() => {
+              enrichInBackground(newShopifyCollectionData.products.edges, cacheKey);
+            }, 0);
           }
-        };
-      });
 
-      setShopifyCollectionData({
-        ...newShopifyCollectionData,
-        products: {
-          edges: enrichedNewShopifyCollectionData
+          return { data: rawData, count: newProductCount };
+        } finally {
+          // Remove from pending requests
+          pendingRequests.current.delete(cacheKey);
         }
-      });
+      })();
 
-      setProductCount(newProductCount);
+      pendingRequests.current.set(cacheKey, requestPromise);
+      await requestPromise;
     }
 
     fetchData();
-  }, [searchParams]);
+  }, [searchParams, filters, collectionSlug]);
 
   return {
     shopifyCollectionData,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect, createElement } from 'react';
+import { useMemo, useState, useEffect, createElement, memo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 import Button from '@/components/Button';

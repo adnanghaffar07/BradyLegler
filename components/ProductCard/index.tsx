@@ -241,6 +241,7 @@ const ProductCard = ({
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt=""
+              loading="lazy"
             />
             {hasMultipleImages && (
               <ImageNavigation
@@ -364,6 +365,7 @@ const ProductCard = ({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt={currentMedia.alt || shopifyProduct.title || ''}
               quality={90}
+              loading="lazy"
             />
           );
         }
@@ -379,6 +381,7 @@ const ProductCard = ({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             alt={currentImage.altText || ''}
             quality={90}
+            loading="lazy"
           />
         );
       }
@@ -391,6 +394,7 @@ const ProductCard = ({
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             alt=""
+            loading="lazy"
           />
         );
       }

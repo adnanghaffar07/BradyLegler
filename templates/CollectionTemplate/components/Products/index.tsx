@@ -24,11 +24,17 @@ const Products = async ({
   searchParams: { [key: string]: string } | undefined;
 }) => {
   const page = searchParams?.page ? parseInt(searchParams.page) : 1;
+  const collectionSlug = sanityCollectionData?.store?.slug?.current;
 
-  // ---- FETCH SHOPIFY COLLECTION ----
-  const initialData = await getCollectionByHandle(sanityCollectionData?.store?.slug?.current, page);
+  // ---- PARALLELIZE INITIAL SHOPIFY FETCHES ----
+  // Fetch collection data, product count, and filters in parallel
+  const [initialData, productCount, filters] = await Promise.all([
+    getCollectionByHandle(collectionSlug, page),
+    getCollectionProductCountByHandle(collectionSlug),
+    getCollectionFiltersByHandle(collectionSlug)
+  ]);
 
-  // ---- SAFE PRODUCT ID PARSING ----
+  // ---- SAFE PRODUCT ID PARSING & FETCH SANITY DATA ----
   const productIds = initialData?.products?.edges?.map(edge => edge?.node?.id)?.filter(Boolean);
 
   // If no IDs → skip Sanity query completely
@@ -67,9 +73,7 @@ const Products = async ({
     }
   };
 
-  // ---- OTHER SHOPIFY FILTERS ----
-  const productCount = await getCollectionProductCountByHandle(sanityCollectionData?.store?.slug?.current);
-  const filters = await getCollectionFiltersByHandle(sanityCollectionData?.store?.slug?.current);
+  // ---- GET SUB-COLLECTION FILTERS (depends on initialData) ----
   const subCollectionFilters = await getCollectionSubCollectionFiltersById(initialData?.id);
   const tempTheme = params?.slug?.[0] === 'jewelry' ? 'dark' : 'dark';
   const currency = initialData?.products?.edges?.[0]?.node?.priceRange?.minVariantPrice?.currencyCode;
