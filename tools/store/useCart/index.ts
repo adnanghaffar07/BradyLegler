@@ -32,13 +32,28 @@ export const useCart = create(
       isAdding: false,
       isUpdating: false,
       addToCart: async (variantId, quantity) => {
-        const cartId = get().cartId;
+        let cartId = get().cartId;
         set({ isUpdating: true });
         set({ isAdding: true });
         if (cartId) {
           await addToCart(cartId, variantId, quantity);
           const cart = await retrieveCart(cartId);
-          set({ cart });
+          // If cart retrieval fails, the cart no longer exists (e.g., after checkout)
+          // Clear the bad cartId and create a new cart
+          if (!cart) {
+            sessionStorage.removeItem('cartId');
+            set({ cartId: null });
+            const newCart = await createCart(variantId, quantity);
+            const newCartId = newCart?.id;
+            if (newCartId) {
+              const retrievedCart = await retrieveCart(newCartId);
+              set({ cart: retrievedCart });
+              set({ cartId: newCartId });
+              sessionStorage.setItem('cartId', newCartId);
+            }
+          } else {
+            set({ cart });
+          }
         } else {
           const newCart = await createCart(variantId, quantity);
           const newCartId = newCart?.id;
@@ -46,6 +61,7 @@ export const useCart = create(
             const cart = await retrieveCart(newCartId);
             set({ cart: cart });
             set({ cartId: newCartId });
+            sessionStorage.setItem('cartId', newCartId);
           }
         }
         set({ isUpdating: false });
@@ -58,7 +74,15 @@ export const useCart = create(
         if (cartId) {
           await updateCart(cartId, lineId, quantity);
           const cart = await retrieveCart(cartId);
-          set({ cart });
+          // If cart retrieval fails, the cart no longer exists
+          // Clear the bad cartId and reset cart state
+          if (!cart) {
+            sessionStorage.removeItem('cartId');
+            set({ cartId: null });
+            set({ cart: {} });
+          } else {
+            set({ cart });
+          }
         }
         set({ isUpdating: false });
       }
