@@ -12,6 +12,7 @@ interface IVideoSection {
   videoFile: any; // @TODO SanityFile type
   videoUrl: string;
   thumbnail: SanityImage;
+  tagline?: string;
   addButton: boolean;
   button?: IButtonElement;
 }
@@ -77,6 +78,13 @@ const videoSection = defineType({
       type: 'image',
       group: 'data',
       hidden: ({ parent }) => parent?.videoType !== 'url'
+    },
+    {
+      name: 'tagline',
+      title: 'Tagline',
+      type: 'string',
+      description: 'Short text displayed above the button',
+      group: 'data'
     },
     {
       name: `addButton`,
