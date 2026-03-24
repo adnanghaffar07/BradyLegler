@@ -77,15 +77,17 @@
   transform: translateX(-50%);
   color: var(--logo-color);
   transition: color 150ms ease;
+  cursor: pointer;
 
   &:hover {
     color: var(--navigation-color-hover);
 
     .logoText {
       opacity: 1 !important;
-      pointer-events: all;
+      pointer-events: all !important;
       transform: translateY(22px) !important;
       z-index: 10 !important;
+      visibility: visible !important;
 
       @include media-up-desktop {
         transform: translateY(30px) !important;
@@ -97,6 +99,7 @@
       pointer-events: none !important;
       transform: translateX(-50%) translateY(50%) !important;
       z-index: -1 !important;
+      visibility: hidden !important;
     }
   }
 
@@ -106,12 +109,15 @@
     opacity: 1;
     transition:
       opacity 150ms ease,
-      transform 150ms ease;
+      transform 150ms ease,
+      visibility 150ms ease;
     top: 0;
     width: 180px;
-    padding: 0 32px; // remove top/bottom padding
-    margin-top: 0; // remove extra offset
-    transform: translateY(22px); // keep visual shift
+    padding: 0 32px;
+    margin-top: 0;
+    transform: translateY(22px);
+    visibility: visible;
+    will-change: opacity, transform;
 
     @include media-up-desktop {
       width: 250px;
@@ -126,11 +132,14 @@
     opacity: 0;
     transition:
       opacity 150ms ease,
-      transform 150ms ease;
+      transform 150ms ease,
+      visibility 150ms ease;
     top: 0;
     left: 50%;
     width: 23px;
     transform: translateX(-50%) translateY(50%);
+    visibility: hidden;
+    will-change: opacity, transform;
 
     @include media-up-desktop {
       width: 40px;
@@ -143,12 +152,37 @@
       opacity: 0;
       pointer-events: none;
       transform: translateY(50%);
+      visibility: hidden;
     }
 
     .logoMonogram {
       opacity: 1;
       pointer-events: all;
       transform: translateX(-50%) translateY(16px);
+      visibility: visible;
+    }
+
+    // When hovering over the showMonogram state, show the text logo instead
+    &:hover {
+      .logoText {
+        opacity: 1 !important;
+        pointer-events: all !important;
+        transform: translateY(22px) !important;
+        z-index: 10 !important;
+        visibility: visible !important;
+
+        @include media-up-desktop {
+          transform: translateY(30px) !important;
+        }
+      }
+
+      .logoMonogram {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transform: translateX(-50%) translateY(50%) !important;
+        z-index: -1 !important;
+        visibility: hidden !important;
+      }
     }
   }
 }
