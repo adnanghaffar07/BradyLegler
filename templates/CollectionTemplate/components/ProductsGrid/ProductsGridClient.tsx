@@ -1,10 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect, createElement, memo } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
-import Button from '@/components/Button';
-import Text from '@/components/Text';
 import QuoteOverlay from './components/QuoteOverlay';
 import Layout from '@/components/Layout';
 import useCollectionFilters from './hooks/useCollectionFilters';
@@ -51,9 +48,6 @@ const ProductsGridClient = ({
 
   const layoutType = sanityCollectionData?.layout || 'fluidAndGrid';
   const layout: LayoutOption = 'grid';
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const numVisibleProducts = shopifyCollectionData?.products?.edges?.length || 0;
 
   // Update handles whenever products change
@@ -61,13 +55,6 @@ const ProductsGridClient = ({
     const productHandles = shopifyCollectionData?.products?.edges?.map(({ node }) => node?.handle).filter(Boolean) || [];
     setHandles(productHandles);
   }, [shopifyCollectionData?.products?.edges]);
-
-  const nextPage = () => {
-    const params = new URLSearchParams(searchParams);
-    const page = parseInt(params.get('page') || '1');
-    params.set('page', (page + 1).toString());
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
 
   const layoutVariant = layoutType === 'list' ? 'list' : 'grid';
 
@@ -222,15 +209,6 @@ return (
             {renderSection(section, index)}
           </div>
         ))}
-      </div>
-    )}
-
-    {numVisibleProducts < productCount && (
-      <div className={styles.loadMoreContainer}>
-        <Button variant="square" onClick={nextPage}>
-          Load More
-        </Button>
-        <Text text={`Showing ${numVisibleProducts}/${productCount}`} size="b3" />
       </div>
     )}
   </>

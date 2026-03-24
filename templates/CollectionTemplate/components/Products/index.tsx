@@ -23,16 +23,20 @@ const Products = async ({
   params?: { [key: string]: string } | undefined;
   searchParams: { [key: string]: string } | undefined;
 }) => {
-  const page = searchParams?.page ? parseInt(searchParams.page) : 1;
   const collectionSlug = sanityCollectionData?.store?.slug?.current;
 
   // ---- PARALLELIZE INITIAL SHOPIFY FETCHES ----
   // Fetch collection data, product count, and filters in parallel
-  const [initialData, productCount, filters] = await Promise.all([
-    getCollectionByHandle(collectionSlug, page),
+  // Always fetch all products at once (no pagination) - use high page number to load all
+  const [productCount, filters] = await Promise.all([
     getCollectionProductCountByHandle(collectionSlug),
     getCollectionFiltersByHandle(collectionSlug)
   ]);
+
+  // Calculate page number to fetch all products (perPage=8, request enough to get all)
+  // Shopify GraphQL typically caps at 250 items, so this ensures we get all available
+  const pageNeededForAll = Math.ceil(productCount / 8);
+  const initialData = await getCollectionByHandle(collectionSlug, pageNeededForAll);
 
   // ---- SAFE PRODUCT ID PARSING & FETCH SANITY DATA ----
   const productIds = initialData?.products?.edges?.map(edge => edge?.node?.id)?.filter(Boolean);

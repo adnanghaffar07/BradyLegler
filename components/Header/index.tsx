@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import Container from '@/components/Container';
 import useHeaderState from './hooks/useHeaderState';
 import classNames from '@/helpers/classNames';
@@ -22,6 +23,7 @@ interface HeaderProps extends IHeaderDocument {
 const Header = (props: HeaderProps) => {
   const { header, collectionSlugs, productSlugs } = props;
   const pathname = usePathname();
+  const [logoHovered, setLogoHovered] = useState(false);
 
   let behaviour = 'overlay';
   let appearance = 'light';
@@ -46,6 +48,9 @@ const Header = (props: HeaderProps) => {
     appearance = 'dark';
   }
 
+  // Don't apply monogram while logo is being hovered
+  const shouldShowMonogram = isScrollingDown && !logoHovered;
+
   return (
     <header
       className={classNames(
@@ -65,7 +70,12 @@ const Header = (props: HeaderProps) => {
 
           <HeaderNavigation display="left" className={styles.navigation} navItems={header.navItems} />
 
-          <Link href="/" className={classNames(styles.logo, { [styles.showMonogram]: isScrollingDown })}>
+          <Link
+            href="/"
+            className={classNames(styles.logo, { [styles.showMonogram]: shouldShowMonogram })}
+            onMouseEnter={() => setLogoHovered(true)}
+            onMouseLeave={() => setLogoHovered(false)}
+          >
             <LogoText className={styles.logoText} />
             <LogoMonogram className={styles.logoMonogram} />
           </Link>

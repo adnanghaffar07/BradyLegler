@@ -692,11 +692,17 @@ export const getCollectionByHandle = async (
               id
               title
               handle
-                productType
+              productType
+              featuredImage {
+                url
+                altText
+              }
               images(first: 10) {
                 edges {
                   node {
                     src
+                    url
+                    altText
                   }
                 }
               }

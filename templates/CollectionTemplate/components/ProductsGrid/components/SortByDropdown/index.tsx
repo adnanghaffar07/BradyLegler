@@ -24,7 +24,6 @@ const SortByDropdown = () => {
   const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const sortBy = e.target.value as GetCollectionByHandleSortBy;
     const params = new URLSearchParams(searchParams);
-    params.set('page', '1');
     params.set('sort_by', sortBy);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
     setCollectionFiltersChangedProperty(true);

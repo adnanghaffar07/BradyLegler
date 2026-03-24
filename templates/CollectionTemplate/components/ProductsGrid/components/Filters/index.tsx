@@ -43,7 +43,6 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
 
   const toggleFilterParam = (filterKey: string, filterValue: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
-    params.set('page', '1');
 
     const existing = params.getAll(filterKey);
 

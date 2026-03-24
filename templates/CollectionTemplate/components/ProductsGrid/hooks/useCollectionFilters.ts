@@ -146,20 +146,22 @@ const useCollectionFilters = ({
         })
         .filter(Boolean);
 
-      const page = parseInt(params.get('page') || '1');
+      // Always fetch ALL products at once instead of paginating
+      // Calculate page number needed to fetch all available products
       const sortBy = (params.get('sort_by') || 'best-selling') as GetCollectionByHandleSortBy;
       const filterKey = selectedFilterIds.join('|');
-      const cacheKey = getCacheKey(filterKey, page, sortBy);
       const filterCacheKey = getFilterCacheKey(filterKey);
       
-      // Build param signature to detect changes
-      const paramSignature = `${filterKey}|${page}|${sortBy}`;
+      // Build param signature to detect changes (excluding page since we no longer paginate)
+      const paramSignature = `${filterKey}|${sortBy}`;
       
       // Skip if params haven't changed since last effect
       if (lastParamsRef.current === paramSignature) return;
       lastParamsRef.current = paramSignature;
 
       const now = Date.now();
+      // Use a constant cache key since we're always loading all products
+      const cacheKey = `${filterKey}-all-${sortBy}`;
       const cachedPage = enrichedPageCache.current.get(cacheKey);
 
       // Return cached enriched data if valid
@@ -186,11 +188,19 @@ const useCollectionFilters = ({
       // Create new request promise for deduplication
       const requestPromise = (async () => {
         try {
-          // Parallelize Shopify API calls
-          const [newShopifyCollectionData, newProductCount] = await Promise.all([
-            fetchShopifyCollectionData(selectedFiltersParsed, page, sortBy),
-            fetchProductCount(selectedFiltersParsed)
-          ]);
+          // Fetch product count with current filters first
+          const newProductCount = await fetchProductCount(selectedFiltersParsed);
+          
+          // Calculate page number to fetch all products
+          // (perPage is 8, so page = ceil(count / 8))
+          const pageNeededForAll = Math.ceil(newProductCount / 8);
+          
+          // Fetch all products with calculated page
+          const newShopifyCollectionData = await fetchShopifyCollectionData(
+            selectedFiltersParsed, 
+            pageNeededForAll, 
+            sortBy
+          );
 
           // Display product data immediately without waiting for Sanity enrichment
           const rawData = {

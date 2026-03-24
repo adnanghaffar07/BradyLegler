@@ -7,7 +7,8 @@ import thumbnail from '../../../../../sections/shared/CollectionRow/thumbnail.pn
 
 interface IHomeCollectionsSection {
   title?: string;
-  products: any[];
+  collection?: { store: { title: string; slug: { current: string }; id: string } };
+  products?: any[];
 }
 
 export const homeCollections = defineType({
@@ -35,8 +36,15 @@ export const homeCollections = defineType({
       group: 'data'
     },
     defineField({
+      name: 'collection',
+      title: 'Collection',
+      type: 'reference',
+      to: [{ type: 'collection' }],
+      group: 'data'
+    }),
+    defineField({
       name: 'products',
-      title: 'Products',
+      title: 'Products (Legacy)',
       type: 'array',
       of: [
         {
@@ -45,7 +53,8 @@ export const homeCollections = defineType({
           options: { filter: `store.status != 'archived'` }
         }
       ],
-      group: 'data'
+      group: 'data',
+      description: 'Deprecated: Use Collection field instead'
     }),
     defineField({
       name: 'sectionFields',
@@ -75,13 +84,15 @@ export const homeCollections = defineType({
   preview: {
     select: {
       title: 'title',
+      collectionTitle: 'collection.store.title',
       productCount: 'products',
       internalLabel: 'internalLabel'
     },
-    prepare({ title, productCount, internalLabel }) {
+    prepare({ title, collectionTitle, productCount, internalLabel }) {
+      const subtitle = collectionTitle || (productCount ? `${productCount.length} products` : 'No items');
       return {
         title: 'Home Collections',
-        subtitle: internalLabel || `${title || 'Untitled'} - ${productCount ? productCount.length : 0} products`
+        subtitle: internalLabel || `${title || 'Untitled'} - ${subtitle}`
       };
     }
   }
