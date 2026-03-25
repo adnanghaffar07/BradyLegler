@@ -3,11 +3,11 @@ import { FiGrid } from 'react-icons/fi';
 import defaultSectionGroups from '../../common/defaultSectionGroups';
 import internalLabelField from '../../common/internalLabelField';
 import ReadOnlyImageInput from '../../../components/ReadOnlyImageInput';
+import ProductsMultiSelectInput from '../../../components/inputs/ProductsMultiSelectInput';
 import thumbnail from '../../../../../sections/shared/CollectionRow/thumbnail.png';
 
 interface IHomeCollectionsSection {
   title?: string;
-  collection?: { store: { title: string; slug: { current: string }; id: string } };
   products?: any[];
 }
 
@@ -36,15 +36,9 @@ export const homeCollections = defineType({
       group: 'data'
     },
     defineField({
-      name: 'collection',
-      title: 'Collection',
-      type: 'reference',
-      to: [{ type: 'collection' }],
-      group: 'data'
-    }),
-    defineField({
       name: 'products',
-      title: 'Products (Legacy)',
+      title: 'Products',
+      description: 'Select multiple products and drag to reorder them in the carousel. First product will appear first.',
       type: 'array',
       of: [
         {
@@ -54,7 +48,12 @@ export const homeCollections = defineType({
         }
       ],
       group: 'data',
-      description: 'Deprecated: Use Collection field instead'
+      options: {
+        sortable: true
+      },
+      components: {
+        input: ProductsMultiSelectInput
+      }
     }),
     defineField({
       name: 'sectionFields',
@@ -84,12 +83,12 @@ export const homeCollections = defineType({
   preview: {
     select: {
       title: 'title',
-      collectionTitle: 'collection.store.title',
       productCount: 'products',
       internalLabel: 'internalLabel'
     },
-    prepare({ title, collectionTitle, productCount, internalLabel }) {
-      const subtitle = collectionTitle || (productCount ? `${productCount.length} products` : 'No items');
+    prepare({ title, productCount, internalLabel }) {
+      const total = productCount?.length || 0;
+      const subtitle = total ? `${total} products` : 'No items';
       return {
         title: 'Home Collections',
         subtitle: internalLabel || `${title || 'Untitled'} - ${subtitle}`

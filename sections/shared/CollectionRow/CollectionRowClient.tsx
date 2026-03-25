@@ -99,11 +99,23 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Filter valid products
   const validProducts = products.filter(
     product => product?._id && product?.store?.title && product?.store?.slug?.current
   );
+
+  // Detect screen size for responsive calculations
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 769);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Check scroll position
   const checkScroll = () => {
@@ -127,10 +139,37 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
     }
   }, [validProducts]);
 
-  // Navigation functions
+  // Calculate scroll amount based on container width and item count
+  const calculateScrollAmount = () => {
+    if (!scrollContainerRef.current) return 300;
+    
+    const containerWidth = scrollContainerRef.current.clientWidth;
+    const isDesktop = containerWidth >= 1024;
+    const isTablet = containerWidth >= 769 && containerWidth < 1024;
+    
+    let itemsVisible = 4; // Desktop
+    let gap = 24;
+    
+    if (isTablet) {
+      itemsVisible = 3;
+      gap = 24;
+    } else if (!isDesktop && containerWidth < 769) {
+      itemsVisible = 2;
+      gap = 16;
+    }
+    
+    // Calculate single item width
+    const totalGapWidth = gap * (itemsVisible - 1);
+    const itemWidth = (containerWidth - totalGapWidth) / itemsVisible;
+    
+    // Scroll by one item width + one gap to smoothly advance
+    return itemWidth + gap;
+  };
+
+  // Navigation functions with smart snapping
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = calculateScrollAmount();
       const target = direction === 'left' 
         ? scrollContainerRef.current.scrollLeft - scrollAmount
         : scrollContainerRef.current.scrollLeft + scrollAmount;

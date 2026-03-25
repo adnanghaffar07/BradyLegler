@@ -75,6 +75,7 @@
   -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   flex: 1;
   width: 100%;
+  padding: 0; // Ensure no extra padding affects item width calculation
 
   // Hide scrollbar while maintaining functionality
   scrollbar-width: none;
@@ -88,23 +89,24 @@
   }
 }
 
-// Carousel items - maintain fixed width
+// Carousel items - maintain fixed width to show exactly 4 items on desktop
 .carouselItem {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
 
-  // Desktop: 4 items visible, responsive sizing
+  // Desktop: exactly 4 items visible with precise width calculation
+  // Width formula: (containerWidth - 72px for gaps) / 4
   @media (min-width: 1024px) {
-    width: calc(25% - 18px); // Accounts for gap distribution
-    min-width: calc(25% - 18px);
+    width: calc((100% - 72px) / 4);
+    min-width: calc((100% - 72px) / 4);
   }
 
-  // Tablet: wider items, still scrollable
+  // Tablet: 3 items visible
   @media (min-width: 769px) and (max-width: 1023px) {
-    width: calc(33.333% - 16px);
-    min-width: calc(33.333% - 16px);
+    width: calc((100% - 48px) / 3);
+    min-width: calc((100% - 48px) / 3);
   }
 
   // Mobile: 2 items per row
