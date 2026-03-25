@@ -22,47 +22,89 @@
   align-items: center;
   gap: 16px;
   position: relative;
+  width: 100%;
+  overflow: visible;
 
   @media (max-width: 768px) {
     gap: 0;
+    width: 100%;
+    min-height: 300px;
   }
 }
 
-// Hide carousel arrows on mobile
+// Carousel arrows - visible on desktop as flex items, absolute on mobile
 .carouselArrowLeft,
 .carouselArrowRight {
-  display: none;
+  display: flex;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  transition: all 0.3s ease;
+  z-index: 20;
 
-  @media (min-width: 769px) {
-    display: flex;
-    flex-shrink: 0;
+  svg {
+    width: 24px;
+    height: 24px;
+    color: #333;
+    stroke-width: 2px;
+  }
+
+  &:hover:not(.disabled) {
+    svg {
+      color: #000;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.carouselArrowLeft {
+  order: -1;
+}
+
+.carouselArrowRight {
+  order: 1;
+}
+
+// Mobile: position absolutely over carousel
+@media (max-width: 768px) {
+  .carouselArrowLeft,
+  .carouselArrowRight {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     width: 40px;
     height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    padding: 0;
-    transition: all 0.3s ease;
 
     svg {
-      width: 24px;
-      height: 24px;
-      color: #333;
-      stroke-width: 2px;
+      width: 20px;
+      height: 20px;
     }
+  }
 
-    &:hover:not(.disabled) {
-      svg {
-        color: #000;
-      }
-    }
+  .carouselArrowLeft {
+    left: 8px;
+    order: unset;
+  }
 
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+  .carouselArrowRight {
+    right: 8px;
+    order: unset;
   }
 }
 
@@ -74,8 +116,8 @@
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   flex: 1;
-  width: 100%;
   padding: 0; // Ensure no extra padding affects item width calculation
+  position: relative;
 
   // Hide scrollbar while maintaining functionality
   scrollbar-width: none;
@@ -85,7 +127,8 @@
 
   @media (max-width: 768px) {
     gap: 16px;
-    padding: 0 0 8px 0; // Space for scroll indicator if needed
+    padding: 0 40px; // Space for absolutely positioned arrows
+    width: 100%;
   }
 }
 
@@ -109,10 +152,10 @@
     min-width: calc((100% - 48px) / 3);
   }
 
-  // Mobile: 2 items per row
+  // Mobile: 1 item visible with arrow navigation
   @media (max-width: 768px) {
-    width: calc(50% - 8px);
-    min-width: calc(50% - 8px);
+    width: 100%;
+    min-width: 100%;
   }
 }
 

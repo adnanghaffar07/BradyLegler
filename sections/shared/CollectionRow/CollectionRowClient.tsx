@@ -122,12 +122,18 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      // Add more buffer to account for mobile rendering differences
+      const canScroll = scrollLeft < scrollWidth - clientWidth - 5;
+      setCanScrollRight(canScroll);
     }
   };
 
   useEffect(() => {
-    checkScroll();
+    // Use a slight delay to ensure DOM has rendered and dimensions are correct
+    const timeoutId = setTimeout(() => {
+      checkScroll();
+    }, 100);
+
     const container = scrollContainerRef.current;
     if (container) {
       container.addEventListener('scroll', checkScroll);
@@ -135,8 +141,10 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
       return () => {
         container.removeEventListener('scroll', checkScroll);
         window.removeEventListener('resize', checkScroll);
+        clearTimeout(timeoutId);
       };
     }
+    return () => clearTimeout(timeoutId);
   }, [validProducts]);
 
   // Calculate scroll amount based on container width and item count
@@ -154,7 +162,7 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
       itemsVisible = 3;
       gap = 24;
     } else if (!isDesktop && containerWidth < 769) {
-      itemsVisible = 2;
+      itemsVisible = 1;
       gap = 16;
     }
     
@@ -182,12 +190,13 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMobile) return; // Disable dragging on mobile
     setIsDragging(true);
     setDragStart(e.clientX - (scrollContainerRef.current?.scrollLeft || 0));
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
+    if (!isDragging || isMobile) return; // Skip on mobile
     e.preventDefault();
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft = e.clientX - dragStart;
@@ -305,7 +314,7 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
     );
   }
 
-  const showCarouselArrows = validProducts.length >= 4;
+  const showCarouselArrows = validProducts.length > 1;
 
   return (
     <Section
