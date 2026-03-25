@@ -95,11 +95,13 @@ interface ICollectionRowClientProps {
 
 const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, products = [] }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Filter valid products
   const validProducts = products.filter(
@@ -125,6 +127,14 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
       // Add more buffer to account for mobile rendering differences
       const canScroll = scrollLeft < scrollWidth - clientWidth - 5;
       setCanScrollRight(canScroll);
+
+      if (validProducts.length > 0) {
+        // Keep track of the centered item so arrow clicks advance one card cleanly.
+        const totalScrollable = Math.max(1, scrollWidth - clientWidth);
+        const ratio = scrollLeft / totalScrollable;
+        const nextIndex = Math.round(ratio * (validProducts.length - 1));
+        setCurrentIndex(Math.max(0, Math.min(validProducts.length - 1, nextIndex)));
+      }
     }
   };
 
@@ -147,46 +157,16 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
     return () => clearTimeout(timeoutId);
   }, [validProducts]);
 
-  // Calculate scroll amount based on container width and item count
-  const calculateScrollAmount = () => {
-    if (!scrollContainerRef.current) return 300;
-    
-    const containerWidth = scrollContainerRef.current.clientWidth;
-    const isDesktop = containerWidth >= 1024;
-    const isTablet = containerWidth >= 769 && containerWidth < 1024;
-    
-    let itemsVisible = 4; // Desktop
-    let gap = 24;
-    
-    if (isTablet) {
-      itemsVisible = 3;
-      gap = 24;
-    } else if (!isDesktop && containerWidth < 769) {
-      itemsVisible = 1;
-      gap = 16;
-    }
-    
-    // Calculate single item width
-    const totalGapWidth = gap * (itemsVisible - 1);
-    const itemWidth = (containerWidth - totalGapWidth) / itemsVisible;
-    
-    // Scroll by one item width + one gap to smoothly advance
-    return itemWidth + gap;
+  const scrollToIndex = (index: number) => {
+    const clampedIndex = Math.max(0, Math.min(validProducts.length - 1, index));
+    const item = itemRefs.current[clampedIndex];
+    item?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   };
 
-  // Navigation functions with smart snapping
+  // Navigation functions with snapping-to-item behavior
   const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = calculateScrollAmount();
-      const target = direction === 'left' 
-        ? scrollContainerRef.current.scrollLeft - scrollAmount
-        : scrollContainerRef.current.scrollLeft + scrollAmount;
-      
-      scrollContainerRef.current.scrollTo({
-        left: target,
-        behavior: 'smooth'
-      });
-    }
+    const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    scrollToIndex(targetIndex);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -356,13 +336,16 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
-            {validProducts.map(product => {
+            {validProducts.map((product, index) => {
               const currentImage = getCurrentImage(product);
 
               return (
                 <div
                   key={product._id}
                   className={styles.carouselItem}
+                  ref={el => {
+                    itemRefs.current[index] = el;
+                  }}
                 >
                   <div className={styles.imageWrapper}>
                     {currentImage && (

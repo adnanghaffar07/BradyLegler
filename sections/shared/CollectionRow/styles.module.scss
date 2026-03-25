@@ -84,9 +84,9 @@
     transform: translateY(-50%);
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -129,6 +129,8 @@
     gap: 16px;
     padding: 0 40px; // Space for absolutely positioned arrows
     width: 100%;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 40px;
   }
 }
 
@@ -154,8 +156,9 @@
 
   // Mobile: 1 item visible with arrow navigation
   @media (max-width: 768px) {
-    width: 100%;
-    min-width: 100%;
+    width: calc(100% - 80px);
+    min-width: calc(100% - 80px);
+    scroll-snap-align: center;
   }
 }
 
@@ -382,15 +385,11 @@
     aspect-ratio: 3 / 4;
   }
 
-  // Mobile: Remove carousel arrows and allow natural scrolling
-  .carouselArrowLeft,
-  .carouselArrowRight {
-    display: none;
-  }
-
-  // Mobile: Maintain scrollable carousel without controls
+  // Mobile: Keep carousel arrows visible and reserve side space for controls
   .carouselContainer {
     gap: 16px;
-    padding: 0 0 8px 0;
+    padding: 0 40px 8px 40px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 40px;
   }
 }
