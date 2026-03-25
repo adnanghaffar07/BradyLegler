@@ -44,6 +44,7 @@ const ProductsGridClient = ({
   });
 
   const [handles, setHandles] = useState<string[]>([]);
+  const [gridColumns, setGridColumns] = useState(4);
   const { flags } = useProductInquiryFlags(handles);
 
   const layoutType = sanityCollectionData?.layout || 'fluidAndGrid';
@@ -55,6 +56,23 @@ const ProductsGridClient = ({
     const productHandles = shopifyCollectionData?.products?.edges?.map(({ node }) => node?.handle).filter(Boolean) || [];
     setHandles(productHandles);
   }, [shopifyCollectionData?.products?.edges]);
+
+  // Keep section insertion aligned with the active grid columns.
+  useEffect(() => {
+    const updateGridColumns = () => {
+      if (window.innerWidth >= 1340) {
+        setGridColumns(4);
+      } else if (window.innerWidth >= 1025) {
+        setGridColumns(3);
+      } else {
+        setGridColumns(2);
+      }
+    };
+
+    updateGridColumns();
+    window.addEventListener('resize', updateGridColumns);
+    return () => window.removeEventListener('resize', updateGridColumns);
+  }, []);
 
   const layoutVariant = layoutType === 'list' ? 'list' : 'grid';
 
@@ -85,8 +103,8 @@ const renderItems = useMemo(() => {
   const currentPageProducts = shopifyCollectionData?.products?.edges?.length || 0;
   const totalProducts = productCount; // Use total product count for calculations
   
-  // Grid column count (for alignment)
-  const GRID_COLUMNS = 4;
+  // Grid column count (for alignment), responsive to viewport.
+  const GRID_COLUMNS = gridColumns;
   
   // Only process middle sections if there are more than 7 products total
   const shouldProcessMiddleSections = totalProducts > 7 && layoutType === 'fluidAndGrid' && sectionsMiddleData?.length;
@@ -105,11 +123,20 @@ const renderItems = useMemo(() => {
   const middlePercentIndex = Math.round(totalProducts * 0.5) - 1;
   const bottomPercentIndex = Math.round(totalProducts * 0.75) - 1;
   
-  // Align to nearest complete row (round to nearest multiple of GRID_COLUMNS)
-  const topInsertIndex = Math.round(topPercentIndex / GRID_COLUMNS) * GRID_COLUMNS - 1;
-  const middleInsertIndex = Math.round(middlePercentIndex / GRID_COLUMNS) * GRID_COLUMNS - 1;
-  const bottomInsertIndex = Math.round(bottomPercentIndex / GRID_COLUMNS) * GRID_COLUMNS - 1;
-  const defaultInsertIndex = 7; // After 8 products (index 7)
+  const alignToCompletedRow = (index: number) => {
+    if (index < 0) return GRID_COLUMNS - 1;
+    return Math.max(
+      GRID_COLUMNS - 1,
+      Math.round(index / GRID_COLUMNS) * GRID_COLUMNS - 1
+    );
+  };
+
+  // Align to nearest complete row based on current viewport columns
+  const topInsertIndex = alignToCompletedRow(topPercentIndex);
+  const middleInsertIndex = alignToCompletedRow(middlePercentIndex);
+  const bottomInsertIndex = alignToCompletedRow(bottomPercentIndex);
+  // Default insertion: after 2 full rows
+  const defaultInsertIndex = GRID_COLUMNS * 2 - 1;
 
   shopifyCollectionData?.products?.edges?.forEach(({ node }, index) => {
     items.push(
@@ -172,7 +199,7 @@ const renderItems = useMemo(() => {
   });
 
   return items;
-}, [layout, sanityCollectionData, sectionsMiddleData, layoutType, shopifyCollectionData, layoutVariant, flags, productCount]);
+}, [layout, sanityCollectionData, sectionsMiddleData, layoutType, shopifyCollectionData, layoutVariant, flags, productCount, gridColumns]);
 
 // Determine if this is a small collection that needs sections after the grid
 const isSmallCollection = productCount <= 7;
@@ -191,7 +218,7 @@ return (
     <Layout 
       variant={layoutVariant} 
       id="bl-collection-grid"
-      className={numVisibleProducts <= 2 ? styles.centeredGrid : ''}
+      className={`${styles.productGrid} ${numVisibleProducts <= 2 ? styles.centeredGrid : ''}`.trim()}
     >
       <QuoteOverlay
         quote={sanityCollectionData?.quote}

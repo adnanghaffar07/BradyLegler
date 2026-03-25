@@ -95,27 +95,55 @@ interface ICollectionRowClientProps {
 
 const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, products = [] }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Filter valid products
   const validProducts = products.filter(
     product => product?._id && product?.store?.title && product?.store?.slug?.current
   );
 
+  // Detect screen size for responsive calculations
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 769);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Check scroll position
   const checkScroll = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      // Add more buffer to account for mobile rendering differences
+      const canScroll = scrollLeft < scrollWidth - clientWidth - 5;
+      setCanScrollRight(canScroll);
+
+      if (validProducts.length > 0) {
+        // Keep track of the centered item so arrow clicks advance one card cleanly.
+        const totalScrollable = Math.max(1, scrollWidth - clientWidth);
+        const ratio = scrollLeft / totalScrollable;
+        const nextIndex = Math.round(ratio * (validProducts.length - 1));
+        setCurrentIndex(Math.max(0, Math.min(validProducts.length - 1, nextIndex)));
+      }
     }
   };
 
   useEffect(() => {
-    checkScroll();
+    // Use a slight delay to ensure DOM has rendered and dimensions are correct
+    const timeoutId = setTimeout(() => {
+      checkScroll();
+    }, 100);
+
     const container = scrollContainerRef.current;
     if (container) {
       container.addEventListener('scroll', checkScroll);
@@ -123,32 +151,32 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
       return () => {
         container.removeEventListener('scroll', checkScroll);
         window.removeEventListener('resize', checkScroll);
+        clearTimeout(timeoutId);
       };
     }
+    return () => clearTimeout(timeoutId);
   }, [validProducts]);
 
-  // Navigation functions
+  const scrollToIndex = (index: number) => {
+    const clampedIndex = Math.max(0, Math.min(validProducts.length - 1, index));
+    const item = itemRefs.current[clampedIndex];
+    item?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  };
+
+  // Navigation functions with snapping-to-item behavior
   const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 300;
-      const target = direction === 'left' 
-        ? scrollContainerRef.current.scrollLeft - scrollAmount
-        : scrollContainerRef.current.scrollLeft + scrollAmount;
-      
-      scrollContainerRef.current.scrollTo({
-        left: target,
-        behavior: 'smooth'
-      });
-    }
+    const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    scrollToIndex(targetIndex);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMobile) return; // Disable dragging on mobile
     setIsDragging(true);
     setDragStart(e.clientX - (scrollContainerRef.current?.scrollLeft || 0));
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
+    if (!isDragging || isMobile) return; // Skip on mobile
     e.preventDefault();
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft = e.clientX - dragStart;
@@ -266,7 +294,7 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
     );
   }
 
-  const showCarouselArrows = validProducts.length >= 4;
+  const showCarouselArrows = validProducts.length > 1;
 
   return (
     <Section
@@ -308,13 +336,16 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
-            {validProducts.map(product => {
+            {validProducts.map((product, index) => {
               const currentImage = getCurrentImage(product);
 
               return (
                 <div
                   key={product._id}
                   className={styles.carouselItem}
+                  ref={el => {
+                    itemRefs.current[index] = el;
+                  }}
                 >
                   <div className={styles.imageWrapper}>
                     {currentImage && (

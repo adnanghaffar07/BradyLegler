@@ -13,6 +13,11 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
   const { children } = props;
   return (
     <html lang="en-AU">
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+      </head>
       <body className={fonts}>
         <Providers>{children}</Providers>
       </body>
