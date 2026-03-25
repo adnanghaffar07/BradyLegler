@@ -28,6 +28,16 @@
   background-color: white;
 }
 
+// In the 3-column desktop range, constrain the grid width a bit
+// so cards appear slightly smaller (without changing column count).
+.productGrid {
+  @media (min-width: 1025px) and (max-width: 1339px) {
+    width: 100%;
+    max-width: 1160px;
+    margin-inline: auto;
+  }
+}
+
 .centeredGrid {
   display: flex !important;
   justify-content: center !important;
