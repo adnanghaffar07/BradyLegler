@@ -163,8 +163,49 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
     item?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   };
 
+  // Calculate scroll amount based on container width and item count
+  const calculateScrollAmount = () => {
+    if (!scrollContainerRef.current) return 300;
+
+    const containerWidth = scrollContainerRef.current.clientWidth;
+    const isDesktop = containerWidth >= 1024;
+    const isTablet = containerWidth >= 769 && containerWidth < 1024;
+
+    let itemsVisible = 4; // Desktop
+    let gap = 24;
+
+    if (isTablet) {
+      itemsVisible = 3;
+      gap = 24;
+    } else if (!isDesktop && containerWidth < 769) {
+      itemsVisible = 1;
+      gap = 16;
+    }
+
+    const totalGapWidth = gap * (itemsVisible - 1);
+    const itemWidth = (containerWidth - totalGapWidth) / itemsVisible;
+    return itemWidth + gap;
+  };
+
   // Navigation functions with snapping-to-item behavior
   const scroll = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+
+    // Keep desktop/tablet behavior as before.
+    if (!isMobile) {
+      const scrollAmount = calculateScrollAmount();
+      const target = direction === 'left'
+        ? scrollContainerRef.current.scrollLeft - scrollAmount
+        : scrollContainerRef.current.scrollLeft + scrollAmount;
+
+      scrollContainerRef.current.scrollTo({
+        left: target,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    // Mobile: snap to centered item.
     const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
     scrollToIndex(targetIndex);
   };
