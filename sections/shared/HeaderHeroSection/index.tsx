@@ -40,7 +40,8 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
             src={mediaUrl}
             className={styles.videoElement}
             loop
-            muted
+            muted={false}
+            controls
             playsInline
             autoPlay
             poster={thumbnail?.asset?.url}

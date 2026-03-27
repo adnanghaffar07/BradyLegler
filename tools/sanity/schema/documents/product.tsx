@@ -94,8 +94,7 @@ const productDocument = defineType({
       type: 'featureMedia',
       title: 'Feature Media',
       description: 'Add a custom feature media for this product',
-      group: 'editorial',
-      hidden: true
+      group: 'editorial'
     }),
     defineField({
       name: 'gallery',
@@ -131,7 +130,7 @@ const productDocument = defineType({
     }),
     defineField({
       name: 'collectionMedia',
-      type: 'featureMedia',
+      type: 'featureMediaWithItems',
       title: 'Collection Media',
       description: 'Add a custom media for this product that will be displayed on collection pages',
       group: 'collection'

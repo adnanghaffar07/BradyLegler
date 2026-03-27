@@ -19,6 +19,7 @@
   right: 0;
   bottom: 0;
   z-index: 1000;
+  pointer-events: none;
 
   @include media-up-desktop {
     justify-content: center;
@@ -62,6 +63,7 @@
         position: sticky;
         top: 50%;
         max-width: 200px;
+        pointer-events: auto;
         @include media-up-desktop {
           top: 100px;
           /* desktop offset */

@@ -32,8 +32,8 @@ const Media: React.FC<{
       <div className={classes}>
         <video
           src={video.asset.url}
-          controls={false}
-          muted={true}
+          controls={true}
+          muted={false}
           playsInline={true}
           autoPlay={true}
           loop={true}
