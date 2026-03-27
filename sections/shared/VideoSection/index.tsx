@@ -25,7 +25,7 @@ const VideoSection: React.FC<IVideoSection> = props => {
       theme="light"
       containerClassName={styles.container}
     >
-      <Video url={mediaUrl} controls={true} />
+      <Video url={mediaUrl} controls={false} showAudioControl={true} muted={true} autoPlay loop />
 
       <Layout variant="fullWidth" className={styles.layout}>
         <div className={styles.containerSticky}>
