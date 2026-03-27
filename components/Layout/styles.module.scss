@@ -95,7 +95,6 @@ $containerPadding: var(--layout-container-spacing);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 8px;
-    padding: 8px;
 
     & > div {
       width: 100%;
