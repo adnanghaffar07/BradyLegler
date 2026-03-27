@@ -24,12 +24,32 @@ const featureMedia = defineType({
       description: 'If disabled, the Shopify feature media product will be used',
       type: 'boolean',
       initialValue: false
+    }
+  ],
+  options: {
+    collapsible: false
+  }
+});
+
+const featureMediaWithItems = defineType({
+  name: 'featureMediaWithItems',
+  title: 'Feature Media',
+  type: 'object',
+  initialValue: {
+    enable: false
+  },
+  fields: [
+    {
+      name: 'enable',
+      title: 'Enable Custom Feature Media',
+      description: 'If disabled, the Shopify feature media product will be used',
+      type: 'boolean',
+      initialValue: false
     },
     {
       name: 'mediaItems',
       title: 'Media Items',
       type: 'array',
-      hidden: ({ parent }) => parent?.enable !== true,
       of: [
         {
           type: 'object',
@@ -94,5 +114,5 @@ const featureMedia = defineType({
   }
 });
 
-export default featureMedia;
+export { featureMedia, featureMediaWithItems };
 export type { IFeatureMedia };
