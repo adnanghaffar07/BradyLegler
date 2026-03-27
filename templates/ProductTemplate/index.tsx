@@ -147,18 +147,29 @@ const ProductTemplate = async (props: WebPageProps) => {
     }
   }
 
+  // Fisher-Yates shuffle algorithm
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   // Get recommendations from the same collection instead
   let shopifyProductRecommendations = [];
   
   if (primaryCollection?.store?.slug?.current) {
     try {
-      // Fetch collection products
-      const collection = await getCollectionByHandle(primaryCollection.store.slug.current, 1);
+      // Fetch collection products (2 pages = 16 products) for a larger pool to choose from
+      const collection = await getCollectionByHandle(primaryCollection.store.slug.current, 2);
       
       if (collection?.products?.edges) {
-        // Filter out the current product and take up to 3
-        shopifyProductRecommendations = collection.products.edges
-          .map(({ node }) => node)
+        // Shuffle all products, filter out current, then take 3
+        const allProducts = collection.products.edges.map(({ node }) => node);
+        const shuffledProducts = shuffleArray(allProducts);
+        shopifyProductRecommendations = shuffledProducts
           .filter(product => product.id !== shopifyProductData?.id) // Exclude current product
           .slice(0, 3);
       }

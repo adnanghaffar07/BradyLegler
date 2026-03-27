@@ -64,7 +64,7 @@ const Video = (props: VideoProps) => {
         playsinline={true}
         loop={true}
         playing
-        muted={true}
+        muted={false}
       />
     );
   }
