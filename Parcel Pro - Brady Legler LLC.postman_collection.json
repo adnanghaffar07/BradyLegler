@@ -1,0 +1,1378 @@
+{
+  "info": {
+    "_postman_id": "e9722ecc-3eda-46c4-9e83-f9ec1ddda3b6",
+    "name": "Parcel Pro - Brady Legler LLC",
+    "description": "Overview\n\nStartFragment\n\n**The API is entirely HTTP-based:** Methods to retrieve data from the ParcelPro API require a GET request. Methods that create and update data require a POST. Methods that delete data require a DELETE request. API Methods that require a particular HTTP method will return an error if you do not make your request with the correct one. HTTP Response Codes are meaningful. We conform to the design principles of Representational State Transfer (REST). The API presently supports the JSON Format only.\n\n**Important:** Our development URL is [https://apibeta.parcelpro.com](https://apibeta.parcelpro.com/).  \nOnce you are done testing your application you must send us an email to apihelp@parcelpro.com to switch your account to a production environment under [https://api.parcelpro.com](https://api.parcelpro.com/).\n\n**Booking a shipment with the new ParcelPro API**  \nThe New ParcelPro REST-API is a set of protected services which offer exactly the same functionality as our site parcelpro.com. It was built to interface transparently with your own systems. In order to access any of the available services you must get a Token which can be obtained by passing your username and password to the Auth Service. The response will include a new bearer token which must be included in the headers as authorization of subsequent calls so try to store and persist this value. If you try to use an expired token, you will get back a 401 Unauthorized response.\n\nBooking a shipment with the new ParcelPro API requires a two-step process. First you need to send your package to the Quote service. A successful response will return a QuoteID which is a unique identifier for your package and will provide rate information for you to review. If you accept this quote you can book it by sending the quoteid to the Shipment service. The Services \"CarrierServices\" and “PackageTypes” must be used to retrieve all the available services and packages for your account. Make sure to pass the codes required by each service or you will get a Bad Request Error back. In addition, you can \"shop around\", check the availability and estimate the cost of a shipment by calling the Shop service with just basic information.  \n**High value Shipment:**  \nThere are some scenarios where your package due to its high insured value must be sent to a High Value Queue for approval process. In order to determine if your package must conform to this rule, you need to check the value IsHighValueShipment from your Quote Service response. If this value is true there are 2 additional steps you need to perform in sequential order before booking this shipment.  \nA) Post your quoteid to the HighValue Queue service  \nB) Get your package approval status  \nWhen the status shows \"Approved\" you will be able to book your shipment.  \nIf you try to book a quote without performing the previous steps, you will get a bad request with an error message. If the flag IsHighValueShipment is set to false, you can book your shipment directly. If you try to send a package for which the flag set to true you will get a bad request with an error message. You can bypass this requirement by applying for a high value exempt, talk to our customer service if you are interested in skipping this business rule.\n\n**AES Shipment:**  \nAES is applicable for all Shipments going out of US to any country (excluding Canada and Guam) if customs value of any commodity is greater than 2500.  \n\n- EEIFilingOption , FilingOption and AESCitationType fields needs to be set for AES shipments.\n    \n- AESCitationType can be either Pre Departure or Post Departure\n    \n- If Both EEIFilingOption and FilingOption are 1- Quote is submitted to AES queue\n    \n- If Both EEIFilingOption and FilingOption are 2- AESCitationType should be either Pre Departure or Post Departure\n    \n- If AESCitationType is Pre Departure- AESCitation field should be sent with valid Pre Departure ITIN in X99999999999999 format\n    \n- If AESCitationType is Post Departure- AESCitation field should be sent with valid Post Departure ITIN in AESPOST 99999999999 MM/DD/YYYY format\n    \n\nOnce AES is submitted, Quote is submitted to AES queue for approval. When the status shows \"Approved\" you will be able to book your shipment.  \nAs mentioned above, in order to confirm and accept the package rates, agree to the parcelpro terms and conditions and retrieve the label and tracking number for your package you will be required to submit this quoteid to the Shipment service Booking a Shipment, simply requires you to submit the quoteId previously approved to retrieve the trackingnumber, labelimage (base64 string) and the rate information in the form of an Estimator class.  \n**Report Shipment:**  \nUse Report Shipment service to report any shipment for “InsuranceOnly” or “Freight and Insurance” with other carriers.  \n**Commercial Invoice:**  \nSubmit shipmentId “Get Commercial invoice” service to retrieve base64 commercial invoice document for International shipments with IsCommercial flag set to 1  \n**Tracking scans:**  \nUse “Tracking Details” service to retrieve all the tracking scans for the ShipmentId.\n\n<u><b>Some additional information can be retrieved for the package:</b></u>  \nIf you are shipping a package from a restricted location the property IShipFromRestrictedZip will be set to true and you must retrieve the new origin information printed on the label from the ShipFromRerouting Class included in the response. Also, if the Origin address contained restricted words, we will replace them for security reasons (e.g. Jewerly) and the property IsShipFromHasRestrictedWords will be set to true. This is for informational purposes and doesn't require any action on your end.\n\nFor origin the same considerations mentioned above apply. If you are shipping a package to a restricted location the property IShipToRestrictedZip will be set to true and you must retrieve the new destination printed on the label from the ShipToRerouting Class included in the response. Also, if the Origin address contained restricted words, we will replace them for security reasons (e.g. Jewelry) and the property IsShipToHasRestrictedWords will be set to true. This is for informational purposes and doesn't require any action on your end. For UPS Shipments if your package requires a high value the flag isHighValue will be set to true, it is your responsability to generate a high value report for your shipment.\n\nWhen you submit your package, we will also validate it against the carrier address validation service. Some flags like ShipToResidential may be set to true regardless of the submitted value. On each response check this value to inform your shippers of these changes for as those values have been already setup and sent to the carrier.\n\nYou may also validate your address against the address validation endpoint (see References) which will return if that address is residential a business or unknown, based on that information you will be able to apply your business rules.\n\n**Important:** Our new Quotes and Shipments APIs supports both domestic and International shipments.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49088427",
+    "_collection_link": "https://go.postman.co/collection/49088427-e9722ecc-3eda-46c4-9e83-f9ec1ddda3b6?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Session ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJmbG93IjoicGFzc3dvcmQiLCJ1c2VybmFtZSI6ImxyYW1pcmV6IiwiY291bnRyeWNvZGUiOiJVUyIsImN1c3RvbWVyaWQiOiI4MzE2NjEiLCJ1c2VyaWQiOiIyMTAxMDgiLCJzdWJqZWN0IjoiMjEwMTA4IiwiaXNzdWVkdGltZSI6IjEwLzE3LzIwMjQgNzozMjo0MCBQTSIsIm5iZiI6MTcyOTE5MzU1OSwiZXhwIjoxNzI5MTk1MzU5LCJpc3MiOiJodHRwczovL2ludHJhLWFwaS1zdGFnaW5nLnBhcmNlbHByby5jb20iLCJhdWQiOiIwOTkxNTNjMjYyNTE0OWJjOGVjYjNlODVlMDNmMDAyMiJ9.ltcJEhABv93UhE3tHpQSjanG1UR7xL8iq1yWaixcUSj8Tt5uXZmqn-R5JS5oFHkU75MgdLkP50ORYmHT00Bkiw0eFFTFONUDmMFSahaKEiiQMjACavyGLdCxXpsDg7xFwoKJve7ESE8kiQ_AKE3LRRMf79baNbeq8_tiB3RSogEUcOIewMw1N2vz2zH5195tQ0D9OgWMNWL_DIz6Z0hJtVtIosHfModGYBDAuve88RmvHkcVLp38VRwqm0Q8F4GBXeThTOVb3ZiMPg_muSOcxVYnzm0i23GRuoYfDAimnjg9roeTilzTQDhLZjdLy9BHaY5oEJvdPvCFpt0VHwpj3Q",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "password",
+                  "value": "UpscPp!2024",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "lramirez",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://apibeta.parcelpro.com/v2.0/auth?password=&grant_type=password&username=",
+              "protocol": "https",
+              "host": [
+                "apibeta",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "auth"
+              ],
+              "query": [
+                {
+                  "key": "password",
+                  "value": ""
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                },
+                {
+                  "key": "username",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "StartFragmentAuthentication\n\nThis is a onetime operation which will generate a bearer token that you can store during your communication with the APIs. This token is required to access the rest of the resources.\n\nMethod: **POST**  \nEndpoint: [https://api.parcelpro.com/v2.0/auth](https://api.parcelpro.com/v2.0/authEndFragment)"
+    },
+    {
+      "name": "Locations",
+      "item": [
+        {
+          "name": "Get Locations",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJmbG93IjoicGFzc3dvcmQiLCJ1c2VybmFtZSI6ImxyYW1pcmV6IiwiY291bnRyeWNvZGUiOiJVUyIsImN1c3RvbWVyaWQiOiI4MzE2NjEiLCJ1c2VyaWQiOiIyMTAxMDgiLCJzdWJqZWN0IjoiMjEwMTA4IiwiaXNzdWVkdGltZSI6IjEwLzQvMjAyNCA2OjIyOjI5IFBNIiwibmJmIjoxNzI4MDY2MTQ5LCJleHAiOjE3MjgwNjc5NDksImlzcyI6Imh0dHBzOi8vaW50cmEtYXBpLXN0YWdpbmcucGFyY2VscHJvLmNvbSIsImF1ZCI6IjA5OTE1M2MyNjI1MTQ5YmM4ZWNiM2U4NWUwM2YwMDIyIn0.oSwv6fHUhSwP44Ud8fc_tMzU5PuY9M6PUUy6RH2WHy3se4Z_2mEBwLJ2CtnYF6o957NzPfQeWLD4Ke-4H4a042qJl1QC18dPxqDdjFwJvlL3bqcd_VHm8yDtsKbzPIByCO4hmXnvEJe9jXTPSJxME_aKHlSM9ydSzXGiG3qrXYSYv692sTpLvo6kn322l_Hwr0eFGWVtp2W8ACMGLjxx4IW-VGAXTcMnXacv4yivZufNAm4zuDC7nxt7YfDhL3NX0wmYahx5nK4i_ElMFFGf1orRHWYbw4yepATsbn8CXBlyNQ5Nhn6Ai3zUSXSnzZ5hBt6VrbLEMw3T6yhLmKBb3g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://apibeta.parcelpro.com/v2.0/locations",
+              "protocol": "https",
+              "host": [
+                "apibeta",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Location Details",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJmbG93IjoicGFzc3dvcmQiLCJ1c2VybmFtZSI6ImxyYW1pcmV6IiwiY291bnRyeWNvZGUiOiJVUyIsImN1c3RvbWVyaWQiOiI4MzE2NjEiLCJ1c2VyaWQiOiIyMTAxMDgiLCJzdWJqZWN0IjoiMjEwMTA4IiwiaXNzdWVkdGltZSI6IjEwLzQvMjAyNCAxMToxNjo1MSBQTSIsIm5iZiI6MTcyODA4MzgxMCwiZXhwIjoxNzI4MDg1NjEwLCJpc3MiOiJodHRwczovL2ludHJhLWFwaS1zdGFnaW5nLnBhcmNlbHByby5jb20iLCJhdWQiOiIwOTkxNTNjMjYyNTE0OWJjOGVjYjNlODVlMDNmMDAyMiJ9.es3r8M5XTuS-gk1iiShyUFBcsBAX3ufdidrl2qaOWcXueG48kW0nOjce7QC0D17WRx6f7GsnqbyJje61JcJxB5tT2o8K6KwITyQnak1KL1T3t0f75veRsTlv0FyD8u3GJxqKLNU6NhmH_8eCuPcBKyI7GqcqxNbKt2qM2BqTn4s350iiYH72xSkhL1uzf8JAanrRvpBdPM_fB-fZniSrCG8fY0yTVJGIA_WM-W1ZkjTiKZi6ghwx2TmwHYxXtARUfmWRM_OAEEWrdCbKF2q6iEUGOr3elFezdcPvRaaF7gc9AdtOUt5RR89K8KIIFWTldJjCDkoC55Lpi0F99pqc2Q",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "https://apibeta.parcelpro.com/v2.0/locations/{6d94e76e-246a-48ae-90aa-dc2d384fe910}",
+              "protocol": "https",
+              "host": [
+                "apibeta",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "locations",
+                "{6d94e76e-246a-48ae-90aa-dc2d384fe910}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Location",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "content-type": true
+            }
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJmbG93IjoicGFzc3dvcmQiLCJ1c2VybmFtZSI6ImxyYW1pcmV6IiwiY291bnRyeWNvZGUiOiJVUyIsImN1c3RvbWVyaWQiOiI4MzE2NjEiLCJ1c2VyaWQiOiIyMTAxMDgiLCJzdWJqZWN0IjoiMjEwMTA4IiwiaXNzdWVkdGltZSI6IjEwLzIvMjAyNCAxMDo1MzozMyBQTSIsIm5iZiI6MTcyNzkwOTYxMywiZXhwIjoxNzI3OTExNDEzLCJpc3MiOiJodHRwczovL2ludHJhLWFwaS1zdGFnaW5nLnBhcmNlbHByby5jb20iLCJhdWQiOiIwOTkxNTNjMjYyNTE0OWJjOGVjYjNlODVlMDNmMDAyMiJ9.a2jywc-92WWRkoUXWCq2T4ZnQ_2PRV5bsS35MBo-Xc7rAQz3yOI1GQN16k2X0jpGkQoaTdi0DA2V9fUW08ACuC4W6UW0qL5I5oYeUB0Kg2zUmVxOxHotVlbwPDuiM0nO38R8XqynLO6l4iVvvjLX4dD5jasrYK79FMV-zvayZ8EXiCyn2t2L0juBYcE-tnsryvHK3rmgT1FERCsARIkpXPLvFNJ_qENN6ERmQPI0UIxbFS6SMW-NC_zEzEc-vwb1xNdqZRilTTCxrbaUEouyA5a2ZjLh626Nu8iMO54ON85HulqUfR9KUVA5n2AO2OIsdWFjNqrI6rG1QrXM3Fm0Qg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "  \r\n   \"Country\":\"US\",\r\n   \"NickName\":\"test905\",\r\n   \"FirstName\":\"test905\",\r\n   \"LastName\":\"test\",\r\n   \"CompanyName\":\"test\",\r\n   \"Email\":\"\",\r\n   \"TelephoneNo\":\"555555555800\",\r\n   \"FaxNo\":\"\",\r\n   \"StreetAddress\":\"ST. CLEMENTS HOUSE, 27 CLEMENTS LAN\",\r\n   \"ApartmentSuite\":\"\",\r\n   \"Zip\":\"00000\",\r\n   \"City\":\"torrance\",\r\n   \"State\":\"XX\",\r\n   \"ProvinceRegion\":\"?\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://apibeta.parcelpro.com/v2.0/locations",
+              "protocol": "https",
+              "host": [
+                "apibeta",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/locations",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Location",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/locations/{ContactID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "locations",
+                "{ContactID}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Get Locations\n\nLocations are a subset of the contacts resource. The goal of this service is to provide users with an endpoint to manage customer's ship from locations; there is no pagination for this."
+    },
+    {
+      "name": "Address Book",
+      "item": [
+        {
+          "name": "Get Address Book",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/address-book?page={page}&per_page={per_page}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "address-book"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{page}"
+                },
+                {
+                  "key": "per_page",
+                  "value": "{per_page}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Address Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/address-book/{ContactID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "address-book",
+                "{ContactID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/address-book",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "address-book"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/address-book",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "address-book"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/address-book/{ContactId}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "address-book",
+                "{ContactId}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Address - UPS",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/validate/address/ups",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "validate",
+                "address",
+                "ups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Address - Fedex",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/validate/address/fedex",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "validate",
+                "address",
+                "fedex"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Address Book contacts are a subset of Contacts. Address Book Contacts are the original locations where your package will be shipped from. This service retrieves a collection of Address Book contacts created by the user. It will be returned as an array based on the index and page size parameters."
+    },
+    {
+      "name": "Hold At Locations",
+      "item": [
+        {
+          "name": "Get Fedex Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/fedex-locator?zip={zipcode}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "fedex-locator"
+              ],
+              "query": [
+                {
+                  "key": "zip",
+                  "value": "{zipcode}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get UPS Access Points",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/locations/accesspoints/ups",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "locations",
+                "accesspoints",
+                "ups"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "This service returns all the locations around the zipcode provided"
+    },
+    {
+      "name": "Carrier Services",
+      "item": [
+        {
+          "name": "Get Carrier services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/carriers/services?isDomestic={isDomestic}&shipFromCountryCode={ShipFromCountryCode}&carrierCode={CarrierCode}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "carriers",
+                "services"
+              ],
+              "query": [
+                {
+                  "key": "isDomestic",
+                  "value": "{isDomestic}"
+                },
+                {
+                  "key": "shipFromCountryCode",
+                  "value": "{ShipFromCountryCode}"
+                },
+                {
+                  "key": "carrierCode",
+                  "value": "{CarrierCode}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "This service retrieves an array of delivery services for the specified carrier"
+    },
+    {
+      "name": "Package Types",
+      "item": [
+        {
+          "name": "Get Package Types",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJ1c2VybmFtZSI6ImxyYW1pcmV6IiwiY3VzdG9tZXJpZCI6IjgzMTY2MSIsImNvdW50cnljb2RlIjoiVVMiLCJ1c2VyaWQiOiIyMTAxMDgiLCJzdWIiOiIyMTAxMDgiLCJpc3N1ZWR0aW1lIjoiMy83LzIwMjUgMTA6MDQ6MDggUE0iLCJuYmYiOjE3NDEzODUwNDgsImV4cCI6MTc0MTM4Njg0OCwiaXNzIjoiaHR0cHM6Ly9pbnRyYS1hcGktc3RhZ2luZy5wYXJjZWxwcm8uY29tIiwiYXVkIjoiMDk5MTUzYzI2MjUxNDliYzhlY2IzZTg1ZTAzZjAwMjIifQ.QHrsR3_nZv3MvRVIisenvY4gcJqZXjEAV_lYWj3egMbuqbggG4By__RaVchVr3EVtpnSp0zI7NEpQlO6rusaognEhXRF3PNq67TAJxkneDbLKl45Nn5A7YNz9GwclfJztdmpkqxDsfm8H2-bUzhkZ76m4ojSVxLEa5yx_ox55wSB-yrQvIZ7qlX5g9dMvRD8L6KodToAXZn41dzf3JwgxA1diTdnKKMVQzbm5k2KgyEDaOJDT5fLAg3WJwoBYLZTaZ17KAnCdpeCtYEsqDV4EcpSpJyb3n9juJigxqp02fdhBto2MS2fm0cPVJCIW6DiSNEyS_hfMSSDr_ZIh25EXQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/carriers/package-types?carrierservicecode={CarrierServiceCode}&carriercode={CarrierCode}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "carriers",
+                "package-types"
+              ],
+              "query": [
+                {
+                  "key": "carrierservicecode",
+                  "value": "{CarrierServiceCode}"
+                },
+                {
+                  "key": "carriercode",
+                  "value": "{CarrierCode}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "This service will retrieve an array of all of the possible package types for the user."
+    },
+    {
+      "name": "Postal Code Validator",
+      "item": [
+        {
+          "name": "Validate Postal Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/validate/postal-code/{PostalCode}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "validate",
+                "postal-code",
+                "{PostalCode}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Quote",
+      "item": [
+        {
+          "name": "Submit Domestic Quote - UPS",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Domestic Quote - FedEx",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Domestic Quote - Delivery Defense",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit International Quote - UPS",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit International Quote - FedEx",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quote Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes/{QuoteID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes",
+                "{QuoteID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Quote",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/quotes/{QuoteID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "quotes",
+                "{QuoteID}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shipment",
+      "item": [
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "Endpoint: https://api.parcelpro.com/v2.0/shipments/{QuoteID}",
+              "protocol": "Endpoint: https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "{QuoteID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment ACE",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/ace/{QuoteID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "ace",
+                "{QuoteID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/{ShipmentID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "{ShipmentID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Shipments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/search?q={Query}&page={Page}&per_page={Per_page}&sort={Sort}&sort_dir={Sort_dir}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "{Query}"
+                },
+                {
+                  "key": "page",
+                  "value": "{Page}"
+                },
+                {
+                  "key": "per_page",
+                  "value": "{Per_page}"
+                },
+                {
+                  "key": "sort",
+                  "value": "{Sort}"
+                },
+                {
+                  "key": "sort_dir",
+                  "value": "{Sort_dir}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments?page={page}&per_page={per_page}&from={date}&to={date}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{page}"
+                },
+                {
+                  "key": "per_page",
+                  "value": "{per_page}"
+                },
+                {
+                  "key": "from",
+                  "value": "{date}"
+                },
+                {
+                  "key": "to",
+                  "value": "{date}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shipment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/{ShipmentID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "{ShipmentID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Email Label",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/drop",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "drop"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Print Label",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/label?shipmentId={ShipmentID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "label"
+              ],
+              "query": [
+                {
+                  "key": "shipmentId",
+                  "value": "{ShipmentID}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Print Commercial Invoice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/commercial-invoice/{ShipmentID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "commercial-invoice",
+                "{ShipmentID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Access Point Code",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/{shipmentId}/access-point-code/resend",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "{shipmentId}",
+                "access-point-code",
+                "resend"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "High Value",
+      "item": [
+        {
+          "name": "Submit Highvalue quote",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/highvalue?quoteid={QuoteID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "highvalue"
+              ],
+              "query": [
+                {
+                  "key": "quoteid",
+                  "value": "{QuoteID}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estimator",
+      "item": [
+        {
+          "name": "Cost Estimator",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/estimator",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "estimator"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Report Shipment",
+      "item": [
+        {
+          "name": "Get Report Shipments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/reported-shipments?daysOld={DaysOld}&page={Page}&per_page={Per_Page}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "reported-shipments"
+              ],
+              "query": [
+                {
+                  "key": "daysOld",
+                  "value": "{DaysOld}"
+                },
+                {
+                  "key": "page",
+                  "value": "{Page}"
+                },
+                {
+                  "key": "per_page",
+                  "value": "{Per_Page}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Report Shipment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJmbG93IjoicGFzc3dvcmQiLCJ1c2VybmFtZSI6ImxyYW1pcmV6IiwiY291bnRyeWNvZGUiOiJVUyIsImN1c3RvbWVyaWQiOiI4MzE2NjEiLCJ1c2VyaWQiOiIyMTAxMDgiLCJzdWJqZWN0IjoiMjEwMTA4IiwiaXNzdWVkdGltZSI6IjEyLzIvMjAyNCA1OjM5OjM4IFBNIiwibmJmIjoxNzMzMTYxMTc4LCJleHAiOjE3MzMxNjI5NzgsImlzcyI6Imh0dHBzOi8vaW50cmEtYXBpLXN0YWdpbmcucGFyY2VscHJvLmNvbSIsImF1ZCI6IjA5OTE1M2MyNjI1MTQ5YmM4ZWNiM2U4NWUwM2YwMDIyIn0.jjmvBvmoXC1LbrhaAVx45RR2D2bf1nFYgPL-xYOpQu71wHCdogJoIzZ9iKPx_kJRL_QKemWNLRKCo5JBnLVriZv7wDIyYam41-JasPITZKBgtogXBvb64xip4GZU04fQbiXlslE3tsqDafWip5-0lJ7rjBP9iRqB15-K2YTHeRPzOo1jGXvE-HvxMEbvhUoQXUv59mzl0F80eJCC0ucMIZIYMAPzf9zU7honWudOHJ4e7XyEm9lfuc_0eokiESppd2FR_ZrE142n9jSiKnYJMImg-VkPWogeY5UwdZm6EloUt0GHQn106KJsmZfRVc2r6X_AQJ7932Gakj67HsgUb",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/shipments/report/us?Carrier=UPS&Service=01&Coverage=100&Shipment Type=1&TrackingNumber=1ZH920A90127484625&CustomerID",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "shipments",
+                "report",
+                "us"
+              ],
+              "query": [
+                {
+                  "key": "Carrier",
+                  "value": "UPS"
+                },
+                {
+                  "key": "Service",
+                  "value": "01"
+                },
+                {
+                  "key": "Coverage",
+                  "value": "100"
+                },
+                {
+                  "key": "Shipment Type",
+                  "value": "1"
+                },
+                {
+                  "key": "TrackingNumber",
+                  "value": "1ZH920A90127484625"
+                },
+                {
+                  "key": "CustomerID",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Report Shipment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/reported-shipments/{ShipmentID}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "reported-shipments",
+                "{ShipmentID}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Report Shipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/report-services",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "report-services"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Track Scans",
+      "item": [
+        {
+          "name": "Get Tracking Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/tracking-results?shipmentid={ShipmentID}&shipmenttype={ShipmentType}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "tracking-results"
+              ],
+              "query": [
+                {
+                  "key": "shipmentid",
+                  "value": "{ShipmentID}"
+                },
+                {
+                  "key": "shipmenttype",
+                  "value": "{ShipmentType}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Countries",
+      "item": [
+        {
+          "name": "Get Countries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/countries?carriercode={carriercode}&isEU={isEU}&selectiontype={selectiontype}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "countries"
+              ],
+              "query": [
+                {
+                  "key": "carriercode",
+                  "value": "{carriercode}"
+                },
+                {
+                  "key": "isEU",
+                  "value": "{isEU}"
+                },
+                {
+                  "key": "selectiontype",
+                  "value": "{selectiontype}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Commodities",
+      "item": [
+        {
+          "name": "Get Commodities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.parcelpro.com/v2.0/commodities/country/{countrycode}?CountryCode&page={page}&per_page={per_page}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "parcelpro",
+                "com"
+              ],
+              "path": [
+                "v2.0",
+                "commodities",
+                "country",
+                "{countrycode}"
+              ],
+              "query": [
+                {
+                  "key": "CountryCode",
+                  "value": null,
+                  "description": "2 letter country code"
+                },
+                {
+                  "key": "page",
+                  "value": "{page}",
+                  "description": "Page index"
+                },
+                {
+                  "key": "per_page",
+                  "value": "{per_page}",
+                  "description": "\tNumber of records to return per page"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "This service retrieves an array of all commodities and their details."
+    }
+  ]
+}
