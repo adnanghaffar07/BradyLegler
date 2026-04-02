@@ -8,8 +8,14 @@
  *   4. Create Shipment → POST /v2.0/shipments/{QuoteID}
  *   5. Get Tracking  → GET  /v2.0/tracking-results
  *
+ * All network calls use node:https directly (HTTP/1.1) because Parcel Pro's server
+ * crashes with HTTP 500 when the client negotiates HTTP/2 (which Node.js fetch/undici
+ * does automatically in Node 18+). Forcing HTTP/1.1 matches Postman's behaviour.
+ *
  * All network calls include retry logic with exponential backoff.
  */
+
+import https from 'node:https';
 
 // ---------------------------------------------------------------------------
 // Types — Parcel Pro API
@@ -28,6 +34,10 @@ interface ParcelProAuthResponse {
 }
 
 export interface ParcelProAddress {
+  /** 1 = Individual, 2 = Business */
+  ContactType: 1 | 2;
+  /** ContactId of the saved Parcel Pro location (optional — links to UPS account) */
+  ContactId?: number;
   FirstName: string;
   LastName: string;
   CompanyName?: string;
@@ -57,22 +67,19 @@ export interface ParcelProPackage {
 }
 
 export interface ParcelProQuoteRequest {
-  /** e.g. "UPS" or "FEDEX" */
   CarrierCode: string;
-  /** Carrier service code, e.g. "03" = UPS Ground, "08" = UPS Worldwide Expedited */
   ServiceCode: string;
-  /** Package type code, e.g. "02" = Customer-supplied package */
-  PackageTypeCode: string;
-  /** Ship date in YYYY-MM-DD format */
+  PackageCode: string;
   ShipDate: string;
-  ShipFromAddress: ParcelProAddress;
-  ShipToAddress: ParcelProAddress;
-  PackageInfo: ParcelProPackage;
-  /** Order reference displayed on label */
+  ShipFrom: ParcelProAddress;
+  ShipTo: ParcelProAddress;
+  Weight: number;
+  Length: number;
+  Width: number;
+  Height: number;
+  InsuredValue: number;
   Reference?: string;
-  /** Package contents description */
   Description?: string;
-  /** 1 = residential address, 0 = commercial */
   ShipToResidential?: 0 | 1;
 }
 
@@ -129,6 +136,19 @@ export interface ParcelProTrackingResponse {
     Location: string;
     Description: string;
   }>;
+}
+
+export interface CarrierService {
+  CarrierCode: string;
+  ServiceCode: string;
+  ServiceName: string;
+  IsDomestic: boolean;
+}
+
+export interface PackageType {
+  CarrierCode: string;
+  PackageCode: string;
+  PackageName: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -215,6 +235,7 @@ const RETRY_BASE_DELAY_MS = 1_000;
  * Populated from environment variables so the same code works in all environments.
  */
 const SHIP_FROM_ADDRESS: ParcelProAddress = {
+  ContactType: 2, // Business
   FirstName: process.env.PARCELPRO_SHIP_FROM_FIRST_NAME ?? 'Brady',
   LastName: process.env.PARCELPRO_SHIP_FROM_LAST_NAME ?? 'Legler',
   CompanyName: process.env.PARCELPRO_SHIP_FROM_COMPANY ?? 'Brady Legler LLC',
@@ -264,6 +285,64 @@ function invalidateTokenCache(): void {
   tokenCache = null;
 }
 
+// ---------------------------------------------------------------------------
+// Low-level HTTP/1.1 helper (node:https)
+// ---------------------------------------------------------------------------
+
+interface HttpsRequestOptions {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
+
+interface HttpsResponse {
+  status: number;
+  text: string;
+}
+
+/**
+ * Execute an HTTPS request over HTTP/1.1 using node:https directly.
+ *
+ * Parcel Pro's server returns HTTP 500 when the client negotiates HTTP/2
+ * (the default behaviour of Node.js fetch/undici in Node 18+). Forcing
+ * HTTP/1.1 via node:https matches exactly what Postman sends.
+ */
+function httpsRequest(url: string, options: HttpsRequestOptions = {}): Promise<HttpsResponse> {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const body = options.body ?? '';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      ...options.headers,
+    };
+    if (body) headers['Content-Length'] = String(Buffer.byteLength(body));
+
+    const req = https.request(
+      {
+        hostname: parsed.hostname,
+        path: parsed.pathname + parsed.search,
+        method: options.method ?? 'GET',
+        headers,
+      },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk: Buffer) => (data += chunk.toString()));
+        res.on('end', () => resolve({ status: res.statusCode ?? 0, text: data }));
+      }
+    );
+
+    req.on('error', reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Token management
+// ---------------------------------------------------------------------------
+
 /**
  * Returns a valid bearer token.
  * Re-authenticates automatically when the cached token is absent or near expiry.
@@ -283,21 +362,26 @@ export async function getParcelProToken(): Promise<string> {
     );
   }
 
-  // Parcel Pro auth endpoint requires application/x-www-form-urlencoded
-  const body = new URLSearchParams({ grant_type: 'password', username, password });
+  // Parcel Pro auth — credentials in the request body as raw form string.
+  // Raw string (not URLSearchParams) because Parcel Pro does not decode percent-encoded
+  // special characters (e.g. ! → %21) before comparing against stored passwords.
+  // HTTP/1.1 via node:https — Parcel Pro's server crashes on HTTP/2 POST requests.
+  const body = `password=${password}&grant_type=password&username=${username}`;
 
-  const response = await fetch(`${BASE_URL}/v2.0/auth`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString(),
-  });
+  const res = await httpsRequest(
+    `${BASE_URL}/v2.0/auth?password=&grant_type=password&username=`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    }
+  );
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Parcel Pro authentication failed (HTTP ${response.status}): ${text}`);
+  if (res.status !== 200) {
+    throw new Error(`Parcel Pro authentication failed (HTTP ${res.status}): ${res.text}`);
   }
 
-  const data = (await response.json()) as ParcelProAuthResponse;
+  const data = JSON.parse(res.text) as ParcelProAuthResponse;
   tokenCache = {
     token: data.access_token,
     expiresAt: parseJwtExpiry(data.access_token),
@@ -308,21 +392,21 @@ export async function getParcelProToken(): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
-// Core HTTP helper
+// Core authenticated HTTP helper
 // ---------------------------------------------------------------------------
 
 /**
- * Execute an authenticated request against the Parcel Pro API.
+ * Execute an authenticated request against the Parcel Pro API over HTTP/1.1.
  * Automatically retries authentication once on 401 Unauthorized.
  */
-async function parcelProFetch<T>(
+async function parcelProRequest<T>(
   path: string,
-  options: RequestInit = {},
+  options: HttpsRequestOptions = {},
   _retryAuth = false
 ): Promise<T> {
   const token = await getParcelProToken();
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const res = await httpsRequest(`${BASE_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -332,20 +416,19 @@ async function parcelProFetch<T>(
   });
 
   // Token expired mid-session — invalidate and retry once
-  if (response.status === 401 && !_retryAuth) {
+  if (res.status === 401 && !_retryAuth) {
     console.warn('[ParcelPro] Received 401 — refreshing token and retrying');
     invalidateTokenCache();
-    return parcelProFetch<T>(path, options, true);
+    return parcelProRequest<T>(path, options, true);
   }
 
-  if (!response.ok) {
-    const body = await response.text();
+  if (res.status < 200 || res.status >= 300) {
     throw new Error(
-      `Parcel Pro API error [${options.method ?? 'GET'} ${path}] HTTP ${response.status}: ${body}`
+      `Parcel Pro API error [${options.method ?? 'GET'} ${path}] HTTP ${res.status}: ${res.text}`
     );
   }
 
-  return response.json() as Promise<T>;
+  return JSON.parse(res.text) as T;
 }
 
 // ---------------------------------------------------------------------------
@@ -393,6 +476,47 @@ function gramsToPounds(grams: number): number {
 }
 
 // ---------------------------------------------------------------------------
+// Carrier Services & Package Types lookup
+// ---------------------------------------------------------------------------
+
+/**
+ * Retrieve the carrier services available on this account.
+ * Call this to confirm that UPS is linked before submitting quotes.
+ *
+ * @param isDomestic - true for domestic, false for international (omit for all)
+ * @param shipFromCountryCode - e.g. "US"
+ * @param carrierCode - e.g. "UPS" (omit for all carriers)
+ */
+export async function getCarrierServices(
+  isDomestic?: boolean,
+  shipFromCountryCode = 'US',
+  carrierCode?: string
+): Promise<CarrierService[]> {
+  const params = new URLSearchParams({ shipFromCountryCode });
+  if (isDomestic !== undefined) params.set('isDomestic', String(isDomestic));
+  if (carrierCode) params.set('carrierCode', carrierCode);
+
+  return parcelProRequest<CarrierService[]>(`/v2.0/carriers/services?${params.toString()}`);
+}
+
+/**
+ * Retrieve package types supported by a carrier/service combination.
+ * Use the returned PackageCode values in quote payloads.
+ *
+ * @param carrierCode - e.g. "UPS"
+ * @param carrierServiceCode - e.g. "03" (UPS Ground)
+ */
+export async function getPackageTypes(
+  carrierCode: string,
+  carrierServiceCode?: string
+): Promise<PackageType[]> {
+  const params = new URLSearchParams({ carriercode: carrierCode });
+  if (carrierServiceCode) params.set('carrierservicecode', carrierServiceCode);
+
+  return parcelProRequest<PackageType[]>(`/v2.0/carriers/package-types?${params.toString()}`);
+}
+
+// ---------------------------------------------------------------------------
 // Step 1 — Create Quote
 // ---------------------------------------------------------------------------
 
@@ -426,11 +550,11 @@ export function buildQuotePayload(order: ShopifyOrder): ParcelProQuoteRequest {
     // 03 = UPS Ground (domestic), 08 = UPS Worldwide Expedited (international)
     ServiceCode: isInternational ? '08' : '03',
     // 02 = Customer-supplied package
-    PackageTypeCode: '02',
-    // Ship today
+    PackageCode: '02',
     ShipDate: new Date().toISOString().split('T')[0] as string,
-    ShipFromAddress: SHIP_FROM_ADDRESS,
-    ShipToAddress: {
+    ShipFrom: SHIP_FROM_ADDRESS,
+    ShipTo: {
+      ContactType: dest.company ? 2 : 1,
       FirstName: dest.first_name,
       LastName: dest.last_name,
       CompanyName: dest.company ?? '',
@@ -445,14 +569,11 @@ export function buildQuotePayload(order: ShopifyOrder): ParcelProQuoteRequest {
       TelephoneNo: dest.phone?.replace(/\D/g, '') ?? '',
       Email: order.email,
     },
-    PackageInfo: {
-      Weight: weightLbs,
-      Length: DEFAULT_BOX.length,
-      Width: DEFAULT_BOX.width,
-      Height: DEFAULT_BOX.height,
-      InsuredValue: insuredValue,
-    },
-    // Print the Shopify order name (e.g. "#1001") on the label for easy cross-referencing
+    Weight: weightLbs,
+    Length: DEFAULT_BOX.length,
+    Width: DEFAULT_BOX.width,
+    Height: DEFAULT_BOX.height,
+    InsuredValue: insuredValue,
     Reference: order.name,
     Description: description,
     // Assume residential delivery by default; Parcel Pro may override this after address validation
@@ -470,7 +591,7 @@ export async function createQuote(order: ShopifyOrder): Promise<ParcelProQuoteRe
   console.log(`[ParcelPro] Creating quote for order ${order.name} (${order.email})`);
 
   return withRetry('createQuote', () =>
-    parcelProFetch<ParcelProQuoteResponse>('/v2.0/quotes', {
+    parcelProRequest<ParcelProQuoteResponse>('/v2.0/quotes', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
@@ -495,7 +616,7 @@ export async function handleHighValueShipment(quoteId: string): Promise<void> {
 
   // a) Submit to high-value queue
   await withRetry('highvalue:submit', () =>
-    parcelProFetch<ParcelProHighValueResponse>(
+    parcelProRequest<ParcelProHighValueResponse>(
       `/v2.0/highvalue?quoteid=${encodeURIComponent(quoteId)}`,
       { method: 'POST' }
     )
@@ -513,7 +634,7 @@ export async function handleHighValueShipment(quoteId: string): Promise<void> {
 
     let quoteDetails: ParcelProQuoteDetailsResponse;
     try {
-      quoteDetails = await parcelProFetch<ParcelProQuoteDetailsResponse>(
+      quoteDetails = await parcelProRequest<ParcelProQuoteDetailsResponse>(
         `/v2.0/quotes/${encodeURIComponent(quoteId)}`
       );
     } catch (err) {
@@ -555,7 +676,7 @@ export async function createShipment(quoteId: string): Promise<ParcelProShipment
   console.log(`[ParcelPro] Booking shipment for quote ${quoteId}`);
 
   return withRetry('createShipment', () =>
-    parcelProFetch<ParcelProShipmentResponse>(
+    parcelProRequest<ParcelProShipmentResponse>(
       `/v2.0/shipments/${encodeURIComponent(quoteId)}`,
       { method: 'POST' }
     )
@@ -576,7 +697,7 @@ export async function getTrackingDetails(
   shipmentId: string,
   shipmentType = 1
 ): Promise<ParcelProTrackingResponse> {
-  return parcelProFetch<ParcelProTrackingResponse>(
+  return parcelProRequest<ParcelProTrackingResponse>(
     `/v2.0/tracking-results?shipmentid=${encodeURIComponent(shipmentId)}&shipmenttype=${shipmentType}`
   );
 }
