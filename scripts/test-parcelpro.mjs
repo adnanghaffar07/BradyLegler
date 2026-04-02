@@ -235,16 +235,6 @@ async function testCreateQuote() {
   section('Step 2 — Create Quote');
 
   const locationId = await getDefaultLocationId();
-  
-  // Try different shipper number field names
-  const shipperNumber = process.env.PARCELPRO_UPS_SHIPPER_NUMBER;
-  if (!shipperNumber) {
-    fail('❌ PARCELPRO_UPS_SHIPPER_NUMBER not set in .env');
-    console.log('   Please add your UPS account number to .env');
-    return null;
-  }
-  
-  info(`Using UPS Shipper Number: ${shipperNumber.substring(0, 4)}...`);
 
   const payload = {
     CarrierCode: 'UPS',
@@ -252,10 +242,9 @@ async function testCreateQuote() {
     PackageCode: '02',
     ShipDate: new Date().toISOString().split('T')[0],
     
-    // Try this field first
-    ShipperNumber: shipperNumber,
+    // ⭐ REMOVE ShipperNumber entirely - don't include this field
+    // ShipperNumber: '891259',
     
-    // Sometimes needed for rate shopping
     RateShopping: false,
     
     ShipFrom: {
