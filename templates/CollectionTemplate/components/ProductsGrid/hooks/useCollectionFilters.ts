@@ -32,12 +32,14 @@ const useCollectionFilters = ({
   initialData,
   initialProductCount,
   filters,
-  collectionSlug
+  collectionSlug,
+  productSort
 }: {
   initialData: GetCollectionByHandleResponse;
   initialProductCount: number;
   filters: GetCollectionFiltersByHandleResponse;
   collectionSlug: string;
+  productSort?: string;
 }): {
   shopifyCollectionData: GetCollectionByHandleResponse;
   productCount: number;
@@ -148,7 +150,7 @@ const useCollectionFilters = ({
 
       // Always fetch ALL products at once instead of paginating
       // Calculate page number needed to fetch all available products
-      const sortBy = (params.get('sort_by') || 'best-selling') as GetCollectionByHandleSortBy;
+      const sortBy = (params.get('sort_by') || productSort || 'best-selling') as GetCollectionByHandleSortBy;
       const filterKey = selectedFilterIds.join('|');
       const filterCacheKey = getFilterCacheKey(filterKey);
       
@@ -240,7 +242,7 @@ const useCollectionFilters = ({
     }
 
     fetchData();
-  }, [searchParams, filters, collectionSlug]);
+  }, [searchParams, filters, collectionSlug, productSort]);
 
   return {
     shopifyCollectionData,
