@@ -40,7 +40,8 @@ const ProductsGridClient = ({
     initialData,
     initialProductCount,
     filters,
-    collectionSlug: sanityCollectionData.store.slug.current
+    collectionSlug: sanityCollectionData.store.slug.current,
+    productSort: sanityCollectionData?.productSort
   });
 
   const [handles, setHandles] = useState<string[]>([]);

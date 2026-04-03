@@ -29,6 +29,7 @@
     gap: 0;
     width: 100%;
     min-height: 300px;
+    overflow: hidden;
   }
 }
 
@@ -47,17 +48,21 @@
   padding: 0;
   transition: all 0.3s ease;
   z-index: 20;
+  color: #333;
 
   svg {
     width: 24px;
     height: 24px;
-    color: #333;
+    stroke: #333;
+    fill: none;
     stroke-width: 2px;
   }
 
   &:hover:not(.disabled) {
+    color: #000;
+    
     svg {
-      color: #000;
+      stroke: #000;
     }
   }
 
@@ -82,18 +87,27 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     background: transparent;
     border-radius: 0;
     box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
 
     svg {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
+      stroke: #333;
+      fill: none;
+      stroke-width: 2px;
+    }
+
+    &:active:not(.disabled) {
+      background: transparent;
+      box-shadow: none;
     }
   }
 
@@ -127,10 +141,14 @@
 
   @media (max-width: 768px) {
     gap: 16px;
-    padding: 0 40px; // Space for absolutely positioned arrows
+    padding: 0;
     width: 100%;
+    flex: 1;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 40px;
+    scroll-padding-inline: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -156,9 +174,10 @@
 
   // Mobile: 1 item visible with arrow navigation
   @media (max-width: 768px) {
-    width: calc(100% - 80px);
-    min-width: calc(100% - 80px);
+    width: 100%;
+    min-width: 100%;
     scroll-snap-align: center;
+    padding: 0 0;
   }
 }
 
@@ -368,6 +387,8 @@
 @media (max-width: 768px) {
   .name {
     font-size: 11px;
+    padding-left: 22px;
+    padding-right: 22px;
   }
 
   .img {

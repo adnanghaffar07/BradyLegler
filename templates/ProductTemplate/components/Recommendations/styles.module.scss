@@ -9,6 +9,10 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 }
 
 .title {
@@ -24,37 +28,72 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  
+
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
-  
+
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    max-width: 400px;
-    margin: 0 auto;
-    gap: 8rem;
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 1rem 0.5rem 1rem;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 
 // Center alignment for fewer products
 .grid-1 {
-  display: flex;
-  justify-content: center;
-  
-  .productWrapper {
-    max-width: 400px; // Adjust based on your design
-    width: 100%;
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 0 1rem 0.5rem 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @media (min-width: 769px) {
+    display: flex;
+    justify-content: center;
+
+    .productWrapper {
+      max-width: 400px; // Adjust based on your design
+      width: 100%;
+    }
   }
 }
 
 .grid-2 {
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 0 1rem 0.5rem 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   @media (min-width: 769px) {
     display: flex;
     justify-content: center;
     gap: 2rem;
-    
+
     .productWrapper {
       max-width: calc(50% - 1rem);
       width: 100%;
@@ -64,11 +103,18 @@
 
 .productWrapper {
   width: 100%;
-  
+
+  @media (max-width: 768px) {
+    // Show 1 full product + half of the next
+    flex: 0 0 calc(50% + 0.5rem);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
   // Optional: Control the max size of product cards
   :global(.product-card) {
     max-width: 100%;
-    
+
     // If ProductCard has image styling issues
     img {
       max-width: 100%;

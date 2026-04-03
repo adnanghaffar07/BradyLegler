@@ -12,7 +12,7 @@ import { ICollectionHeader } from '../objects/collectionHeader';
 interface ICollectionDocument {
   _id: string;
   store: IShopifyCollectionObject;
-    collectionStory?: string; // Add this
+  collectionStory?: string;
   collectionHeader: ICollectionHeader;
   sections: any[];
   sectionsMiddle: any[];
@@ -22,6 +22,7 @@ interface ICollectionDocument {
   }[];
   seoData: ISeoObject;
   layout: 'fluidAndGrid' | 'list';
+  productSort?: 'best-selling' | 'title-ascending' | 'title-descending' | 'price-ascending' | 'price-descending' | 'created-descending' | 'created-ascending' | 'manual';
 }
 
 const collectionDocument = defineType({
@@ -97,6 +98,28 @@ const collectionDocument = defineType({
       title: 'Collection Header',
       type: 'collectionHeader',
       group: 'editorial'
+    }),
+    defineField({
+      name: 'productSort',
+      title: 'Product Sort Order',
+      description: 'How products should be sorted when displayed on this collection page',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Best Selling', value: 'best-selling' },
+          { title: 'Product Title A-Z', value: 'title-ascending' },
+          { title: 'Product Title Z-A', value: 'title-descending' },
+          { title: 'Price: Low to High', value: 'price-ascending' },
+          { title: 'Price: High to Low', value: 'price-descending' },
+          { title: 'Newest First', value: 'created-descending' },
+          { title: 'Oldest First', value: 'created-ascending' },
+          { title: 'Manual (Shopify order)', value: 'manual' }
+        ],
+        layout: 'dropdown'
+      },
+      initialValue: 'best-selling',
+      group: 'editorial',
+      validation: Rule => Rule.required()
     }),
     defineField({
       name: 'layout',

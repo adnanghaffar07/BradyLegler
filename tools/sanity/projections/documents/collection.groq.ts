@@ -25,6 +25,7 @@ const collectionProjection = groq`{
     disjunctive,
     sortOrder
   },
+  productSort,
   collectionHeader {
     mediaOne {
       mediaType,
