@@ -256,6 +256,12 @@ const DEFAULT_BOX = {
   height: parseFloat(process.env.PARCELPRO_DEFAULT_HEIGHT ?? '4'),
 };
 
+/** Carrier/service/package defaults for quote payloads (override via env). */
+const DEFAULT_CARRIER_CODE = process.env.PARCELPRO_CARRIER_CODE || 'UPS';
+const DEFAULT_DOMESTIC_SERVICE_CODE = process.env.PARCELPRO_DOMESTIC_SERVICE_CODE || '';
+const DEFAULT_INTERNATIONAL_SERVICE_CODE = process.env.PARCELPRO_INTERNATIONAL_SERVICE_CODE || '08';
+const DEFAULT_PACKAGE_CODE = process.env.PARCELPRO_PACKAGE_CODE || '02';
+
 // ---------------------------------------------------------------------------
 // Token management
 // ---------------------------------------------------------------------------
@@ -475,6 +481,28 @@ function gramsToPounds(grams: number): number {
   return Math.max(0.1, Math.round(lbs * 100) / 100);
 }
 
+/**
+ * FedEx domestic service mapping for jewelry coverage tiers.
+ * Uses the highest-coverage services first for high-value shipments.
+ */
+function getFedExDomesticServiceCode(insuredValue: number): string {
+  // Allow explicit override when operations needs a fixed service.
+  if (DEFAULT_DOMESTIC_SERVICE_CODE) return DEFAULT_DOMESTIC_SERVICE_CODE;
+
+  if (insuredValue > 15_000) return '01-DOM'; // Priority Overnight, MaxCoverage 75,000
+  if (insuredValue > 5_000) return '03-DOM'; // 2 Day, MaxCoverage 15,000
+  return '20'; // Express Saver, MaxCoverage 5,000
+}
+
+/**
+ * Determine domestic service code by carrier and declared value.
+ */
+function getDomesticServiceCode(carrierCode: string, insuredValue: number): string {
+  const carrier = carrierCode.toUpperCase();
+  if (carrier === 'FEDEX') return getFedExDomesticServiceCode(insuredValue);
+  return DEFAULT_DOMESTIC_SERVICE_CODE || '03';
+}
+
 // ---------------------------------------------------------------------------
 // Carrier Services & Package Types lookup
 // ---------------------------------------------------------------------------
@@ -522,7 +550,7 @@ export async function getPackageTypes(
 
 /**
  * Transforms a Shopify order into a Parcel Pro QuoteRequest payload.
- * Uses UPS Ground for domestic shipments and UPS Worldwide Expedited for international.
+ * Uses configured carrier defaults for domestic/international service selection.
  */
 export function buildQuotePayload(order: ShopifyOrder): ParcelProQuoteRequest {
   const dest = order.shipping_address;
@@ -546,11 +574,11 @@ export function buildQuotePayload(order: ShopifyOrder): ParcelProQuoteRequest {
     .substring(0, 100);
 
   return {
-    CarrierCode: 'UPS',
-    // 03 = UPS Ground (domestic), 08 = UPS Worldwide Expedited (international)
-    ServiceCode: isInternational ? '08' : '03',
-    // 02 = Customer-supplied package
-    PackageCode: '02',
+    CarrierCode: DEFAULT_CARRIER_CODE,
+    ServiceCode: isInternational
+      ? DEFAULT_INTERNATIONAL_SERVICE_CODE
+      : getDomesticServiceCode(DEFAULT_CARRIER_CODE, insuredValue),
+    PackageCode: DEFAULT_PACKAGE_CODE,
     ShipDate: new Date().toISOString().split('T')[0] as string,
     ShipFrom: SHIP_FROM_ADDRESS,
     ShipTo: {

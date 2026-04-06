@@ -50,6 +50,7 @@ if (missing.length) {
 }
 
 const BASE_URL = process.env.PARCELPRO_BASE_URL;
+const TARGET_CARRIER = process.env.PARCELPRO_TEST_CARRIER || process.env.PARCELPRO_CARRIER_CODE || 'FEDEX';
 console.log(`🌐 Base URL: ${BASE_URL}`);
 console.log(`👤 User:     ${process.env.PARCELPRO_USER}\n`);
 
@@ -196,19 +197,55 @@ async function testAuth() {
 }
 
 async function fetchCarrierServices() {
-  section('Step 1b — Carrier Services (discover ShipperNumber/accounts)');
+  section(`Step 1b — Carrier Services (${TARGET_CARRIER} authorization check)`);
   try {
-    const { ok, status, body } = await ppFetch(
-      '/v2.0/carriers/services?isDomestic=true&shipFromCountryCode=US&carrierCode=UPS'
-    );
-    if (!ok) { fail(`Carrier services failed (${status}): ${JSON.stringify(body)}`); return; }
-    const services = Array.isArray(body) ? body : [body];
-    pass(`Got ${services.length} carrier service(s)`);
+    const attempts = [
+      `/v2.0/carriers/services?isDomestic=true&shipFromCountryCode=US&carrierCode=${encodeURIComponent(TARGET_CARRIER)}`,
+    ];
+
+    let services = [];
+    for (const path of attempts) {
+      const { ok, status, body } = await ppFetch(path);
+      if (!ok) {
+        fail(`Carrier services failed (${status}): ${JSON.stringify(body)}`);
+        continue;
+      }
+      const rows = Array.isArray(body) ? body : [body];
+      services = rows.filter((row) => String(row?.CarrierCode || '').toUpperCase() === TARGET_CARRIER.toUpperCase());
+      info(`Lookup path: ${path}`);
+      pass(`Got ${services.length} ${TARGET_CARRIER} carrier service(s)`);
+      if (services.length > 0) break;
+    }
+
     services.slice(0, 5).forEach((svc, i) => {
-      info(`[${i}] Keys: ${Object.keys(svc).join(', ')}`);
-      info(`    Values: ${JSON.stringify(svc).substring(0, 200)}`);
+      info(`[${i}] ${svc.ServiceCode}: ${svc.ServiceCodeDesc ?? svc.ServiceName ?? 'Unknown service'}`);
     });
-  } catch (err) { fail(`Carrier services error: ${err.message}`); }
+    return services;
+  } catch (err) {
+    fail(`Carrier services error: ${err.message}`);
+    return [];
+  }
+}
+
+async function fetchPackageTypes(carrierCode, serviceCode) {
+  section(`Step 1c — Package Types (${carrierCode} / ${serviceCode})`);
+  try {
+    const path = `/v2.0/carriers/package-types?carrierservicecode=${encodeURIComponent(serviceCode)}&carriercode=${encodeURIComponent(carrierCode)}`;
+    const { ok, status, body } = await ppFetch(path);
+    if (!ok) {
+      fail(`Package types failed (${status}): ${JSON.stringify(body)}`);
+      return [];
+    }
+    const packageTypes = Array.isArray(body) ? body : [];
+    pass(`Got ${packageTypes.length} package type(s)`);
+    packageTypes.slice(0, 8).forEach((pkg, i) => {
+      info(`[${i}] ${pkg.PackageCode}: ${pkg.PackageCodeDesc ?? pkg.PackageName ?? 'Unknown package'}`);
+    });
+    return packageTypes;
+  } catch (err) {
+    fail(`Package types error: ${err.message}`);
+    return [];
+  }
 }
 
 async function fetchLocationDetail(contactId) {
@@ -231,15 +268,15 @@ async function getDefaultLocationId() {
   } catch { return null; }
 }
 
-async function testCreateQuote() {
+async function testCreateQuote(carrierCode, serviceCode, packageCode) {
   section('Step 2 — Create Quote');
 
   const locationId = await getDefaultLocationId();
 
   const payload = {
-    CarrierCode: 'UPS',
-    ServiceCode: '03',
-    PackageCode: '02',
+    CarrierCode: carrierCode,
+    ServiceCode: serviceCode,
+    PackageCode: packageCode,
     ShipDate: new Date().toISOString().split('T')[0],
     
     // ⭐ REMOVE ShipperNumber entirely - don't include this field
@@ -289,7 +326,6 @@ async function testCreateQuote() {
   };
 
   console.log('  📦 Quote payload:');
-  console.log(`     Shipper: ${payload.ShipperNumber}`);
   console.log(`     From: ${payload.ShipFrom.City}, ${payload.ShipFrom.State} ${payload.ShipFrom.Zip}`);
   console.log(`     To:   ${payload.ShipTo.City}, ${payload.ShipTo.State} ${payload.ShipTo.Zip}`);
   console.log(`     Weight: ${payload.Weight} lbs | Value: $${payload.InsuredValue}`);
@@ -304,21 +340,49 @@ async function testCreateQuote() {
     if (!ok) {
       fail(`Quote creation failed (${status}): ${JSON.stringify(body, null, 2)}`);
       
-      // Special handling for shipper number errors
-      if (status === 400 && JSON.stringify(body).includes('shipper')) {
-        console.log('\n   💡 TIP: The error indicates an issue with your UPS shipper number.');
-        console.log('   Make sure you have the correct account number from Parcel Pro.');
-        console.log('   Contact Parcel Pro support to verify your UPS shipper number.\n');
+      // Special handling for carrier authorization errors
+      const msg = JSON.stringify(body).toLowerCase();
+      if (status === 400 && msg.includes('not authorized')) {
+        console.log(`\n   💡 TIP: ${carrierCode} is not enabled for domestic shipments on this Parcel Pro account.`);
+        console.log(`   Ask Parcel Pro support to enable ${carrierCode} domestic for customer/user in this environment.\n`);
       }
       return null;
     }
 
+    const quoteId =
+      body?.QuoteID ??
+      body?.QuoteId ??
+      body?.quoteId ??
+      body?.quoteID ??
+      body?.Data?.QuoteID ??
+      body?.Data?.QuoteId ??
+      body?.data?.QuoteID ??
+      body?.data?.QuoteId ??
+      null;
+
+    const estimator = body?.Estimator ?? body?.Data?.Estimator ?? body?.data?.Estimator ?? {};
+    const isHighValue =
+      body?.IsHighValueShipment ??
+      body?.Data?.IsHighValueShipment ??
+      body?.data?.IsHighValueShipment ??
+      false;
+
     pass(`Quote created!`);
-    info(`Quote ID:            ${body.QuoteID}`);
-    info(`Is High Value:       ${body.IsHighValueShipment}`);
-    info(`Shipping Cost:       $${body.Estimator?.ShippingCost ?? 'N/A'}`);
-    info(`Total Charges:       $${body.Estimator?.TotalCharges ?? 'N/A'}`);
-    return body;
+    info(`Quote ID:            ${quoteId ?? 'N/A'}`);
+    info(`Is High Value:       ${isHighValue}`);
+    info(`Shipping Cost:       $${estimator?.ShippingCost ?? 'N/A'}`);
+    info(`Total Charges:       $${estimator?.TotalCharges ?? 'N/A'}`);
+    if (!quoteId) {
+      info(`Quote response keys: ${Object.keys(body || {}).join(', ') || '(none)'}`);
+      info(`Raw quote response:  ${JSON.stringify(body).substring(0, 500)}`);
+    }
+
+    return {
+      ...body,
+      QuoteID: quoteId,
+      IsHighValueShipment: isHighValue,
+      Estimator: estimator,
+    };
   } catch (err) {
     fail(`Network error: ${err.message}`);
     return null;
@@ -339,13 +403,41 @@ async function testCreateShipment(quoteId) {
       return null;
     }
 
-    pass(`Shipment booked!`);
-    info(`Shipment ID:     ${body.ShipmentID}`);
-    info(`Tracking Number: ${body.TrackingNumber}`);
-    info(`Total Charges:   $${body.Estimator?.TotalCharges ?? 'N/A'}`);
-    info(`Label included:  ${body.LabelImage ? `Yes (${Math.round(body.LabelImage.length / 1024)} KB base64)` : 'No'}`);
+    const shipmentId =
+      body?.ShipmentID ??
+      body?.ShipmentId ??
+      body?.shipmentId ??
+      body?.Data?.ShipmentID ??
+      body?.Data?.ShipmentId ??
+      body?.data?.ShipmentID ??
+      body?.data?.ShipmentId ??
+      null;
+    const trackingNumber =
+      body?.TrackingNumber ??
+      body?.trackingNumber ??
+      body?.Data?.TrackingNumber ??
+      body?.data?.TrackingNumber ??
+      null;
+    const estimator = body?.Estimator ?? body?.Data?.Estimator ?? body?.data?.Estimator ?? {};
+    const labelImage = body?.LabelImage ?? body?.Data?.LabelImage ?? body?.data?.LabelImage ?? '';
 
-    return body;
+    pass(`Shipment booked!`);
+    info(`Shipment ID:     ${shipmentId ?? 'N/A'}`);
+    info(`Tracking Number: ${trackingNumber ?? 'N/A'}`);
+    info(`Total Charges:   $${estimator?.TotalCharges ?? 'N/A'}`);
+    info(`Label included:  ${labelImage ? `Yes (${Math.round(labelImage.length / 1024)} KB base64)` : 'No'}`);
+    if (!shipmentId) {
+      info(`Shipment response keys: ${Object.keys(body || {}).join(', ') || '(none)'}`);
+      info(`Raw shipment response:  ${JSON.stringify(body).substring(0, 500)}`);
+    }
+
+    return {
+      ...body,
+      ShipmentID: shipmentId,
+      TrackingNumber: trackingNumber,
+      LabelImage: labelImage,
+      Estimator: estimator,
+    };
   } catch (err) {
     fail(`Network error: ${err.message}`);
     return null;
@@ -363,15 +455,17 @@ async function testTracking(shipmentId) {
 
     if (!ok) {
       fail(`Tracking failed (${status}): ${JSON.stringify(body, null, 2)}`);
-      return;
+      return false;
     }
 
     pass('Tracking response received');
     info(`Status:          ${body.Status ?? 'N/A'}`);
     info(`Tracking Number: ${body.TrackingNumber ?? 'N/A'}`);
     info(`Scans:           ${body.Scans?.length ?? 0} event(s)`);
+    return true;
   } catch (err) {
     fail(`Network error: ${err.message}`);
+    return false;
   }
 }
 
@@ -408,11 +502,30 @@ async function run() {
     process.exit(1);
   }
 
-  // Step 1b: Confirm UPS carrier services are available on this account
-  await fetchCarrierServices();
+  // Step 1b: Confirm target carrier services are available on this account
+  const services = await fetchCarrierServices();
+  if (!services.length) {
+    console.log(`\n❌ No ${TARGET_CARRIER} services returned for this account/environment.`);
+    console.log(`   This account is not configured for ${TARGET_CARRIER} in the selected Parcel Pro environment.`);
+    console.log(`   Contact Parcel Pro support and ask them to enable ${TARGET_CARRIER} domestic services.\n`);
+    process.exit(1);
+  }
+
+  const preferredService = process.env.PARCELPRO_DOMESTIC_SERVICE_CODE
+    ? services.find((s) => s.ServiceCode === process.env.PARCELPRO_DOMESTIC_SERVICE_CODE)
+    : services.find((s) => s.ServiceCode === '03');
+  const selectedServiceCode = preferredService?.ServiceCode ?? services[0].ServiceCode;
+  info(`Using ${TARGET_CARRIER} service code: ${selectedServiceCode}`);
+
+  const packageTypes = await fetchPackageTypes(TARGET_CARRIER, selectedServiceCode);
+  const preferredPackage = process.env.PARCELPRO_PACKAGE_CODE
+    ? packageTypes.find((p) => p.PackageCode === process.env.PARCELPRO_PACKAGE_CODE)
+    : packageTypes.find((p) => p.PackageCode === '02');
+  const selectedPackageCode = preferredPackage?.PackageCode ?? packageTypes[0]?.PackageCode ?? '02';
+  info(`Using ${TARGET_CARRIER} package code: ${selectedPackageCode}`);
 
   // Step 2: Quote
-  const quote = await testCreateQuote();
+  const quote = await testCreateQuote(TARGET_CARRIER, selectedServiceCode, selectedPackageCode);
   if (!quote) {
     console.log('\n❌ Quote failed — check ship-from address and carrier settings\n');
     process.exit(1);
@@ -437,13 +550,20 @@ async function run() {
   }
 
   // Step 4: Tracking
-  await testTracking(shipment.ShipmentID);
+  const trackingOk = shipment.ShipmentID ? await testTracking(shipment.ShipmentID) : false;
+  if (!trackingOk) {
+    console.log('\n⚠️  Shipment booked, but tracking check failed in this run.');
+  }
 
   // Bonus: Save label to disk
   await testSaveLabelToDisk(shipment.LabelImage, shipment.TrackingNumber);
 
   console.log('\n' + '═'.repeat(60));
-  console.log('  ✅ All steps passed! Parcel Pro integration is working.');
+  if (trackingOk) {
+    console.log('  ✅ All steps passed! Parcel Pro integration is working.');
+  } else {
+    console.log('  ✅ Auth + Quote + Shipment passed. Tracking needs follow-up.');
+  }
   console.log('═'.repeat(60) + '\n');
 }
 
