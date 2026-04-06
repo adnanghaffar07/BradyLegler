@@ -243,12 +243,7 @@
 
 
   .imageDot {
-    width: 4px; // Smaller dots on mobile
-    height: 4px;
-
-    &.active {
-      transform: scale(1.4); // Slightly larger relative scale
-    }
+ visibility: hidden !important; // Hide dots on mobile for cleaner look
   }
 }
 // Adjust for list layout

@@ -47,6 +47,21 @@
   video {
     width: 100% !important;
     height: 100% !important;
+
+    // Hide native video controls on all browsers
+    &::-webkit-media-controls {
+      display: none !important;
+    }
+
+    // Safari specific: hide all media controls
+    &::-webkit-media-controls-enclosure {
+      display: none !important;
+    }
+
+    // Firefox specific
+    &::-moz-media-controls-panel {
+      display: none !important;
+    }
   }
 }
 

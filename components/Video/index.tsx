@@ -116,10 +116,12 @@ const Video = (props: VideoProps) => {
           src={url}
           title={altText}
           controls={showAudioControl ? false : controls}
+          controlsList={showAudioControl ? 'nodownload' : undefined}
           playsInline
           loop={loop}
           autoPlay={autoPlay}
           muted={isMuted}
+          disablePictureInPicture={showAudioControl}
         />
         {showAudioControl && (
           <button
