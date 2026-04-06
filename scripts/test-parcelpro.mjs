@@ -478,10 +478,24 @@ async function testSaveLabelToDisk(labelBase64, trackingNumber) {
 
   try {
     const { writeFileSync } = await import('fs');
-    const filename = resolve(__dirname, `../label-${trackingNumber ?? 'test'}.pdf`);
-    writeFileSync(filename, Buffer.from(labelBase64, 'base64'));
+    const decoded = Buffer.from(labelBase64, 'base64');
+
+    // Detect actual label format from content bytes instead of assuming PDF.
+    const headerAscii = decoded.subarray(0, 16).toString('ascii');
+    const headerUtf8 = decoded.subarray(0, 32).toString('utf8');
+    const isPdf = headerAscii.startsWith('%PDF-');
+    const isPng = decoded[0] === 0x89 && decoded[1] === 0x50 && decoded[2] === 0x4e && decoded[3] === 0x47;
+    const isZpl = headerUtf8.includes('^XA') || headerUtf8.includes('^XZ');
+
+    const ext = isPdf ? 'pdf' : isPng ? 'png' : isZpl ? 'zpl' : 'bin';
+    const filename = resolve(__dirname, `../label-${trackingNumber ?? 'test'}.${ext}`);
+    writeFileSync(filename, decoded);
+
     pass(`Label saved to: ${filename}`);
-    info('Open the PDF to verify the label looks correct');
+    if (isPdf) info('Detected label format: PDF');
+    else if (isPng) info('Detected label format: PNG image');
+    else if (isZpl) info('Detected label format: ZPL (thermal printer command file)');
+    else info('Detected label format: unknown binary (saved as .bin)');
   } catch (err) {
     fail(`Could not save label: ${err.message}`);
   }
