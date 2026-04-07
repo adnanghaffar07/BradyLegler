@@ -239,7 +239,9 @@ async function fetchPackageTypes(carrierCode, serviceCode) {
     const packageTypes = Array.isArray(body) ? body : [];
     pass(`Got ${packageTypes.length} package type(s)`);
     packageTypes.slice(0, 8).forEach((pkg, i) => {
-      info(`[${i}] ${pkg.PackageCode}: ${pkg.PackageCodeDesc ?? pkg.PackageName ?? 'Unknown package'}`);
+      const code = pkg.PackageCode ?? pkg.PackageTypeCode ?? pkg.Code ?? 'N/A';
+      const desc = pkg.PackageCodeDesc ?? pkg.PackageTypeDesc ?? pkg.PackageName ?? pkg.Description ?? 'Unknown';
+      info(`[${i}] ${code}: ${desc}`);
     });
     return packageTypes;
   } catch (err) {
@@ -525,17 +527,28 @@ async function run() {
     process.exit(1);
   }
 
-  const preferredService = process.env.PARCELPRO_DOMESTIC_SERVICE_CODE
-    ? services.find((s) => s.ServiceCode === process.env.PARCELPRO_DOMESTIC_SERVICE_CODE)
-    : services.find((s) => s.ServiceCode === '03');
+  const preferredServiceCode =
+    process.env.PARCELPRO_DOMESTIC_SERVICE_CODE ||
+    (TARGET_CARRIER.toUpperCase() === 'FEDEX' ? '03-DOM' : '03');
+  const preferredService = services.find((s) => s.ServiceCode === preferredServiceCode);
   const selectedServiceCode = preferredService?.ServiceCode ?? services[0].ServiceCode;
   info(`Using ${TARGET_CARRIER} service code: ${selectedServiceCode}`);
 
   const packageTypes = await fetchPackageTypes(TARGET_CARRIER, selectedServiceCode);
   const preferredPackage = process.env.PARCELPRO_PACKAGE_CODE
-    ? packageTypes.find((p) => p.PackageCode === process.env.PARCELPRO_PACKAGE_CODE)
-    : packageTypes.find((p) => p.PackageCode === '02');
-  const selectedPackageCode = preferredPackage?.PackageCode ?? packageTypes[0]?.PackageCode ?? '02';
+    ? packageTypes.find(
+        (p) =>
+          (p.PackageCode ?? p.PackageTypeCode ?? p.Code) === process.env.PARCELPRO_PACKAGE_CODE
+      )
+    : packageTypes.find((p) => (p.PackageCode ?? p.PackageTypeCode ?? p.Code) === '02');
+  const selectedPackageCode =
+    preferredPackage?.PackageCode ??
+    preferredPackage?.PackageTypeCode ??
+    preferredPackage?.Code ??
+    packageTypes[0]?.PackageCode ??
+    packageTypes[0]?.PackageTypeCode ??
+    packageTypes[0]?.Code ??
+    '02';
   info(`Using ${TARGET_CARRIER} package code: ${selectedPackageCode}`);
 
   // Step 2: Quote

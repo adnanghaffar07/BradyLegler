@@ -11,7 +11,7 @@
   padding: 0 1rem;
 
   @media (max-width: 768px) {
-    padding: 0;
+    padding: 0 20px;
   }
 }
 
@@ -20,7 +20,26 @@
   padding-bottom: 90px;
 
   @media (max-width: 768px) {
-    padding-bottom: 90px;
+    /* Align with Collection Row section title spacing */
+    padding-bottom: 40px;
+  }
+}
+
+/* Desktop / tablet: product cards (in-card gallery arrows hidden via prop) */
+.desktopGrid {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+/* Mobile: Collection Row–style carousel + outer arrows */
+.mobileCarousel {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: relative;
+    width: 100%;
   }
 }
 
@@ -33,62 +52,21 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
-
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 1rem 0.5rem 1rem;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 }
 
-// Center alignment for fewer products
 .grid-1 {
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 0 1rem 0.5rem 1rem;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
   @media (min-width: 769px) {
     display: flex;
     justify-content: center;
 
     .productWrapper {
-      max-width: 400px; // Adjust based on your design
+      max-width: 400px;
       width: 100%;
     }
   }
 }
 
 .grid-2 {
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 0 1rem 0.5rem 1rem;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
   @media (min-width: 769px) {
     display: flex;
     justify-content: center;
@@ -104,18 +82,9 @@
 .productWrapper {
   width: 100%;
 
-  @media (max-width: 768px) {
-    // Show 1 full product + half of the next
-    flex: 0 0 calc(50% + 0.5rem);
-    min-width: 0;
-    scroll-snap-align: start;
-  }
-
-  // Optional: Control the max size of product cards
   :global(.product-card) {
     max-width: 100%;
 
-    // If ProductCard has image styling issues
     img {
       max-width: 100%;
       height: auto;

@@ -84,7 +84,9 @@ const ProductCard = ({
   collectionTitle,
   layoutType,
   inquiryEnabled = false,
-  inquirePriceText = 'Price Available on Request'
+  inquirePriceText = 'Price Available on Request',
+  /** Hide in-card image arrows/dots (e.g. outer carousel handles navigation) */
+  hideGalleryNavigation = false
 }: {
   shopifyProduct?: ExtendedShopifyProduct;
   sanityProduct?: IProductDocument['store'];
@@ -95,6 +97,7 @@ const ProductCard = ({
   layoutType?: string;
   inquiryEnabled?: boolean;
   inquirePriceText?: string;
+  hideGalleryNavigation?: boolean;
 }) => {
   const { trackSelectItem } = useAnalytics();
   const [active, setActive] = useState(false);
@@ -243,7 +246,7 @@ const ProductCard = ({
               alt=""
               loading="lazy"
             />
-            {hasMultipleImages && (
+            {hasMultipleImages && !hideGalleryNavigation && (
               <ImageNavigation
                 imagesLength={sanityImages.length}
                 onPrev={() => prevImage(sanityImages.length)}
@@ -418,7 +421,7 @@ const ProductCard = ({
           <Link onClick={onProductClick} href={`/${shopifyProduct.handle}/`} className={styles.imageLink}>
             <ShopifyProductMedia />
 
-            {hasMultipleImages && (
+            {hasMultipleImages && !hideGalleryNavigation && (
               <ImageNavigation
                 imagesLength={images.length}
                 onPrev={() => prevImage(images.length)}

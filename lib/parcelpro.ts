@@ -196,6 +196,8 @@ export interface ShopifyOrder {
   subtotal_price: string;
   /** Total order weight in grams */
   total_weight: number;
+  /** Optional order-level phone (some webhooks omit shipping_address.phone) */
+  phone?: string;
   shipping_address: ShopifyOrderAddress;
   billing_address?: ShopifyOrderAddress;
   line_items: ShopifyLineItem[];
@@ -481,6 +483,185 @@ function gramsToPounds(grams: number): number {
   return Math.max(0.1, Math.round(lbs * 100) / 100);
 }
 
+function sanitizePhone(phone?: string): string {
+  return phone?.replace(/\D/g, '') ?? '';
+}
+
+/**
+ * Parcel Pro requires ShipTo phone with at least 10 digits.
+ */
+function getValidShipToPhone(order: ShopifyOrder): string {
+  const candidates = [
+    order.shipping_address?.phone,
+    order.phone,
+    order.billing_address?.phone,
+    SHIP_FROM_ADDRESS.TelephoneNo
+  ];
+
+  for (const candidate of candidates) {
+    const digits = sanitizePhone(candidate);
+    if (digits.length >= 10) return digits;
+  }
+
+  return '0000000000';
+}
+
+type AnyRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): AnyRecord {
+  return (value && typeof value === 'object' ? value : {}) as AnyRecord;
+}
+
+function nestedRecord(value: AnyRecord, key: string): AnyRecord {
+  return asRecord(value[key]);
+}
+
+function firstString(...values: unknown[]): string | undefined {
+  for (const v of values) {
+    if (typeof v === 'string' && v.trim()) return v;
+  }
+  return undefined;
+}
+
+function firstBoolean(...values: unknown[]): boolean | undefined {
+  for (const v of values) {
+    if (typeof v === 'boolean') return v;
+  }
+  return undefined;
+}
+
+function firstNumber(...values: unknown[]): number | undefined {
+  for (const v of values) {
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+  }
+  return undefined;
+}
+
+function extractRerouteAddress(value: unknown): ParcelProAddress | undefined {
+  const o = asRecord(value);
+  if (typeof o.Country === 'string' && o.Country) {
+    return o as unknown as ParcelProAddress;
+  }
+  return undefined;
+}
+
+function normalizeQuoteResponse(raw: unknown): ParcelProQuoteResponse {
+  const root = asRecord(raw);
+  const data = nestedRecord(root, 'Data');
+  const dataLower = nestedRecord(root, 'data');
+  const estimator = asRecord(root.Estimator) as ParcelProQuoteResponse['Estimator'];
+  const estimatorData = asRecord(data.Estimator) as ParcelProQuoteResponse['Estimator'];
+  const estimatorDataLower = asRecord(dataLower.Estimator) as ParcelProQuoteResponse['Estimator'];
+
+  const quoteId = firstString(
+    root.QuoteID,
+    root.QuoteId,
+    root.quoteId,
+    root.quoteID,
+    data.QuoteID,
+    data.QuoteId,
+    dataLower.QuoteID,
+    dataLower.QuoteId
+  );
+
+  if (!quoteId) {
+    throw new Error(
+      `[ParcelPro] Quote response missing QuoteID. Response keys: ${Object.keys(root).join(', ') || '(none)'}`
+    );
+  }
+
+  return {
+    QuoteID: quoteId,
+    IsHighValueShipment:
+      firstBoolean(
+        root.IsHighValueShipment,
+        data.IsHighValueShipment,
+        dataLower.IsHighValueShipment
+      ) ?? false,
+    Estimator: {
+      TotalCharges:
+        firstNumber(estimator.TotalCharges, estimatorData.TotalCharges, estimatorDataLower.TotalCharges) ?? 0,
+      InsuranceCost:
+        firstNumber(estimator.InsuranceCost, estimatorData.InsuranceCost, estimatorDataLower.InsuranceCost) ?? 0,
+      ShippingCost:
+        firstNumber(estimator.ShippingCost, estimatorData.ShippingCost, estimatorDataLower.ShippingCost) ?? 0
+    },
+    ShipToResidential:
+      firstBoolean(root.ShipToResidential, data.ShipToResidential, dataLower.ShipToResidential) ?? false,
+    IShipFromRestrictedZip:
+      firstBoolean(root.IShipFromRestrictedZip, data.IShipFromRestrictedZip, dataLower.IShipFromRestrictedZip) ??
+      false,
+    IShipToRestrictedZip:
+      firstBoolean(root.IShipToRestrictedZip, data.IShipToRestrictedZip, dataLower.IShipToRestrictedZip) ?? false,
+    IsShipFromHasRestrictedWords:
+      firstBoolean(
+        root.IsShipFromHasRestrictedWords,
+        data.IsShipFromHasRestrictedWords,
+        dataLower.IsShipFromHasRestrictedWords
+      ) ?? false,
+    IsShipToHasRestrictedWords:
+      firstBoolean(
+        root.IsShipToHasRestrictedWords,
+        data.IsShipToHasRestrictedWords,
+        dataLower.IsShipToHasRestrictedWords
+      ) ?? false,
+    ShipFromRerouting:
+      extractRerouteAddress(root.ShipFromRerouting) ??
+      extractRerouteAddress(data.ShipFromRerouting) ??
+      extractRerouteAddress(dataLower.ShipFromRerouting),
+    ShipToRerouting:
+      extractRerouteAddress(root.ShipToRerouting) ??
+      extractRerouteAddress(data.ShipToRerouting) ??
+      extractRerouteAddress(dataLower.ShipToRerouting)
+  };
+}
+
+function normalizeShipmentResponse(raw: unknown): ParcelProShipmentResponse {
+  const root = asRecord(raw);
+  const data = nestedRecord(root, 'Data');
+  const dataLower = nestedRecord(root, 'data');
+  const estimator = asRecord(root.Estimator) as ParcelProShipmentResponse['Estimator'];
+  const estimatorData = asRecord(data.Estimator) as ParcelProShipmentResponse['Estimator'];
+  const estimatorDataLower = asRecord(dataLower.Estimator) as ParcelProShipmentResponse['Estimator'];
+
+  const shipmentId = firstString(
+    root.ShipmentID,
+    root.ShipmentId,
+    root.shipmentId,
+    data.ShipmentID,
+    data.ShipmentId,
+    dataLower.ShipmentID,
+    dataLower.ShipmentId
+  );
+  const trackingNumber = firstString(
+    root.TrackingNumber,
+    root.trackingNumber,
+    data.TrackingNumber,
+    dataLower.TrackingNumber
+  );
+  const labelImage = firstString(root.LabelImage, data.LabelImage, dataLower.LabelImage) ?? '';
+
+  if (!shipmentId) {
+    throw new Error(
+      `[ParcelPro] Shipment response missing ShipmentID. Response keys: ${Object.keys(root).join(', ') || '(none)'}`
+    );
+  }
+
+  return {
+    ShipmentID: shipmentId,
+    TrackingNumber: trackingNumber ?? '',
+    LabelImage: labelImage,
+    Estimator: {
+      TotalCharges:
+        firstNumber(estimator.TotalCharges, estimatorData.TotalCharges, estimatorDataLower.TotalCharges) ?? 0,
+      InsuranceCost:
+        firstNumber(estimator.InsuranceCost, estimatorData.InsuranceCost, estimatorDataLower.InsuranceCost) ?? 0,
+      ShippingCost:
+        firstNumber(estimator.ShippingCost, estimatorData.ShippingCost, estimatorDataLower.ShippingCost) ?? 0
+    }
+  };
+}
+
 /**
  * FedEx domestic service mapping for jewelry coverage tiers.
  * Uses the highest-coverage services first for high-value shipments.
@@ -573,6 +754,14 @@ export function buildQuotePayload(order: ShopifyOrder): ParcelProQuoteRequest {
     .join(', ')
     .substring(0, 100);
 
+  const shipToPhone = getValidShipToPhone(order);
+  if (shipToPhone === '0000000000') {
+    console.warn(
+      `[ParcelPro] Order ${order.name ?? order.id} missing valid customer phone. ` +
+        `Using fallback ShipTo phone 0000000000 to satisfy carrier validation.`
+    );
+  }
+
   return {
     CarrierCode: DEFAULT_CARRIER_CODE,
     ServiceCode: isInternational
@@ -593,8 +782,7 @@ export function buildQuotePayload(order: ShopifyOrder): ParcelProQuoteRequest {
       State: dest.province_code || dest.province,
       Zip: dest.zip,
       Country: dest.country_code || 'US',
-      // Strip non-numeric characters from phone number
-      TelephoneNo: dest.phone?.replace(/\D/g, '') ?? '',
+      TelephoneNo: shipToPhone,
       Email: order.email,
     },
     Weight: weightLbs,
@@ -618,12 +806,13 @@ export async function createQuote(order: ShopifyOrder): Promise<ParcelProQuoteRe
 
   console.log(`[ParcelPro] Creating quote for order ${order.name} (${order.email})`);
 
-  return withRetry('createQuote', () =>
-    parcelProRequest<ParcelProQuoteResponse>('/v2.0/quotes', {
+  return withRetry('createQuote', async () => {
+    const raw = await parcelProRequest<unknown>('/v2.0/quotes', {
       method: 'POST',
-      body: JSON.stringify(payload),
-    })
-  );
+      body: JSON.stringify(payload)
+    });
+    return normalizeQuoteResponse(raw);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -703,12 +892,13 @@ export async function handleHighValueShipment(quoteId: string): Promise<void> {
 export async function createShipment(quoteId: string): Promise<ParcelProShipmentResponse> {
   console.log(`[ParcelPro] Booking shipment for quote ${quoteId}`);
 
-  return withRetry('createShipment', () =>
-    parcelProRequest<ParcelProShipmentResponse>(
+  return withRetry('createShipment', async () => {
+    const raw = await parcelProRequest<unknown>(
       `/v2.0/shipments/${encodeURIComponent(quoteId)}`,
       { method: 'POST' }
-    )
-  );
+    );
+    return normalizeShipmentResponse(raw);
+  });
 }
 
 // ---------------------------------------------------------------------------
