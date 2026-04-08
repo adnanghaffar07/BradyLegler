@@ -58,6 +58,15 @@
       display: none !important;
     }
 
+    &::-webkit-media-controls-panel {
+      display: none !important;
+    }
+
+    &::-webkit-media-controls-start-playback-button {
+      display: none !important;
+      -webkit-appearance: none;
+    }
+
     // Firefox specific
     &::-moz-media-controls-panel {
       display: none !important;
