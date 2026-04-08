@@ -98,6 +98,8 @@ const Details: React.FC<DetailsProps> = ({
               </div>
 
               <Form
+                price={price}
+                compareAtPrice={compareAtPrice}
                 currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
                 variants={variants}
                 sanityProductData={sanityProductData}
@@ -107,6 +109,11 @@ const Details: React.FC<DetailsProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Mobile Divider - Only visible on mobile between product details and collection info */}
+        {primaryCollection?.store && (
+          <div className={styles.mobileDivider}></div>
+        )}
       </div>
     </Section>
   );

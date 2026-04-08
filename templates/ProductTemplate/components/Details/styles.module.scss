@@ -280,6 +280,15 @@
   z-index: 1;
 }
 
+/* Mobile-only divider between product details and collection info */
+.mobileDivider {
+  display: block;
+  width: 100%;
+  order: 2;
+  border-top: 1px solid #bdbbbb;
+  margin: 1rem 0 0.75rem;
+}
+
 /* ===========================================
    RESPONSIVE BREAKPOINTS
    =========================================== */
@@ -292,6 +301,10 @@
   .leftColumn,
   .rightColumn {
     display: flex;
+  }
+
+  .mobileDivider {
+    display: none;
   }
 }
 
