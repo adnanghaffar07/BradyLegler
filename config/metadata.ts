@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
-import openGraphImage from '@/assets/images/open-graph.png';
+
+const SITE_DESCRIPTION =
+  'Discover Brady Legler jewelry and collections crafted with emotion, intention, and timeless design. Contact us for inquiries, support, or press information.';
 
 const metadata: Metadata = {
   title: 'Brady Legler',
-  description: 'This is a general description of the website.',
+  description: SITE_DESCRIPTION,
   generator: 'Brady Legler',
   applicationName: 'Brady Legler',
   referrer: 'origin-when-cross-origin',
@@ -23,18 +25,19 @@ const metadata: Metadata = {
   },
   openGraph: {
     title: 'Brady Legler',
-    description: 'This is a general description of the website.',
+    description: SITE_DESCRIPTION,
     url: process.env.NEXT_PUBLIC_SITE_URL,
     siteName: 'Brady Legler',
-    images: [
-      {
-        url: process.env.NEXT_PUBLIC_SITE_URL + openGraphImage.src,
-        width: openGraphImage.width,
-        height: openGraphImage.height
-      }
-    ],
+    images: [{ url: '/opengraph-image/' }],
     locale: 'en_UK',
-    type: 'website'
+    type: 'website',
+    appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || undefined
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Brady Legler',
+    description: SITE_DESCRIPTION,
+    images: ['/twitter-image/']
   },
   robots: {
     index: true,
