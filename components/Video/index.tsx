@@ -64,6 +64,8 @@ const Video = (props: VideoProps) => {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
+      videoRef.current.setAttribute('playsinline', '');
+      videoRef.current.setAttribute('webkit-playsinline', '');
     }
   }, [isMuted]);
 
@@ -135,11 +137,18 @@ const Video = (props: VideoProps) => {
           loop={loop}
           autoPlay={autoPlay}
           muted={isMuted}
+          defaultMuted={muted}
           disablePictureInPicture={showAudioControl}
           onLoadedMetadata={() => {
             void attemptAutoPlay();
           }}
+          onLoadedData={() => {
+            void attemptAutoPlay();
+          }}
           onCanPlay={() => {
+            void attemptAutoPlay();
+          }}
+          onCanPlayThrough={() => {
             void attemptAutoPlay();
           }}
         />

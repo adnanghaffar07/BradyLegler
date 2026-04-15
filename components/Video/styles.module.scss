@@ -67,6 +67,14 @@
       -webkit-appearance: none;
     }
 
+    &::-webkit-media-controls-overlay-play-button {
+      display: none !important;
+    }
+
+    &::-webkit-media-controls-overflow-button {
+      display: none !important;
+    }
+
     // Firefox specific
     &::-moz-media-controls-panel {
       display: none !important;

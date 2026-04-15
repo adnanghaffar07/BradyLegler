@@ -10,6 +10,7 @@ type CustomMetadata = {
   };
   robots?: any;
   other?: any;
+  openGraphImage?: string;
 };
 
 interface GenerateSanityMetadata extends CustomMetadata {
@@ -60,7 +61,8 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
         openGraph: {
           ...metadata.openGraph,
           title: seoTitle || seoData?.seoTitle || metadata.title!!,
-          description: seoDescription || seoData?.seoDescription || metadata.description!!
+          description: seoDescription || seoData?.seoDescription || metadata.description!!,
+          images: seoData?.openGraphImage ? [{ url: seoData.openGraphImage }] : metadata.openGraph.images
         },
         keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
         alternates: alternates || seoData?.alternates || {},
