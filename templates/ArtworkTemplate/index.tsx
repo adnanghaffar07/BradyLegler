@@ -1,6 +1,6 @@
 import Sections from '@/components/Sections';
 import JsonLd from '@/components/JsonLd';
-import HeaderHeroSection from '@/sections/shared/HeaderHeroSection';
+import ArtworkHeroSection from '@/sections/shared/ArtworkHeroSection';
 import Text from '@/components/Text';
 import Section from '@/components/Section';
 import TextBlock from '@/components/TextBlock';
@@ -21,7 +21,7 @@ const ArtworkTemplate = async (props: WebPageProps) => {
 
   return (
     <>
-      <HeaderHeroSection image={image} />
+      <ArtworkHeroSection image={image} mediaType="image" />
       <Section containerClassName={styles.container} theme="dark">
         <Text as="h1" text={title} size="h1" />
         <div className={styles.content}>
