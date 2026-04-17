@@ -61,7 +61,7 @@ const nextConfig = {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
       return redirects;
     }
-
+    
     try {
       const fetchSanityRedirects = (await import('./tools/sanity/helpers/fetchSanityRedirects.js')).default;
       const sanityRedirects = await fetchSanityRedirects();
