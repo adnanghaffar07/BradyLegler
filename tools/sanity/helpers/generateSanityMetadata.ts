@@ -25,9 +25,15 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
   }
 
   const defaultRobots = {
-    index: process.env.NEXT_PUBLIC_IS_STAGING !== 'true',
+    index: false,
+    follow: false,
+    nocache: true,
     googleBot: {
-      index: process.env.NEXT_PUBLIC_IS_STAGING !== 'true'
+      index: false,
+      follow: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1
     }
   };
 
@@ -65,7 +71,11 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
           images: seoData?.openGraphImage ? [{ url: seoData.openGraphImage }] : metadata.openGraph.images
         },
         keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
-        alternates: alternates || seoData?.alternates || {},
+        alternates: {
+          canonical: process.env.NEXT_PUBLIC_SITE_URL + (params?.slug ? '/' + params.slug.join('/') : ''),
+          ...alternates,
+          ...seoData?.alternates
+        },
         robots: robots || seoData?.robots || defaultRobots,
         other: {
           ...metadata.other,
