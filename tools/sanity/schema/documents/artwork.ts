@@ -78,11 +78,11 @@ const artwork = defineType({
       name: `slug`,
       title: `Slug`,
       description:
-        '/gallery will be automatically added to the back of the url. Please ensure forward slash / is added to beginning and end of the slug e.g. /example-post/',
+        '/gallery will be automatically added to the back of the url. Please ensure forward slash / is added to beginning of the slug e.g. /example-post',
       type: `slugElement`,
       options: {
         source: 'title',
-        slugify: (input: string) => `/${slugify(input, { lower: true, strict: true })}/`,
+        slugify: (input: string) => `/${slugify(input, { lower: true, strict: true })}`,
         prefix: '/gallery'
       },
       group: 'data'

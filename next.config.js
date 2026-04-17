@@ -33,7 +33,7 @@ const nextConfig = {
     dirs: ['pages', 'components', 'sections', 'tools', 'assets'],
     ignoreDuringBuilds: false
   },
-  trailingSlash: true,
+  trailingSlash: false,
   images: {
     remotePatterns: [
       {

@@ -9,7 +9,7 @@ const slugElement = defineType({
   type: 'slug',
   options: {
     source: `title`,
-    slugify: input => `/${slugify(input, { lower: true, strict: true })}/`
+    slugify: input => `/${slugify(input, { lower: true, strict: true })}`
   },
   components: {
     input: SlugInput
@@ -45,6 +45,9 @@ const slugElement = defineType({
       }
       if (!currentSlug?.match(/^[a-z0-9/]+(?:-[a-z0-9/]+)*$/g)) {
         return 'Please format URL to be valid slug.';
+      }
+      if (currentSlug?.includes('//')) {
+        return 'Slug cannot contain consecutive slashes.';
       }
       if (currentSlug?.[0] !== '/') {
         return 'Please add initial forward slash.';
