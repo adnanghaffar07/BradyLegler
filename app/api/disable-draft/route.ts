@@ -6,4 +6,5 @@ export function GET(request: NextRequest) {
   return new NextResponse(null, {
     status: 200
   });
+  
 }
