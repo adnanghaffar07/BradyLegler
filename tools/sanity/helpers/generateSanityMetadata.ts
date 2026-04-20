@@ -10,11 +10,11 @@ type CustomMetadata = {
   };
   robots?: any;
   other?: any;
-  openGraphImage?: string;
+  openGraphImage?: string | undefined;
 };
 
 interface GenerateSanityMetadata extends CustomMetadata {
-  query?: (params: any) => Promise<CustomMetadata>;
+  query?: (params: any) => Promise<CustomMetadata | any>;
 }
 
 const generateSanityMetadata = (params: GenerateSanityMetadata) => {
@@ -60,6 +60,9 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
         seoData = await query(params);
       }
 
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || '';
+      const canonicalUrl = params?.slug ? `${baseUrl}/${params.slug.join('/')}` : baseUrl;
+
       return {
         ...metadata,
         title: seoTitle || seoData?.seoTitle || metadata.title,
@@ -72,7 +75,7 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
         },
         keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
         alternates: {
-          canonical: process.env.NEXT_PUBLIC_SITE_URL + (params?.slug ? '/' + params.slug.join('/') : ''),
+          canonical: canonicalUrl || (seoData?.alternates?.canonical ?? ''),
           ...alternates,
           ...seoData?.alternates
         },

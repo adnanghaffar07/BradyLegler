@@ -102,52 +102,66 @@ export const generateMetadata = generateSanityMetadata({
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, ''); // Remove trailing slash if present
 
       switch (documentType) {
-        case 'page':
+        case 'page': {
+          const seoData = document?.page?.seoData;
           return {
-            seoTitle: document?.page?.seoData?.seoTitle || `${document?.page?.title} | ${metadata.title}`,
-            seoDescription: document?.page?.seoData?.seoDescription,
+            seoTitle: seoData?.seoTitle || `${document?.page?.title} | ${metadata.title}`,
+            seoDescription: seoData?.seoDescription,
+            openGraphImage: seoData?.openGraphImage?.asset?.url,
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: document?.page?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
-        case 'artwork':
+        }
+        case 'artwork': {
+          const seoData = document?.artwork?.seoData;
           return {
-            seoTitle: document?.artwork?.seoData?.seoTitle || `${document?.artwork?.title} | ${metadata.title}`,
-            seoDescription: document?.artwork?.seoData?.seoDescription,
+            seoTitle: seoData?.seoTitle || `${document?.artwork?.title} | ${metadata.title}`,
+            seoDescription: seoData?.seoDescription,
+            openGraphImage: seoData?.openGraphImage?.asset?.url,
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: document?.artwork?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
-        case 'press':
+        }
+        case 'press': {
+          const seoData = document?.press?.seoData;
           return {
-            seoTitle: document?.press?.seoData?.seoTitle || `${document?.press?.title} | ${metadata.title}`,
-            seoDescription: document?.press?.seoData?.seoDescription,
+            seoTitle: seoData?.seoTitle || `${document?.press?.title} | ${metadata.title}`,
+            seoDescription: seoData?.seoDescription,
+            openGraphImage: seoData?.openGraphImage?.asset?.url,
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: document?.press?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
-        case 'product':
+        }
+        case 'product': {
+          const seoData = document?.product?.seoData;
           return {
-            seoTitle: document?.product?.seoData?.seoTitle || `${document?.product?.store?.title} | ${metadata.title}`,
-            seoDescription: document?.product?.seoData?.seoDescription,
+            seoTitle: seoData?.seoTitle || `${document?.product?.store?.title} | ${metadata.title}`,
+            seoDescription: seoData?.seoDescription,
+            openGraphImage: seoData?.openGraphImage?.asset?.url,
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: document?.product?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
-        case 'collection':
+        }
+        case 'collection': {
+          const seoData = document?.collection?.seoData;
           return {
-            seoTitle:
-              document?.collection?.seoData?.seoTitle || `${document?.collection?.store?.title} | ${metadata.title}`,
-            seoDescription: document?.collection?.seoData?.seoDescription,
+            seoTitle: seoData?.seoTitle || `${document?.collection?.store?.title} | ${metadata.title}`,
+            seoDescription: seoData?.seoDescription,
+            openGraphImage: seoData?.openGraphImage?.asset?.url,
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: document?.collection?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
+        }
         default:
           return {
             seoTitle: `${metadata.title}`,
