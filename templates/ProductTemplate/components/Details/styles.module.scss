@@ -60,7 +60,7 @@
     min-height: 60vh;
     max-height: 70vh;
     align-self: flex-start;
-        top: 45vh;
+    top: 45vh;
   }
 
   @media (min-width: 1024px) {
@@ -121,6 +121,12 @@
   margin: 0;
   font-size: 12px;
   text-align: center;
+}
+
+.collectionNameLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .collectionStoryLeft {
@@ -197,7 +203,7 @@
     max-height: 70vh;
     overflow-y: auto;
     align-self: flex-start;
-        top: 45vh;
+    top: 45vh;
   }
 
   @media (min-width: 1024px) {
@@ -266,8 +272,13 @@
   z-index: 2;
 }
 
-.headerRight span {
+.headerRight h1 {
   font-size: 12px;
+  line-height: 19.2px;
+  font-weight: 400;
+  letter-spacing: .06em;
+  // font-family: primary-font, sans-serif;
+ font-family: var(--primary-font), sans-serif;
 }
 
 .productDescriptionRight {
@@ -298,6 +309,7 @@
 
 /* Tablet (768px and up) */
 @include media-up(tablet) {
+
   .leftColumn,
   .rightColumn {
     display: flex;

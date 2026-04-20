@@ -22,6 +22,7 @@
 
   // Always show arrows on hover for any product card
   &:hover {
+
     .navArrowLeft,
     .navArrowRight {
       opacity: 1;
@@ -87,12 +88,21 @@
 
   .productTitle {
     color: #333;
-    font-weight: 400;
+    font-weight: 500;
+    letter-spacing: 0.8px;
     line-height: 1.4;
     margin-bottom: 2px; // Reduced
+    font-family: var(--primary-font), sans-serif;
     font-size: 12px;
     width: 100%;
     text-align: center; // Ensure text is centered
+  }
+
+  .productTitleLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
   }
 
   .productPrice {
@@ -173,6 +183,7 @@
 
 // SMALLER ARROWS ON MOBILE
 @include media-down(large-tablet) {
+
   .navArrowLeft,
   .navArrowRight {
     width: 30px !important; // Smaller on mobile
@@ -191,6 +202,7 @@
 
   // Even smaller on very small screens
   @include media-down(tablet) {
+
     .navArrowLeft,
     .navArrowRight {
       width: 28px !important;
@@ -243,11 +255,13 @@
 
 
   .imageDot {
- visibility: hidden !important; // Hide dots on mobile for cleaner look
+    visibility: hidden !important; // Hide dots on mobile for cleaner look
   }
 }
+
 // Adjust for list layout
 .productCard.list {
+
   .navArrowLeft,
   .navArrowRight {
     width: 48px;
@@ -278,6 +292,7 @@
 
   // For list layout on mobile
   @include media-down(large-tablet) {
+
     .navArrowLeft,
     .navArrowRight {
       width: 36px !important;
@@ -356,11 +371,12 @@
 // Container fixes for product grid
 @media (min-width: 768px) {
   .productCard {
-     .imageLink {
-      .img{
+    .imageLink {
+      .img {
         object-fit: contain; // Ensure image fills the container on small screens
       }
     }
+
     .productDetails {
       padding: 0 4px; // Less padding on desktop
     }
@@ -372,7 +388,8 @@
   .productCard {
     .imageLink {
       max-width: 240px;
-      .img{
+
+      .img {
         object-fit: contain; // Ensure image fills the container on small screens
       }
     }

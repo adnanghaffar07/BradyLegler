@@ -258,7 +258,9 @@ const ProductCard = ({
         )}
 
         <div className={styles.productDetails}>
-          <Text text={sanityProduct.title} size="b3" className={styles.productTitle} />
+          <Link onClick={onProductClick} href={`/${sanityProduct.slug.current}/`} variant="square-overlay" className={styles.productTitleLink}>
+            <Text text={sanityProduct.title} size="b3" className={styles.productTitle} />
+          </Link>
           <Text
             text={inquiryEnabled ? finalInquirePriceText : formatCurrency({ amount: sanityProduct.priceRange?.minVariantPrice })}
             className={styles.productPrice}
@@ -433,7 +435,9 @@ const ProductCard = ({
         )}
 
         <div className={styles.productDetails}>
-          <Text text={shopifyProduct.title} size="b3" className={styles.productTitle} />
+          <Link onClick={onProductClick} href={`/${shopifyProduct.handle}/`} className={styles.productTitleLink}>
+            <h3 className={styles.productTitle}>{shopifyProduct.title}</h3>
+          </Link>
           <Text
             text={inquiryEnabled ? finalInquirePriceText : formatCurrency({
               amount: parseFloat(shopifyProduct.priceRange?.minVariantPrice?.amount || '0')

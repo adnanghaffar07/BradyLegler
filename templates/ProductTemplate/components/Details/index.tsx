@@ -7,6 +7,7 @@ import Gallery from '../Gallery';
 import Text from '@/components/Text';
 import Form from '../Form';
 import Container from '@/components/Container';
+import Link from '@/components/Link';
 import { GetProductByHandleResponse } from '@/tools/apis/shopify';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
@@ -52,7 +53,14 @@ const Details: React.FC<DetailsProps> = ({
           <div className={styles.leftColumn}>
             <div className={styles.collectionInfoLeft}>
               <div className={styles.collectionHeaderLeft}>
-                {primaryCollection.store.title && (
+                {primaryCollection.store.title && primaryCollection.store.slug?.current && (
+                  <Link href={`/${primaryCollection.store.slug.current}`} className={styles.collectionNameLink}>
+                    <Text size="b2" className={styles.collectionNameLeft}>
+                      {primaryCollection.store.title}
+                    </Text>
+                  </Link>
+                )}
+                {primaryCollection.store.title && !primaryCollection.store.slug?.current && (
                   <Text size="b2" className={styles.collectionNameLeft}>
                     {primaryCollection.store.title}
                   </Text>
@@ -85,7 +93,7 @@ const Details: React.FC<DetailsProps> = ({
           <div className={styles.containerStickyRight}>
             <div id="details" className={styles.detailsRightSection}>
               <div className={styles.headerRight}>
-                <Text size="b2" text={sanityProductData.store.title} />
+                <h1>{sanityProductData.store.title}</h1>
               </div>
 
               <div className={styles.productDescriptionRight}>
