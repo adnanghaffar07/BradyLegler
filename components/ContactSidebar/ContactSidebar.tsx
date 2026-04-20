@@ -184,7 +184,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
               <>
                 {/* Header with cross button - only shown when not in form */}
                 <div className={styles.contactHeader}>
-                  <h2 className={styles.contactHeading}>Contact Us</h2>
+                  <span className={styles.contactHeading}>Contact Us</span>
                   <button className={styles.closeButton} onClick={handleClose} aria-label="Close contact sidebar">
                     <Icon title="close" className={styles.closeIcon} />
                   </button>

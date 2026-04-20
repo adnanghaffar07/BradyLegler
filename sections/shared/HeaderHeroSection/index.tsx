@@ -111,7 +111,7 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
       <Layout variant="fullWidth" className={styles.layout}>
         <div className={styles.containerSticky}>
           <div className={styles.contentGroup}>
-            {tagline && <Text text={tagline} className={styles.tagline} weight="regular" />}
+            {tagline && <h2 className={styles.tagline} >{tagline}</h2>}
 
             {addButton && button && (
               <Link
