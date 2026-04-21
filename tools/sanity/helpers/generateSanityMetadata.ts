@@ -24,19 +24,18 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
     throw new Error('Missing required parameters for generateSanityMetadata');
   }
 
-  const defaultRobots = {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1
-    }
-  };
-
+const defaultRobots = {
+  index: true,
+  follow: true,
+  nocache: false,
+  googleBot: {
+    index: true,
+    follow: true,
+    "max-video-preview": -1,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+  },
+};
   let seoData: CustomMetadata = {
     seoTitle,
     seoDescription,

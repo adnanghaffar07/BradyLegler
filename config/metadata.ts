@@ -40,11 +40,11 @@ const metadata: Metadata = {
     images: ['/twitter-image/']
   },
   robots: {
-    index: false,
+    index: true,
     follow: false,
     nocache: true,
     googleBot: {
-      index: false,
+      index: true,
       follow: false,
       'max-video-preview': -1,
       'max-image-preview': 'large',
