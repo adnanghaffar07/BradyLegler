@@ -111,7 +111,7 @@ export const generateMetadata = generateSanityMetadata({
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
         }
         case 'artwork': {
@@ -123,7 +123,7 @@ export const generateMetadata = generateSanityMetadata({
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
         }
         case 'press': {
@@ -135,7 +135,7 @@ export const generateMetadata = generateSanityMetadata({
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
         }
         case 'product': {
@@ -147,7 +147,7 @@ export const generateMetadata = generateSanityMetadata({
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
         }
         case 'collection': {
@@ -159,7 +159,7 @@ export const generateMetadata = generateSanityMetadata({
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
-            robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
         }
         default:
