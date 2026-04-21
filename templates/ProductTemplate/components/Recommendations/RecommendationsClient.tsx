@@ -163,9 +163,10 @@ const RecommendationsClient = ({
   if (validProducts.length === 0) return null;
 
   return (
-    <section className={styles.recommendationsSection}>
+    <section className={styles.recommendationsSection} aria-labelledby="recommendations-heading">
       <div className={styles.container}>
-        <Text as="h2" text="You May Also Like" size="b1" className={styles.title} />
+        {/* Use h2 only once per page section */}
+        <Text as="h2" text="You May Also Like" size="b1" className={styles.title} id="recommendations-heading" />
 
         {/* Desktop / tablet: grid of cards, no in-card gallery arrows */}
         <div className={styles.desktopGrid}>
@@ -195,6 +196,9 @@ const RecommendationsClient = ({
                 onClick={() => scroll('left')}
                 aria-label="Scroll recommendations left"
                 disabled={!canScrollLeft}
+                style={{ outline: 'none' }}
+                onMouseDown={(e) => e.preventDefault()} // Prevents focus on click
+
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -243,7 +247,8 @@ const RecommendationsClient = ({
                         </Link>
                       )}
                     </div>
-                    <h4 className={rowStyles.name}>{product.title}</h4>
+                    {/* Change h4 to p or div for product names to avoid heading duplication */}
+                    <p className={rowStyles.name}>{product.title}</p>
                   </div>
                 );
               })}
@@ -258,6 +263,9 @@ const RecommendationsClient = ({
                 onClick={() => scroll('right')}
                 aria-label="Scroll recommendations right"
                 disabled={!canScrollRight}
+                style={{ outline: 'none' }}
+                onMouseDown={(e) => e.preventDefault()} // Prevents focus on click
+
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path

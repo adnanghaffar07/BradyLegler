@@ -4,6 +4,17 @@
   padding: 4rem 0 2rem 0;
 }
 
+/* Specifically for your carousel arrows */
+ .carouselArrowLeft,
+  .carouselArrowRight {
+    &:focus,
+    &:focus-visible,
+    &:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
+  
 .container {
   width: 100%;
   max-width: 1200px;
