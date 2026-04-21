@@ -67,7 +67,7 @@ const press = defineType({
       name: `slug`,
       title: `Slug`,
       description:
-        '/press will be automatically added to the back of the url. Please ensure forward slash / is added to beginning of the slug e.g. /example-post',
+        '/press will be automatically added to the back of the url. Slug example: example-post or example/post',
       type: `slugElement`,
       options: {
         source: 'title',
