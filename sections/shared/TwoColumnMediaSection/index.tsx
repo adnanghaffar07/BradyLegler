@@ -78,7 +78,9 @@ const TwoColumnMediaSection: React.FC<ITwoColumnMediaSection> = props => {
             >
               {taglineSideB && <p className={styles.tagline}>{taglineSideB}</p>}
               {buttonSideB?.link && (
-                <Link {...buttonSideB?.link} className={styles.button} variant="normal-sm" text={buttonSideB?.label} />
+                <Link {...buttonSideB?.link} className={styles.button} variant="normal-sm"><h2 className={styles['button-label']}>
+                  {buttonSideB?.label}
+                </h2></Link>
               )}
             </div>
           )}
