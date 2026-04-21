@@ -119,9 +119,9 @@ const Details: React.FC<DetailsProps> = ({
         </div>
 
         {/* Mobile Divider - Only visible on mobile between product details and collection info */}
-        {primaryCollection?.store && (
+        {/* {primaryCollection?.store && (
           <div className={styles.mobileDivider}></div>
-        )}
+        )} */}
       </div>
     </Section>
   );

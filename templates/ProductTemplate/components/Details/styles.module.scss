@@ -336,7 +336,7 @@
 @media (max-width: 766px) {
   .section {
     flex-direction: column;
-    gap: 1rem;
+    gap: 3rem;
     padding: 4rem 1.5rem 0;
   }
 
@@ -347,7 +347,7 @@
   .leftColumn {
     order: 3;
     /* Collection info last on mobile */
-    display: block;
+    display: none;
     /* Show on mobile if you want */
     margin-top: 4rem;
   }
