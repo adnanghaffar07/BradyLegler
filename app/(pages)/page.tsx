@@ -27,13 +27,19 @@ export const generateMetadata = generateSanityMetadata({
 
     const page = document?.page;
 
+    const getOpenGraphImage = (page: any) => {
+      if (page?.seoData?.openGraphImage?.asset?.url) return page.seoData.openGraphImage.asset.url;
+      const firstSection = page?.sections?.[0];
+      if (firstSection?._type === 'headerHeroSection' && firstSection.mediaType === 'image' && firstSection.image?.asset?.url) {
+        return firstSection.image.asset.url;
+      }
+      return undefined;
+    };
+
     return {
       seoTitle: page?.seoData?.seoTitle,
       seoDescription: page?.seoData?.seoDescription,
-      alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/`
-      },
-      robots: page?.seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+      openGraphImage: getOpenGraphImage(page)
     };
   }
 });

@@ -33,7 +33,7 @@ const nextConfig = {
     dirs: ['pages', 'components', 'sections', 'tools', 'assets'],
     ignoreDuringBuilds: false
   },
-  trailingSlash: true,
+  trailingSlash: false,
   images: {
     remotePatterns: [
       {
@@ -74,6 +74,8 @@ const nextConfig = {
   async rewrites() {
     return rewrites;
   },
+
+
 
   webpack(config) {
     const fileLoaderRule = config.module.rules.find(rule => rule.test?.test?.('.svg'));

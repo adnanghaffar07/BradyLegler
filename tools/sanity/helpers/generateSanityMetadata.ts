@@ -10,10 +10,11 @@ type CustomMetadata = {
   };
   robots?: any;
   other?: any;
+  openGraphImage?: string | undefined;
 };
 
 interface GenerateSanityMetadata extends CustomMetadata {
-  query?: (params: any) => Promise<CustomMetadata>;
+  query?: (params: any) => Promise<CustomMetadata | any>;
 }
 
 const generateSanityMetadata = (params: GenerateSanityMetadata) => {
@@ -23,13 +24,18 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
     throw new Error('Missing required parameters for generateSanityMetadata');
   }
 
-  const defaultRobots = {
-    index: process.env.NEXT_PUBLIC_IS_STAGING !== 'true',
-    googleBot: {
-      index: process.env.NEXT_PUBLIC_IS_STAGING !== 'true'
-    }
-  };
-
+const defaultRobots = {
+  index: true,
+  follow: true,
+  nocache: false,
+  googleBot: {
+    index: true,
+    follow: true,
+    "max-video-preview": -1,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+  },
+};
   let seoData: CustomMetadata = {
     seoTitle,
     seoDescription,
@@ -53,6 +59,9 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
         seoData = await query(params);
       }
 
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || '';
+      const canonicalUrl = params?.slug ? `${baseUrl}/${params.slug.join('/')}` : baseUrl;
+
       return {
         ...metadata,
         title: seoTitle || seoData?.seoTitle || metadata.title,
@@ -60,10 +69,15 @@ const generateSanityMetadata = (params: GenerateSanityMetadata) => {
         openGraph: {
           ...metadata.openGraph,
           title: seoTitle || seoData?.seoTitle || metadata.title!!,
-          description: seoDescription || seoData?.seoDescription || metadata.description!!
+          description: seoDescription || seoData?.seoDescription || metadata.description!!,
+          images: seoData?.openGraphImage ? [{ url: seoData.openGraphImage }] : metadata.openGraph.images
         },
         keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
-        alternates: alternates || seoData?.alternates || {},
+        alternates: {
+          canonical: canonicalUrl || (seoData?.alternates?.canonical ?? ''),
+          ...alternates,
+          ...seoData?.alternates
+        },
         robots: robots || seoData?.robots || defaultRobots,
         other: {
           ...metadata.other,

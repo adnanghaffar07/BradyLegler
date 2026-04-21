@@ -12,11 +12,11 @@
  * @property {Array.<{type: string, key: string, value: string}>} [missing] - Array of objects specifying conditions under which the redirect should not be applied.
  */
 const redirects = [
-  // {
-  //   source: "/example",
-  //   destination: "/",
-  //   permanent: true
-  // }
+  {
+    source: '/(.*)/',
+    destination: '/$1',
+    permanent: true
+  }
 ];
 
 export default redirects;

@@ -50,4 +50,26 @@
     height: auto;
     scroll-behavior: auto;
   }
+
+  /* Remove focus outlines globally */
+  *,
+  *:before,
+  *:after {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [tabindex] {
+    &:focus,
+    &:focus-visible,
+    &:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
 }

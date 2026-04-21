@@ -1,4 +1,4 @@
-// HeaderHeroSection.tsx
+// ArtworkHeroSection.tsx
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -12,7 +12,7 @@ import { getSectionSpacingProps } from '@/tools/helpers/section';
 import { IHeaderHeroSection } from '@/tools/sanity/schema/sections/shared/headerHeroSection';
 import styles from './styles.module.scss';
 
-const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
+const ArtworkHeroSection: React.FC<IHeaderHeroSection> = props => {
   const { addButton, button, image, tagline, mediaType = 'image', videoType, videoFile, videoUrl, thumbnail } = props;
 
   const [isHover, setIsHover] = useState(false);
@@ -64,7 +64,7 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
 
   return (
     <Section
-      name="HeaderHeroSection"
+      name="ArtworkHeroSection"
       full
       removeBottomSpacing
       removeTopSpacing
@@ -76,7 +76,28 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
       {...getSectionSpacingProps(props)}
     >
       {/* Media Background - Full width */}
-      {mediaType === 'image' && image && <Image {...image} className={styles.bgImage} />}
+      {mediaType === 'image' && image && <Image {...image} objectFit="contain" className={styles.bgImage} />}
+
+      {/* Content Overlay */}
+      <Layout variant="fullWidth" className={styles.layout}>
+        <div className={styles.containerSticky}>
+          <div className={styles.contentGroup}>
+            {tagline && <Text text={tagline} className={styles.tagline} weight="regular" />}
+
+            {addButton && button && (
+              <Link
+                {...button.link}
+                className={styles.button}
+                variant="square-overlay-light"
+                onMouseOver={() => setIsHover(true)}
+                onMouseLeave={() => setIsHover(false)}
+              >
+                <Text text={button.label} weight="medium" />
+              </Link>
+            )}
+          </div>
+        </div>
+      </Layout>
 
       {mediaType === 'video' && mediaUrl && (
         <div className={styles.videoContainer}>
@@ -106,29 +127,8 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
           </button>
         </div>
       )}
-
-      {/* Content Overlay */}
-      <Layout variant="fullWidth" className={styles.layout}>
-        <div className={styles.containerSticky}>
-          <div className={styles.contentGroup}>
-            {tagline && <h2 className={styles.tagline} >{tagline}</h2>}
-
-            {addButton && button && (
-              <Link
-                {...button.link}
-                className={styles.button}
-                variant="square-overlay-light"
-                onMouseOver={() => setIsHover(true)}
-                onMouseLeave={() => setIsHover(false)}
-              >
-                <Text text={button.label} weight="medium" />
-              </Link>
-            )}
-          </div>
-        </div>
-      </Layout>
     </Section>
   );
 };
 
-export default HeaderHeroSection;
+export default ArtworkHeroSection;

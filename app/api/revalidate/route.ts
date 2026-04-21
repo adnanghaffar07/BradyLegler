@@ -42,7 +42,7 @@ export const POST = async (req: NextRequest) => {
         break;
       case 'product':
         if (slug) {
-          revalidatePath(`/${slug}/`);
+          revalidatePath(slug);
           revalidatedPaths.push(slug);
         }
         revalidateTag('headerProductSlugs');
@@ -50,7 +50,7 @@ export const POST = async (req: NextRequest) => {
         break;
       case 'collection':
         if (slug) {
-          revalidatePath(`/${slug}/`);
+          revalidatePath(slug);
           revalidatedPaths.push(slug);
         }
         revalidateTag('headerCollectionSlugs');

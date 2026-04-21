@@ -30,7 +30,7 @@ const VideoSection: React.FC<IVideoSection> = props => {
       <Layout variant="fullWidth" className={styles.layout}>
         <div className={styles.containerSticky}>
           <div className={styles.contentGroup}>
-            {tagline && <Text text={tagline} className={styles.tagline} weight="regular" />}
+            {tagline && <Text text={tagline} className={styles.tagline} weight="regular" as='h2'/>}
 
             {addButton && button && (
               <Link

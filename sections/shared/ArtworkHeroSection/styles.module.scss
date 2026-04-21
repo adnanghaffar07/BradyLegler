@@ -1,6 +1,7 @@
 .section {
   display: flex;
-  height: 100vh; // Mobile full screen
+  flex-direction: column;
+  height: auto; // Allow full image height on mobile
   background-color: white;
   position: relative;
   overflow: visible;
@@ -12,7 +13,6 @@
 
 .tagline {
   margin-bottom: 2rem;
-  font-weight: 400;
   font-size: 1.5rem;
   text-align: center;
   color: #ffffff;
@@ -36,30 +36,28 @@
   z-index: 1000;
 
   @include media-up-desktop {
+    position: relative;
     justify-content: center;
     align-items: flex-end;
   }
 
   .containerSticky {
-    height: 100%;
-    min-height: 100%;
     position: relative;
     z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 
     @include media-up-desktop {
-      top: 100px;
       justify-content: center;
       padding-bottom: 100px;
     }
   }
 
   .button {
-    position: sticky;
-    top: 50%;
     max-width: 200px;
 
     @include media-up-desktop {
@@ -69,20 +67,20 @@
 }
 
 .bgImage {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: auto;
   z-index: 0;
-  overflow: hidden;
+  overflow: visible;
   display: block;
 
   image,
   .image {
     width: 100%;
-    height: 100%;
-    object-fit: cover;        // Mobile crop
+    height: auto;
+    object-fit: contain;        // Mobile show full image
     object-position: center;  // Show center
     display: block;
        max-width: 100%;
@@ -103,33 +101,6 @@
   }
 }
 
-// Simple grid approach
-.contentGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  padding-bottom: 80px;
-
-  .tagline {
-    text-align: center;
-  }
-
-  @include media-up-desktop {
-    align-items: flex-center;
-    justify-content: center;
-    padding-bottom: 0;
-
-    .tagline {
-      text-align: right;
-    }
-  }
-}
-
-// Video styles
 .videoContainer {
   position: absolute;
   top: 0;
@@ -138,14 +109,11 @@
   height: 100%;
   z-index: 0;
   overflow: hidden;
-  display: block;
 
-  video,
-  .video {
+  .videoElement {
     width: 100%;
     height: 100%;
-    object-fit: cover;       // Mobile crop
-    object-position: center;
+    object-fit: cover;
     display: block;
   }
 
@@ -154,30 +122,35 @@
     height: auto;
     overflow: visible;
 
-    video,
-    .video {
+    .videoElement {
       width: 100%;
       height: auto;
-      object-fit: contain; // Desktop original behavior
+      object-fit: contain;
     }
   }
 }
 
 .audioControl {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 44px;
-  height: 44px;
-  padding: 0;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
   border: none;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.55);
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 20;
-  color: white;
+  z-index: 10;
   font-size: 16px;
+}
+
+.contentGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }

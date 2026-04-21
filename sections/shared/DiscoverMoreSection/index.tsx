@@ -367,7 +367,7 @@ const DiscoverMoreSection: React.FC<IDiscoverMoreSection> = props => {
       full
     >
       <div className={styles.title}>
-        <Text text={title} size="b1" />
+        <Text text={title} size="b1" as="h2" />
       </div>
 
       <div

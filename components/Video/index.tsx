@@ -64,8 +64,23 @@ const Video = (props: VideoProps) => {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
+      videoRef.current.setAttribute('playsinline', '');
+      videoRef.current.setAttribute('webkit-playsinline', '');
     }
   }, [isMuted]);
+
+  // Safari can ignore declarative autoplay intermittently; retry when media is ready.
+  const attemptAutoPlay = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video || !autoPlay) return;
+    try {
+      // Keep muted autoplay for Safari policy compliance.
+      video.muted = isMuted;
+      await video.play();
+    } catch {
+      // Autoplay may still be blocked by system/browser settings; user can unmute/play manually.
+    }
+  }, [autoPlay, isMuted]);
 
   const toggleAudio = useCallback(async () => {
     const nextMuted = !isMuted;
@@ -116,12 +131,26 @@ const Video = (props: VideoProps) => {
           src={url}
           title={altText}
           controls={showAudioControl ? false : controls}
-          controlsList={showAudioControl ? 'nodownload' : undefined}
+          controlsList={showAudioControl ? 'nodownload noplaybackrate nofullscreen noremoteplayback' : undefined}
           playsInline
+          preload="metadata"
           loop={loop}
           autoPlay={autoPlay}
           muted={isMuted}
+          defaultMuted={muted}
           disablePictureInPicture={showAudioControl}
+          onLoadedMetadata={() => {
+            void attemptAutoPlay();
+          }}
+          onLoadedData={() => {
+            void attemptAutoPlay();
+          }}
+          onCanPlay={() => {
+            void attemptAutoPlay();
+          }}
+          onCanPlayThrough={() => {
+            void attemptAutoPlay();
+          }}
         />
         {showAudioControl && (
           <button
