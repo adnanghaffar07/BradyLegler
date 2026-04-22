@@ -21,7 +21,7 @@ const ImageTextSection: React.FC<IImageTextSection> = ({ image, textBlock, addBu
 
   const imageDiv = (
     <div className={styles.imageSide}>
-      <Image {...image} className={styles.image} aspectRatio="natural" objectFit="cover" />
+      <Image {...image} className={styles.image} aspectRatio="natural" objectFit="contain" />
     </div>
   );
 

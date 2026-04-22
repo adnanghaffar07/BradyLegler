@@ -1,4 +1,4 @@
-import { TbLayout3 } from 'react-icons/tb';
+import { TbLayoutGrid } from 'react-icons/tb';
 import defaultSectionGroups from '../../common/defaultSectionGroups';
 import internalLabelField from '../../common/internalLabelField';
 import { defineType } from 'sanity';
@@ -22,7 +22,7 @@ const imageGallerySection = defineType({
   title: 'Image Gallery',
   type: 'object',
   groups: defaultSectionGroups,
-  icon: TbLayout3,
+  icon: TbLayoutGrid,
   fields: [
     internalLabelField,
     {

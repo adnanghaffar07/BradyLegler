@@ -1,3 +1,4 @@
+
 .container {
   background-color: white;
 }
@@ -15,7 +16,7 @@
 .image {
   opacity: 1;
   transition: opacity 150ms ease-out;
-  object-fit: cover;
+  object-fit: contain;
   min-height: 100vh;
   width: 100%;
   height: 100%;
@@ -45,29 +46,11 @@
   .container {
     flex-direction: column !important;
   }
-
-  .imageSide {
-    padding: 0 !important;
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .textSide {
+  .imageSide, .textSide {
     padding: 32px !important;
     min-width: 0;
     max-width: 100%;
-    align-items: center;
   }
-
-  .textBlock {
-    justify-content: center;
-    text-align: center;
-  }
-
-  .button {
-    align-self: center;
-  }
-
   .image {
     object-fit: cover;
     min-height: 85vh;

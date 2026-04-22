@@ -22,7 +22,6 @@ import linksSectionProjection from '@/sections/shared/LinksSection/queries.groq'
 import homeCollectionsProjection from '@/sections/shared/CollectionRow/queries.groq';
 
 import imageTextSectionProjection from '@/sections/shared/ImageTextSection/queries.groq';
-import imageGallerySectionProjection from '@/sections/shared/ImageGallerySection/queries.groq';
 
 const sectionsProjection = groq`{
   _type,
@@ -34,7 +33,6 @@ const sectionsProjection = groq`{
   ${imageCenteredSectionProjection}
   ${twoColTextSectionProjection}
   ${imageTextSectionProjection}
-  ${imageGallerySectionProjection}
   ${listArtworkSectionProjection}
   ${productsSectionProjection}
   ${viewedProductsSectionProjection}

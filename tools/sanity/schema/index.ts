@@ -40,7 +40,7 @@ import gallery from './objects/gallery';
 import collectionHeader from './objects/collectionHeader';
 import customMedia from './objects/customMedia';
 import alignMedia from './objects/alignMedia';
-import sizeGuideTable from '../schema/objects/sizeGuideTable';
+import sizeGuideTable from '@/tools/sanity/schema/objects/sizeGuideTable';
 
 // Shopify objects
 import inventory from './objects/shopify/inventory';
@@ -80,7 +80,6 @@ import pressImageSection from './sections/shared/pressImageSection';
 import spacerSection from './sections/shared/spacerSection';
 
 import { imageTextSection } from './sections/shared/imageTextSection';
-import { imageGallerySection } from './sections/shared/imageGallerySection';
 
 // Product Sections
 import viewedProductsSection from './sections/product/viewedProductsSection';
@@ -161,7 +160,6 @@ const schema: SchemaTypeDefinition[] = [
   imageCenteredSection,
   twoColTextSection,
   imageTextSection,
-  imageGallerySection,
   linksSection,
   listArtworkSection,
   discoverMoreSection,

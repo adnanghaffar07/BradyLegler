@@ -18,6 +18,4 @@ export { default as HomeCollectionsSection } from './shared/CollectionRow';
 
 export { default as ImageTextSection } from './shared/ImageTextSection';
 
-export { default as ImageGallerySection } from './shared/ImageGallerySection';
-
 export { default as SpacerSection } from './shared/SpacerSection';
