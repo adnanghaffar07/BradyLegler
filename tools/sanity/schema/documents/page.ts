@@ -89,6 +89,8 @@ const page = defineType({
         { type: `quoteSection` },
         { type: 'twoColMediaSection' },
         { type: 'twoColTextSection' },
+        { type: 'imageTextSection' },
+        { type: 'imageGallerySection' },
         { type: `videoSection` },
         { type: 'imageCenteredSection' },
         { type: 'fullscreenImageSection' },

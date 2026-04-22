@@ -35,6 +35,7 @@ const Sections = async (props: SectionProps) => {
           homeCollections: 'HomeCollectionsSection',
           headerHeroSection: 'HeaderHeroSection',
           fullscreenImageSection: 'FullscreenImageSection',
+          imageGallerySection: 'ImageGallerySection',
           spacerSection: 'SpacerSection'
           // add other sections as needed
         };
