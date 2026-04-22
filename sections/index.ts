@@ -16,4 +16,6 @@ export { default as FullscreenImageSection } from './shared/FullscreenImageSecti
 export { default as PressImageSection } from './shared/PressImageSection';
 export { default as HomeCollectionsSection } from './shared/CollectionRow';
 
+export { default as ImageTextSection } from './shared/ImageTextSection';
+
 export { default as SpacerSection } from './shared/SpacerSection';

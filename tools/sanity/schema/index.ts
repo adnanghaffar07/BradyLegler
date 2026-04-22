@@ -79,6 +79,8 @@ import fullScreenImageSection from './sections/shared/fullScreenImageSection';
 import pressImageSection from './sections/shared/pressImageSection';
 import spacerSection from './sections/shared/spacerSection';
 
+import { imageTextSection } from './sections/shared/imageTextSection';
+
 // Product Sections
 import viewedProductsSection from './sections/product/viewedProductsSection';
 import productReviewsSection from './sections/product/productReviewsSection';
@@ -157,6 +159,7 @@ const schema: SchemaTypeDefinition[] = [
   videoSection,
   imageCenteredSection,
   twoColTextSection,
+  imageTextSection,
   linksSection,
   listArtworkSection,
   discoverMoreSection,
