@@ -80,6 +80,7 @@ import pressImageSection from './sections/shared/pressImageSection';
 import spacerSection from './sections/shared/spacerSection';
 
 import { imageTextSection } from './sections/shared/imageTextSection';
+import { imageGallerySection } from './sections/shared/imageGallerySection';
 
 // Product Sections
 import viewedProductsSection from './sections/product/viewedProductsSection';
@@ -160,6 +161,7 @@ const schema: SchemaTypeDefinition[] = [
   imageCenteredSection,
   twoColTextSection,
   imageTextSection,
+  imageGallerySection,
   linksSection,
   listArtworkSection,
   discoverMoreSection,
