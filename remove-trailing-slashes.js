@@ -16,7 +16,8 @@ const client = createClient({
 // fetch all artwork docs with slugs
 const query = `*[_type == "artwork" && defined(slug.current)]{
   _id,
-  "slug": slug.current
+  "slug": slug.current,
+  pathname
 }`;
 
 const docs = await client.fetch(query);
@@ -26,20 +27,31 @@ console.log(`Found ${docs.length} artwork documents`);
 for (const doc of docs) {
   if (!doc.slug) continue;
 
-  // remove trailing slash ONLY
-  const cleaned = doc.slug.replace(/\/+$/, "");
+  const cleanedSlug = doc.slug !== "/"
+    ? doc.slug.replace(/\/+$/, "")
+    : doc.slug;
+
+  const cleanedPath = doc.pathname
+    ? doc.pathname.replace(/\/+$/, "")
+    : undefined;
 
   // skip if nothing changes
-  if (cleaned === doc.slug) continue;
+  if (
+    cleanedSlug === doc.slug &&
+    cleanedPath === doc.pathname
+  ) continue;
 
   await client
     .patch(doc._id)
     .set({
-      "slug.current": cleaned,
+      "slug.current": cleanedSlug,
+      ...(cleanedPath && { pathname: cleanedPath }),
     })
     .commit();
 
-  console.log(`Updated: ${doc.slug} → ${cleaned}`);
+  console.log(
+    `Updated: ${doc.slug} → ${cleanedSlug} | ${doc.pathname} → ${cleanedPath}`
+  );
 }
 
 console.log("Done 🎉");
