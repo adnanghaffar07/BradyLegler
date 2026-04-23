@@ -80,8 +80,7 @@ const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
             <div className={styles.iconContainer}>
               <div className={styles.iconCircle}>
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 6L12 13L2 6M22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6M22 6L12 11L2 6" 
-                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M22 6L12 13L2 6M22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6M22 6L12 11L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
             </div>
@@ -115,7 +114,7 @@ const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
 
             {popupStatus !== 'success' && (
               <button onClick={handleClose} className={styles.declineBtn}>
-                No thanks, I'm not interested
+                No thanks, I&apos;m not interested
               </button>
             )}
           </div>
