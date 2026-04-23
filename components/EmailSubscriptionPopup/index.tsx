@@ -14,7 +14,7 @@ interface EmailSubscriptionPopupProps {
 
 const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
   title = 'Subscribe to our newsletter',
-  subtitle = 'Get the best articles, tutorials, and exclusive content delivered straight to your inbox.',
+  subtitle = 'Be the first to experience new collections, private events, and stories behind the work.',
   delay = 3000,
 }) => {
   const [showPopup, setShowPopup] = useState(false);
@@ -78,11 +78,7 @@ const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
         <div className={styles.contentWrapper}>
           <div className={styles.content}>
             <div className={styles.iconContainer}>
-              <div className={styles.iconCircle}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 6L12 13L2 6M22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6M22 6L12 11L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
+             <img src="/logo.svg" alt="Brady Logo" className={styles.icon} />
             </div>
 
             <h2 className={styles.title}>{title}</h2>
