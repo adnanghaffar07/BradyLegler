@@ -50,8 +50,6 @@
   z-index: 1;
   // flex: 1;
   pointer-events: none;
-  overflow-x: hidden;
-  overflow-y: auto;
 
   .header {
     display: flex;
@@ -94,7 +92,7 @@
 .size {
   &_sm {
     width: 400px;
-    height: 400px;
+    height: auto;
   }
 
   &_md {
