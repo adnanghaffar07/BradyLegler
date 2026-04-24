@@ -61,6 +61,7 @@ const defaultRobots = {
 
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || '';
       const canonicalUrl = params?.slug ? `${baseUrl}/${params.slug.join('/')}` : baseUrl;
+      const resolvedCanonicalUrl = seoData?.alternates?.canonical || alternates?.canonical || canonicalUrl;
 
       return {
         ...metadata,
@@ -70,11 +71,12 @@ const defaultRobots = {
           ...metadata.openGraph,
           title: seoTitle || seoData?.seoTitle || metadata.title!!,
           description: seoDescription || seoData?.seoDescription || metadata.description!!,
+          url: resolvedCanonicalUrl,
           images: seoData?.openGraphImage ? [{ url: seoData.openGraphImage }] : metadata.openGraph.images
         },
         keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
         alternates: {
-          canonical: canonicalUrl || (seoData?.alternates?.canonical ?? ''),
+          canonical: resolvedCanonicalUrl,
           ...alternates,
           ...seoData?.alternates
         },

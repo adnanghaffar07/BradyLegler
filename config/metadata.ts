@@ -29,7 +29,7 @@ const metadata: Metadata = {
     url: process.env.NEXT_PUBLIC_SITE_URL,
     siteName: 'Brady Legler',
     images: [{ url: '/opengraph-image/' }],
-    locale: 'en_UK',
+    locale: 'en_US',
     type: 'website',
     appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || undefined
   },

@@ -81,7 +81,7 @@ const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
              <img src="/svg-logo.svg" alt="Brady Logo" className={styles.icon} />
             </div>
 
-            <h2 className={styles.title}>{title}</h2>
+            {/* <h2 className={styles.title}>{title}</h2> */}
             <p className={styles.subtitle}>{subtitle}</p>
 
             <div className={styles.formSection}>
