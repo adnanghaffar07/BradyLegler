@@ -2,6 +2,8 @@ import { TbGridDots } from 'react-icons/tb';
 import defaultSectionGroups from '../../common/defaultSectionGroups';
 import internalLabelField from '../../common/internalLabelField';
 import { defineType } from 'sanity';
+import thumbnail from '../../../../../sections/shared/ImageGallerySection/thumbnail.png';
+
 
 export interface IImageGalleryItem {
   image: any;
@@ -31,6 +33,7 @@ const imageGallerySection = defineType({
       type: 'string',
       readOnly: true,
       group: 'internal',
+      imageUrl: thumbnail.src,
       initialValue: 'Masonry-style image gallery with multiple images of varying sizes',
       hidden: true
     },
