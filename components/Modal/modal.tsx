@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import classNames from '@/helpers/classNames';
@@ -41,6 +41,7 @@ const Modal = (props: ModalProps) => {
     removeBackdrop = false,
     customAnimations
   } = props;
+  const [mounted, setMounted] = useState(false);
 
   const animations = customAnimations || {
     opacityHidden: {
@@ -107,12 +108,20 @@ const Modal = (props: ModalProps) => {
   }, [onCloseHandler]);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (show) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
   }, [show]);
+
+  const portalRoot = mounted ? document.getElementById('modal') : null;
+
+  if (!portalRoot) return null;
 
   return createPortal(
     <AnimatePresence mode="wait">
@@ -159,7 +168,7 @@ const Modal = (props: ModalProps) => {
         </motion.div>
       )}
     </AnimatePresence>,
-    document.getElementById('modal')
+    portalRoot
   );
 };
 

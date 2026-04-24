@@ -17,6 +17,7 @@ const robots = (): MetadataRoute.Robots => {
         userAgent: '*',
         allow: '/',
         disallow: [
+          '/_next/',
           '/studio/',
           '/maintenance/',
           '/thank-you/',

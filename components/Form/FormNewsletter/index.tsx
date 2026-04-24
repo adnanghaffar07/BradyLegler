@@ -9,12 +9,21 @@ import FormThankYou from '@/components/Form/FormThankYou';
 const LOADING_DURATION = 3000;
 const SUCCESS_DURATION = 3000;
 
-const FormNewsletter = () => {
+const FormNewsletter = ({
+  onSuccess,
+  onStatusChange,
+  showThankYouOverlay = true
+}: {
+  onSuccess?: () => void;
+  onStatusChange?: (status: 'idle' | 'loading' | 'success' | 'error', message?: string) => void;
+  showThankYouOverlay?: boolean;
+} = {}) => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleOnSubmit = async (values: any, methods) => {
     try {
       setStatus('loading');
+      onStatusChange?.('loading');
 
       const [response] = await Promise.all([
         fetch('/api/form', {
@@ -37,16 +46,22 @@ const FormNewsletter = () => {
       }
 
       setStatus('success');
+      onStatusChange?.('success', 'Thank you for subscribing to our newsletter.');
 
       methods?.reset();
 
+      onSuccess?.();
+
       setTimeout(() => {
         setStatus('idle');
+        onStatusChange?.('idle');
       }, SUCCESS_DURATION);
     } catch (error) {
       setStatus('error');
+      onStatusChange?.('error', (error as Error).message || 'Subscription failed. Please try again.');
       setTimeout(() => {
         setStatus('idle');
+        onStatusChange?.('idle');
       }, 3000);
     }
   };
@@ -54,18 +69,24 @@ const FormNewsletter = () => {
   return (
     <>
       <div className={styles.container}>
-        <Form onSubmit={handleOnSubmit} layout="normal">
+        <Form onSubmit={handleOnSubmit} layout="normal" disabled={status === 'loading'}>
           <Field.Email className={styles.email} name="email" placeholder="Subscribe to Newsletter" required />
-          <Field.Submit className={styles.button} text="Submit" />
+          <Field.Submit 
+            className={styles.button} 
+            text={status === 'loading' ? 'Submitting...' : 'Submit'}
+            disabled={status === 'loading'}
+          />
         </Form>
       </div>
-      <FormThankYou
-        status={status}
-        message={{
-          loading: 'We are subscribing you to our newsletter...',
-          success: 'Thank you for subscribing to our newsletter.'
-        }}
-      />
+      {showThankYouOverlay && (
+        <FormThankYou
+          status={status}
+          message={{
+            loading: 'We are subscribing you to our newsletter...',
+            success: 'Thank you for subscribing to our newsletter.'
+          }}
+        />
+      )}
     </>
   );
 };
