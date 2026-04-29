@@ -74,6 +74,12 @@ const defaultRobots = {
           url: resolvedCanonicalUrl,
           images: seoData?.openGraphImage ? [{ url: seoData.openGraphImage }] : metadata.openGraph.images
         },
+        twitter: {
+          ...metadata.twitter,
+          title: seoTitle || seoData?.seoTitle || metadata.title,
+          description: seoDescription || seoData?.seoDescription || metadata.description,
+          images: seoData?.openGraphImage ? [seoData.openGraphImage] : metadata.twitter?.images
+        },
         keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
         alternates: {
           canonical: resolvedCanonicalUrl,

@@ -4,6 +4,7 @@ import metadata from '@/config/metadata';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import { DOCUMENT_QUERY } from '@/tools/sanity/lib/queries.groq';
 import { generateSanityMetadata } from '@/tools/sanity/helpers';
+import { resolveShareImage } from '@/tools/sanity/helpers';
 import { client } from '@/tools/sanity/lib/client';
 
 // Templates
@@ -107,7 +108,7 @@ export const generateMetadata = generateSanityMetadata({
           return {
             seoTitle: seoData?.seoTitle || `${document?.page?.title} | ${metadata.title}`,
             seoDescription: seoData?.seoDescription,
-            openGraphImage: seoData?.openGraphImage?.asset?.url,
+            openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.page?.sections, document?.page),
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
@@ -119,7 +120,7 @@ export const generateMetadata = generateSanityMetadata({
           return {
             seoTitle: seoData?.seoTitle || `${document?.artwork?.title} | ${metadata.title}`,
             seoDescription: seoData?.seoDescription,
-            openGraphImage: seoData?.openGraphImage?.asset?.url,
+            openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.artwork),
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
@@ -131,7 +132,7 @@ export const generateMetadata = generateSanityMetadata({
           return {
             seoTitle: seoData?.seoTitle || `${document?.press?.title} | ${metadata.title}`,
             seoDescription: seoData?.seoDescription,
-            openGraphImage: seoData?.openGraphImage?.asset?.url,
+            openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.press),
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
@@ -143,7 +144,7 @@ export const generateMetadata = generateSanityMetadata({
           return {
             seoTitle: seoData?.seoTitle || `${document?.product?.store?.title} | ${metadata.title}`,
             seoDescription: seoData?.seoDescription,
-            openGraphImage: seoData?.openGraphImage?.asset?.url,
+            openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.product),
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },
@@ -155,7 +156,7 @@ export const generateMetadata = generateSanityMetadata({
           return {
             seoTitle: seoData?.seoTitle || `${document?.collection?.store?.title} | ${metadata.title}`,
             seoDescription: seoData?.seoDescription,
-            openGraphImage: seoData?.openGraphImage?.asset?.url,
+            openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.collection),
             alternates: {
               canonical: `${baseUrl}/${canonicalPath}`
             },

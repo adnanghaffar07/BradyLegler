@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import { DOCUMENT_QUERY } from '@/tools/sanity/lib/queries.groq';
 import { generateSanityMetadata } from '@/tools/sanity/helpers';
+import { resolveShareImage } from '@/tools/sanity/helpers';
 import PageTemplate from '@/templates/PageTemplate';
 
 const Home = async (props: PageProps) => {
@@ -27,19 +28,10 @@ export const generateMetadata = generateSanityMetadata({
 
     const page = document?.page;
 
-    const getOpenGraphImage = (page: any) => {
-      if (page?.seoData?.openGraphImage?.asset?.url) return page.seoData.openGraphImage.asset.url;
-      const firstSection = page?.sections?.[0];
-      if (firstSection?._type === 'headerHeroSection' && firstSection.mediaType === 'image' && firstSection.image?.asset?.url) {
-        return firstSection.image.asset.url;
-      }
-      return undefined;
-    };
-
     return {
       seoTitle: page?.seoData?.seoTitle,
       seoDescription: page?.seoData?.seoDescription,
-      openGraphImage: getOpenGraphImage(page)
+      openGraphImage: resolveShareImage(page?.seoData?.openGraphImage, page?.sections, page)
     };
   }
 });
