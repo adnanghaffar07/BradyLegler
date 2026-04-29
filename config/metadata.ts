@@ -20,7 +20,8 @@ const metadata: Metadata = {
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || ''),
   icons: {
-    icon: '/favicon.svg',
+    icon: ['/apple-icon.png', '/favicon.svg'],
+    shortcut: ['/apple-icon.png'],
     apple: ['/apple-icon.png', '/apple-touch-icon.png']
   },
   openGraph: {
