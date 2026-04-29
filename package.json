@@ -15,7 +15,8 @@
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write --list-different .",
     "ts:watch": "yarn tsc --watch",
-    "generate:apple-icon": "node generate-apple-icon.js"
+    "generate:apple-icon": "node generate-apple-icon.js",
+    "check:icons": "node scripts/check-icons.mjs"
   },
   "dependencies": {
     "@next/third-parties": "^14.1.4",
