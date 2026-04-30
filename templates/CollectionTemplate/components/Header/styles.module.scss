@@ -58,6 +58,25 @@
   object-position: center;
 }
 
+.audioControl {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  color: white;
+  font-size: 16px;
+}
+
 /* ========================================
    OVERLAY CONTENT (TAGLINE + BUTTON)
 ======================================== */

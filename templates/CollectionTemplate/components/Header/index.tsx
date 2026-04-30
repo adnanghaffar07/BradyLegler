@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import SanityImage from '@/components/Image'; // Import our Sanity Image component
 import Section from '@/components/Section';
@@ -11,6 +11,7 @@ import { ICollectionDocument } from '@/tools/sanity/schema/documents/collection'
 import styles from './styles.module.scss';
 import Button from '@/components/Button';
 import Link from '@/components/Link';
+import Video from '@/components/Video';
 
 const Media: React.FC<{
   type: 'video' | 'image';
@@ -30,14 +31,14 @@ const Media: React.FC<{
   if (type === 'video' && video) {
     return (
       <div className={classes}>
-        <video
-          src={video.asset.url}
-          controls={true}
-          muted={false}
-          playsInline={true}
-          autoPlay={true}
-          loop={true}
+        <Video
+          url={video.asset.url}
           className={styles.media}
+          controls={false}
+          showAudioControl={true}
+          muted={true}
+          autoPlay
+          loop
         />
       </div>
     );
