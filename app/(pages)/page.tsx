@@ -2,7 +2,7 @@ import { SanityDocument } from 'next-sanity';
 import { notFound } from 'next/navigation';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import { DOCUMENT_QUERY } from '@/tools/sanity/lib/queries.groq';
-import { generateSanityMetadata } from '@/tools/sanity/helpers';
+import { generateSanityMetadata, getPageSeoDescriptionFallback } from '@/tools/sanity/helpers';
 import { resolveShareImage } from '@/tools/sanity/helpers';
 import PageTemplate from '@/templates/PageTemplate';
 
@@ -29,8 +29,9 @@ export const generateMetadata = generateSanityMetadata({
     const page = document?.page;
 
     return {
-      seoTitle: page?.seoData?.seoTitle,
-      seoDescription: page?.seoData?.seoDescription,
+      seoTitle: page?.seoData?.seoTitle?.trim(),
+      seoDescription:
+        page?.seoData?.seoDescription?.trim() || getPageSeoDescriptionFallback(page?.title),
       openGraphImage: resolveShareImage(page?.seoData?.openGraphImage, page?.sections, page)
     };
   }

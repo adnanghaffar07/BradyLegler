@@ -3,7 +3,7 @@ import { SanityDocument } from 'next-sanity';
 import metadata from '@/config/metadata';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import { DOCUMENT_QUERY } from '@/tools/sanity/lib/queries.groq';
-import { generateSanityMetadata } from '@/tools/sanity/helpers';
+import { generateSanityMetadata, getSanityDocumentMetaDescription } from '@/tools/sanity/helpers';
 import { resolveShareImage } from '@/tools/sanity/helpers';
 import { client } from '@/tools/sanity/lib/client';
 
@@ -107,10 +107,10 @@ export const generateMetadata = generateSanityMetadata({
           const seoData = document?.page?.seoData;
           return {
             seoTitle: seoData?.seoTitle || `${document?.page?.title} | ${metadata.title}`,
-            seoDescription: seoData?.seoDescription,
+            seoDescription: seoData?.seoDescription?.trim() || getSanityDocumentMetaDescription(document),
             openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.page?.sections, document?.page),
             alternates: {
-              canonical: `${baseUrl}/${canonicalPath}`
+              canonical: seoData?.canonicalUrl || `${baseUrl}/${canonicalPath}`
             },
             // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
@@ -119,10 +119,10 @@ export const generateMetadata = generateSanityMetadata({
           const seoData = document?.artwork?.seoData;
           return {
             seoTitle: seoData?.seoTitle || `${document?.artwork?.title} | ${metadata.title}`,
-            seoDescription: seoData?.seoDescription,
+            seoDescription: seoData?.seoDescription?.trim() || getSanityDocumentMetaDescription(document),
             openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.artwork),
             alternates: {
-              canonical: `${baseUrl}/${canonicalPath}`
+              canonical: seoData?.canonicalUrl || `${baseUrl}/${canonicalPath}`
             },
             // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
@@ -131,10 +131,10 @@ export const generateMetadata = generateSanityMetadata({
           const seoData = document?.press?.seoData;
           return {
             seoTitle: seoData?.seoTitle || `${document?.press?.title} | ${metadata.title}`,
-            seoDescription: seoData?.seoDescription,
+            seoDescription: seoData?.seoDescription?.trim() || getSanityDocumentMetaDescription(document),
             openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.press),
             alternates: {
-              canonical: `${baseUrl}/${canonicalPath}`
+              canonical: seoData?.canonicalUrl || `${baseUrl}/${canonicalPath}`
             },
             // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
@@ -143,10 +143,10 @@ export const generateMetadata = generateSanityMetadata({
           const seoData = document?.product?.seoData;
           return {
             seoTitle: seoData?.seoTitle || `${document?.product?.store?.title} | ${metadata.title}`,
-            seoDescription: seoData?.seoDescription,
+            seoDescription: seoData?.seoDescription?.trim() || getSanityDocumentMetaDescription(document),
             openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.product),
             alternates: {
-              canonical: `${baseUrl}/${canonicalPath}`
+              canonical: seoData?.canonicalUrl || `${baseUrl}/${canonicalPath}`
             },
             // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
@@ -155,10 +155,10 @@ export const generateMetadata = generateSanityMetadata({
           const seoData = document?.collection?.seoData;
           return {
             seoTitle: seoData?.seoTitle || `${document?.collection?.store?.title} | ${metadata.title}`,
-            seoDescription: seoData?.seoDescription,
+            seoDescription: seoData?.seoDescription?.trim() || getSanityDocumentMetaDescription(document),
             openGraphImage: resolveShareImage(seoData?.openGraphImage, document?.collection),
             alternates: {
-              canonical: `${baseUrl}/${canonicalPath}`
+              canonical: seoData?.canonicalUrl || `${baseUrl}/${canonicalPath}`
             },
             // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
           };
