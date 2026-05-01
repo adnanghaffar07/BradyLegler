@@ -42,11 +42,11 @@ const metadata: Metadata = {
   },
   robots: {
     index: true,
-    follow: false,
+    follow: true,
     nocache: true,
     googleBot: {
       index: true,
-      follow: false,
+      follow: true,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1
