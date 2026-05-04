@@ -9,6 +9,7 @@ interface ISeoObject {
     };
   };
   canonicalUrl?: string;
+  jsonLd?: string;
   noIndex: boolean;
 }
 
@@ -43,6 +44,25 @@ const seo = defineType({
       title: `Canonical URL`,
       description: `The canonical URL for this page. If left blank, the page's URL will be used.`,
       type: `url`
+    },
+    {
+      name: `jsonLd`,
+      title: `Custom JSON-LD`,
+      description: `Paste valid JSON-LD schema for this page/document. Example: { "@context": "https://schema.org", "@type": "WebPage", ... }`,
+      type: `text`,
+      options: {
+        rows: 10
+      },
+      validation: Rule =>
+        Rule.custom((value: string) => {
+          if (!value) return true;
+          try {
+            JSON.parse(value);
+            return true;
+          } catch (error) {
+            return 'Invalid JSON-LD JSON format';
+          }
+        })
     },
     {
       name: `noIndex`,
