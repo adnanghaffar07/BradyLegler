@@ -390,7 +390,7 @@ const CollectionRowClient: React.FC<ICollectionRowClientProps> = ({ title, produ
                 >
                   <div className={styles.imageWrapper}>
                     {currentImage && (
-                      <Link href={`/product/${product.store.slug.current}`} className={styles.link}>
+                      <Link href={`/${product.store.slug.current}`} className={styles.link}>
                         <div className={styles.imageContainer}>
                           <Image
                             src={currentImage.src}

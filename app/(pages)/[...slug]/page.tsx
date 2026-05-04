@@ -41,6 +41,11 @@ const Document = async (props: PageProps) => {
 
     const documentType = document?._type;
 
+    // Prevent access to product pages with '/product/' in the URL
+    if (documentType === 'product' && pathname.startsWith('/product/')) {
+      return notFound();
+    }
+
     switch (documentType) {
       case 'page':
         if (document?.page) {
