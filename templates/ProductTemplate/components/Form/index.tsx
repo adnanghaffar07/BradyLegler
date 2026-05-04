@@ -27,9 +27,28 @@ type FormProps = {
 };
 
 const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: handleSetSelectVariant, currencyCode }) => {
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const [selectedVariant, setVariant] = useState<VariantType | null>(null);
   const { trackAddToCart } = useAnalytics();
+
+  const product = sanityProductData?.store;
+  const variants = useMemo(() => product?.variants?.map(({ store }) => store) ?? [], [product]);
+  const options = product?.options ?? [];
+  const firstAvailableVariant = variants.find(v => v.inventory.isAvailable) ?? null;
+
+  const [selectedVariant, setVariant] = useState<VariantType | null>(firstAvailableVariant);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
+    if (!firstAvailableVariant) return {};
+
+    const { option1, option2, option3 } = firstAvailableVariant;
+    const selectedOptionsValues = [option1, option2, option3];
+
+    return options.reduce(
+      (acc, option, index) => ({
+        ...acc,
+        [option.name]: selectedOptionsValues[index]
+      }),
+      {}
+    );
+  });
 
   const setSelectedVariant = useCallback((variant: VariantType | null) => {
     setVariant(variant);
@@ -38,9 +57,6 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
     }
   }, []);
 
-  const product = sanityProductData?.store;
-  const variants = useMemo(() => product?.variants?.map(({ store }) => store) ?? [], [product]);
-  const options = product?.options ?? [];
   const minVariantPrice = product?.priceRange?.minVariantPrice;
   const variantPrice = selectedVariant?.price;
 

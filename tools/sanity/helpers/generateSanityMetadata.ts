@@ -5,6 +5,7 @@ type CustomMetadata = {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
+  canonicalUrl?: string;
   alternates?: {
     canonical?: string;
   };
@@ -16,6 +17,14 @@ type CustomMetadata = {
 interface GenerateSanityMetadata extends CustomMetadata {
   query?: (params: any) => Promise<CustomMetadata | any>;
 }
+
+/** Prefer first trimmed non-empty string so CMS whitespace / empty strings fall through to the next source. */
+const firstNonEmptyMetaString = (...vals: (string | undefined | null)[]): string | undefined => {
+  for (const v of vals) {
+    if (typeof v === 'string' && v.trim().length > 0) return v.trim();
+  }
+  return undefined;
+};
 
 const generateSanityMetadata = (params: GenerateSanityMetadata) => {
   const { query, seoTitle, seoDescription, seoKeywords, alternates, robots, other } = params;
@@ -61,20 +70,30 @@ const defaultRobots = {
 
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || '';
       const canonicalUrl = params?.slug ? `${baseUrl}/${params.slug.join('/')}` : baseUrl;
-      const resolvedCanonicalUrl = seoData?.alternates?.canonical || alternates?.canonical || canonicalUrl;
+      const resolvedCanonicalUrl = seoData?.alternates?.canonical || alternates?.canonical || seoData?.canonicalUrl || canonicalUrl;
+
+      const resolvedTitle = firstNonEmptyMetaString(seoTitle, seoData?.seoTitle) ?? metadata.title;
+      const resolvedDescription =
+        firstNonEmptyMetaString(seoDescription, seoData?.seoDescription) ?? metadata.description;
 
       return {
         ...metadata,
-        title: seoTitle || seoData?.seoTitle || metadata.title,
-        description: seoDescription || seoData?.seoDescription || metadata.description,
+        title: resolvedTitle,
+        description: resolvedDescription,
         openGraph: {
           ...metadata.openGraph,
-          title: seoTitle || seoData?.seoTitle || metadata.title!!,
-          description: seoDescription || seoData?.seoDescription || metadata.description!!,
+          title: resolvedTitle,
+          description: resolvedDescription,
           url: resolvedCanonicalUrl,
           images: seoData?.openGraphImage ? [{ url: seoData.openGraphImage }] : metadata.openGraph.images
         },
-        keywords: seoKeywords || seoData?.seoKeywords || metadata.keywords,
+        twitter: {
+          ...metadata.twitter,
+          title: resolvedTitle,
+          description: resolvedDescription,
+          images: seoData?.openGraphImage ? [seoData.openGraphImage] : metadata.twitter?.images
+        },
+        keywords: seoKeywords ?? seoData?.seoKeywords ?? metadata.keywords,
         alternates: {
           canonical: resolvedCanonicalUrl,
           ...alternates,
@@ -87,7 +106,8 @@ const defaultRobots = {
         }
       };
     } catch (error) {
-      return {};
+      console.error('generateSanityMetadata failed', error);
+      return { ...metadata };
     }
   };
 

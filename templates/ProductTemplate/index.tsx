@@ -1,5 +1,6 @@
 import Details from './components/Details';
 import Sections from './components/Sections';
+import JsonLd from '@/components/JsonLd';
 import { getCollectionByHandle, getProductByHandle, getProductRecommendations } from '@/tools/apis/shopify';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
@@ -214,6 +215,7 @@ const ProductTemplate = async (props: WebPageProps) => {
         primaryCollection={primaryCollection}
       />
       <Sections sanityProductData={sanityProductData} params={params} searchParams={searchParams} />
+      <JsonLd.Custom jsonLd={sanityProductData?.seoData?.jsonLd} />
             <Recommendations recommendations={shopifyProductRecommendations} />
     </>
   );

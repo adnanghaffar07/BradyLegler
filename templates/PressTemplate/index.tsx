@@ -29,6 +29,7 @@ const PressTemplate = async (props: WebPageProps) => {
       </Section>
       <Sections sections={data?.sections} searchParams={searchParams} params={params} />
       <JsonLd.Article document={data} />
+      <JsonLd.Custom jsonLd={data?.seoData?.jsonLd} />
     </>
   );
 };

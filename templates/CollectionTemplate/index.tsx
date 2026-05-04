@@ -1,6 +1,7 @@
 import Header from './components/Header';
 import Products from './components/Products';
 import Sections from '@/components/Sections';
+import JsonLd from '@/components/JsonLd';
 import { ICollectionDocument } from '@/tools/sanity/schema/documents/collection';
 
 interface WebPageProps extends PageProps {
@@ -18,6 +19,7 @@ const CollectionTemplate = async (props: WebPageProps) => {
         <Products sanityCollectionData={sanityCollectionData} params={params} searchParams={searchParams} />
         <Sections sections={sanityCollectionData?.sections} params={params} searchParams={searchParams} />
       </div>
+      <JsonLd.Custom jsonLd={sanityCollectionData?.seoData?.jsonLd} />
     </>
   );
 };

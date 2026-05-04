@@ -62,11 +62,19 @@ const Video = (props: VideoProps) => {
   }, [muted]);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = isMuted;
-      videoRef.current.setAttribute('playsinline', '');
-      videoRef.current.setAttribute('webkit-playsinline', '');
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = isMuted;
+    video.defaultMuted = isMuted;
+    if (isMuted) {
+      video.setAttribute('muted', '');
+    } else {
+      video.removeAttribute('muted');
     }
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.setAttribute('autoplay', '');
   }, [isMuted]);
 
   // Safari can ignore declarative autoplay intermittently; retry when media is ready.
@@ -75,7 +83,10 @@ const Video = (props: VideoProps) => {
     if (!video || !autoPlay) return;
     try {
       // Keep muted autoplay for Safari policy compliance.
+      video.defaultMuted = true;
       video.muted = isMuted;
+      video.setAttribute('muted', '');
+      video.setAttribute('autoplay', '');
       await video.play();
     } catch {
       // Autoplay may still be blocked by system/browser settings; user can unmute/play manually.
@@ -106,18 +117,52 @@ const Video = (props: VideoProps) => {
     void toggleAudio();
   };
 
+  const renderAudioControl = () => (
+    <button
+      type="button"
+      className={styles.audioControl}
+      onClick={handleAudioToggle}
+      aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+      title={isMuted ? 'Unmute' : 'Mute'}
+    >
+      {isMuted ? (
+        <img src="/sound-off.png" alt="Muted" className={styles.icon} />
+      ) : (
+        <img src="/sound-on.png" alt="Unmuted" className={styles.icon} />
+      )}
+    </button>
+  );
+
   if (videoPlatform === 'youtube') {
     return (
-      <div className={styles.youtubeWrapper}>
-        <ReactPlayer url={url} title={altText} width="100%" height="100%" controls={controls} />
+      <div className={classNames(styles.videoWrapper, styles.youtubeWrapper, { [styles.withAudioControl]: showAudioControl })}>
+        <ReactPlayer
+          url={url}
+          title={altText}
+          width="100%"
+          height="100%"
+          controls={controls}
+          playing={autoPlay}
+          muted={isMuted}
+        />
+        {showAudioControl && renderAudioControl()}
       </div>
     );
   }
 
   if (videoPlatform === 'vimeo') {
     return (
-      <div className={styles.vimeoWrapper}>
-        <ReactPlayer url={url} title={altText} width="100%" height="100%" controls={controls} />
+      <div className={classNames(styles.videoWrapper, styles.vimeoWrapper, { [styles.withAudioControl]: showAudioControl })}>
+        <ReactPlayer
+          url={url}
+          title={altText}
+          width="100%"
+          height="100%"
+          controls={controls}
+          playing={autoPlay}
+          muted={isMuted}
+        />
+        {showAudioControl && renderAudioControl()}
       </div>
     );
   }
@@ -133,11 +178,10 @@ const Video = (props: VideoProps) => {
           controls={showAudioControl ? false : controls}
           controlsList={showAudioControl ? 'nodownload noplaybackrate nofullscreen noremoteplayback' : undefined}
           playsInline
-          preload="metadata"
+          preload="auto"
           loop={loop}
           autoPlay={autoPlay}
           muted={isMuted}
-          defaultMuted={muted}
           disablePictureInPicture={showAudioControl}
           onLoadedMetadata={() => {
             void attemptAutoPlay();
@@ -152,21 +196,7 @@ const Video = (props: VideoProps) => {
             void attemptAutoPlay();
           }}
         />
-        {showAudioControl && (
-          <button
-            type="button"
-            className={styles.audioControl}
-            onClick={handleAudioToggle}
-            aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
-            title={isMuted ? 'Unmute' : 'Mute'}
-          >
-            {isMuted ? (
-              <img src="/sound-off.png" alt="Muted" className={styles.icon} />
-            ) : (
-              <img src="/sound-on.png" alt="Unmuted" className={styles.icon} />
-            )}
-          </button>
-        )}
+        {showAudioControl && renderAudioControl()}
       </div>
     );
   }

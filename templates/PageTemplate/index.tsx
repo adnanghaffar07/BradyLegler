@@ -21,6 +21,7 @@ const PageTemplate = async (props: WebPageProps) => {
     <>
       {withTopSpacing ? <div className={styles.container}>{sections}</div> : sections}
       <JsonLd.Page document={data} />
+      <JsonLd.Custom jsonLd={data?.seoData?.jsonLd} />
     </>
   );
 };

@@ -13,7 +13,10 @@ import imageProjection from '@/projections/common/image.groq';
 export const ARTWORKS_QUERY = groq`*[_type == "artwork" && status == $status]${artworkProjection} | order(publishDate desc, _createdAt desc)`;
 
 export const DOCUMENT_QUERY = groq`
-  *[_type in $types && (pathname == $pathname || store.slug.current == $shopifySlug)][0]{
+  coalesce(
+    *[_type in $types && pathname == $pathname][0],
+    *[_type in $types && store.slug.current == $shopifySlug][0]
+  ){
     _type,
 
     // ------------------

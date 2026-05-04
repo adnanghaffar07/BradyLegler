@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 const SITE_DESCRIPTION =
-  'Discover Brady Legler jewelry and collections crafted with emotion, intention, and timeless design. Contact us for inquiries, support, or press information.';
+  'Luxury fine jewelry, original paintings, and handmade art rugs. Each Brady Legler piece is rooted in personal story and made to be felt as much as worn.';
 
 const metadata: Metadata = {
   title: 'Brady Legler',
@@ -20,8 +20,9 @@ const metadata: Metadata = {
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || ''),
   icons: {
-    icon: '/favicon.svg',
-    apple: '/apple-touch-icon.png'
+    icon: ['/apple-icon.png', '/favicon.svg'],
+    shortcut: ['/apple-icon.png'],
+    apple: ['/apple-icon.png', '/apple-touch-icon.png']
   },
   openGraph: {
     title: 'Brady Legler',
@@ -41,11 +42,11 @@ const metadata: Metadata = {
   },
   robots: {
     index: true,
-    follow: false,
+    follow: true,
     nocache: true,
     googleBot: {
       index: true,
-      follow: false,
+      follow: true,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1
