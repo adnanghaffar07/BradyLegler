@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 const SITE_DESCRIPTION =
-  'Discover Brady Legler jewelry and collections crafted with emotion, intention, and timeless design. Contact us for inquiries, support, or press information.';
+  'Luxury fine jewelry, original paintings, and handmade art rugs. Each Brady Legler piece is rooted in personal story and made to be felt as much as worn.';
 
 const metadata: Metadata = {
   title: 'Brady Legler',
