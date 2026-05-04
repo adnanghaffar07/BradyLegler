@@ -2664,6 +2664,25 @@
         "title": "Canonical URL"
       },
       {
+        "options": {
+          "rows": 10
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Paste valid JSON-LD schema for this page/document. Example: { \"@context\": \"https://schema.org\", \"@type\": \"WebPage\", ... }",
+        "name": "jsonLd",
+        "type": "text",
+        "title": "Custom JSON-LD"
+      },
+      {
         "initialValue": false,
         "name": "noIndex",
         "type": "boolean",
