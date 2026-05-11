@@ -125,8 +125,20 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     url.searchParams.set('fp-y', hotspot.y.toString());
   }
 
-  imageSrc = url.toString();
-} catch (e) {}
+  // Prioritized above-the-fold images: cap Sanity width so LCP avoids multi-megapixel downloads (layout unchanged)
+    if (priority && !smallImage && sanityImage?.width) {
+      const maxEdge = 2400;
+      const rawW = url.searchParams.get('w');
+      const effectiveW = rawW ? parseInt(rawW, 10) : sanityImage.width;
+      if (!Number.isNaN(effectiveW) && effectiveW > maxEdge) {
+        url.searchParams.set('fit', 'max');
+        url.searchParams.set('w', String(maxEdge));
+        url.searchParams.delete('h');
+      }
+    }
+
+    imageSrc = url.toString();
+  } catch (e) {}
 
     const lqip = asset?.metadata?.lqip;
     const defaultPlaceholder = lqip ? 'blur' : 'empty';
@@ -197,7 +209,8 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
       quality={quality}
       sizes={sizes}
       priority={priority}
-      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : undefined}
+      loading={priority ? undefined : 'lazy'}
       alt={alt}
       fill={fill}
       onError={onError}

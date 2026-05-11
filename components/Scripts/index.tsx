@@ -1,4 +1,3 @@
-import { GoogleTagManager } from '@next/third-parties/google';
 import { ScriptProps } from 'next/script';
 import Script from 'next/script';
 
@@ -20,9 +19,19 @@ const Scripts = (props: ScriptProperties) => {
   const scriptsToLoad = [];
 
   // Google Tag Manager
-  const GOOGLE_TAG_MANAGER_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
+  const rawGtmId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
+  const GOOGLE_TAG_MANAGER_ID = rawGtmId === '' ? null : rawGtmId ?? 'GTM-5WPFTSXZ';
   if ((loadAll || scripts.includes('googleTagManager')) && GOOGLE_TAG_MANAGER_ID) {
-    scriptsToLoad.push(<GoogleTagManager gtmId={GOOGLE_TAG_MANAGER_ID} />);
+    scriptsToLoad.push(
+      <Script
+        key="google-tag-manager-bootstrap"
+        id="google-tag-manager-bootstrap"
+        strategy="lazyOnload"
+        dangerouslySetInnerHTML={{
+          __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GOOGLE_TAG_MANAGER_ID}');`
+        }}
+      />
+    );
   }
 
   // Google Analytics

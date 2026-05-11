@@ -34,7 +34,15 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
       {...getSectionSpacingProps(props)}
     >
       {/* Media Background - Full width */}
-      {mediaType === 'image' && image && <Image {...image} className={styles.bgImage} />}
+      {mediaType === 'image' && image && (
+        <Image
+          {...image}
+          className={styles.bgImage}
+          priority
+          quality={82}
+          sizes="100vw"
+        />
+      )}
 
       {mediaType === 'video' && mediaUrl && (
         <Video

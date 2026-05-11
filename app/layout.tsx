@@ -11,12 +11,14 @@ type RootLayoutProps = {
 
 const RootLayout: React.FC<RootLayoutProps> = async props => {
   const { children } = props;
+  const rawGtmId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
+  const gtmId = rawGtmId === '' ? null : rawGtmId ?? 'GTM-5WPFTSXZ';
+
   return (
     <html lang="en-US">
       <head>
-        {/* Google Tag Manager */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WPFTSXZ');` }} />
-        {/* End Google Tag Manager */}
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <link rel="icon" type="image/png" sizes="180x180" href="/apple-icon.png" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="mask-icon" href="/favicon.svg" color="#0a0a0a" />
@@ -25,12 +27,19 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
         <meta name="apple-mobile-web-app-status-bar-style" content="white" />
       </head>
       <body className={fonts}>
-        {/* Google Tag Manager (noscript) */}
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WPFTSXZ" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
-        {/* End Google Tag Manager (noscript) */}
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            ></iframe>
+          </noscript>
+        )}
         <Providers>{children}</Providers>
+        <Scripts loadAll />
       </body>
-      <Scripts loadAll />
     </html>
   );
 };

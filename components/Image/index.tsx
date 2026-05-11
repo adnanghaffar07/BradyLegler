@@ -137,6 +137,7 @@ const Image = (props: ImageProps) => {
           height={height}
           quality={quality}
           priority={priority}
+          fetchPriority={priority ? 'high' : undefined}
           sizes={sizesAttributes}
           fill={fill}
           onError={setError}
@@ -155,6 +156,7 @@ const Image = (props: ImageProps) => {
         height={900}
         quality={quality}
         priority={priority}
+        fetchPriority={priority ? 'high' : undefined}
         sizes={sizesAttributes}
         fill={fill}
       />

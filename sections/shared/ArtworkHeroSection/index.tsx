@@ -76,7 +76,16 @@ const ArtworkHeroSection: React.FC<IHeaderHeroSection> = props => {
       {...getSectionSpacingProps(props)}
     >
       {/* Media Background - Full width */}
-      {mediaType === 'image' && image && <Image {...image} objectFit="contain" className={styles.bgImage} />}
+      {mediaType === 'image' && image && (
+        <Image
+          {...image}
+          objectFit="contain"
+          className={styles.bgImage}
+          priority
+          quality={82}
+          sizes="100vw"
+        />
+      )}
 
       {/* Content Overlay */}
       <Layout variant="fullWidth" className={styles.layout}>
