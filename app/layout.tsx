@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import fonts from '@/config/fonts';
 import Scripts from '@/components/Scripts';
 import { Providers } from './providers';
@@ -7,6 +7,13 @@ import '@/sass/global/styles.scss';
 
 type RootLayoutProps = {
   children: React.ReactNode;
+};
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const RootLayout: React.FC<RootLayoutProps> = async props => {
@@ -17,6 +24,7 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
   return (
     <html lang="en-US">
       <head>
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <link rel="icon" type="image/png" sizes="180x180" href="/apple-icon.png" />
@@ -26,6 +34,7 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="white" />
       </head>
+
       <body className={fonts}>
         {gtmId && (
           <noscript>
@@ -34,9 +43,10 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
               height="0"
               width="0"
               style={{ display: 'none', visibility: 'hidden' }}
-            ></iframe>
+            />
           </noscript>
         )}
+
         <Providers>{children}</Providers>
         <Scripts loadAll />
       </body>
@@ -47,7 +57,7 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
 export const viewport: Viewport = {
   initialScale: 1,
   width: 'device-width',
-  themeColor: '#FFF'
+  themeColor: '#FFF',
 };
 
 export default RootLayout;

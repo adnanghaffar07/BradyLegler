@@ -2,7 +2,7 @@ import { createClient } from 'next-sanity';
 
 export const client = createClient({
   apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   useCdn: true,
   // These settings will be overridden in
@@ -13,3 +13,5 @@ export const client = createClient({
     studioUrl: '/studio'
   }
 });
+
+export default client;

@@ -165,6 +165,8 @@ yarn storybook:build       # Build Storybook
 | `NEXT_PUBLIC_OKENDO_USER_ID` | Okendo user ID (for product reviews)                         |
 | `NEXT_PUBLIC_IS_STAGING`     | Set to `"true"` on staging to prevent search engine indexing |
 
+Note: to use the staging Sanity dataset, set `NEXT_PUBLIC_SANITY_DATASET="staging"` in the staging environment.
+
 ## Third-Party Integrations
 
 ### Sanity CMS
