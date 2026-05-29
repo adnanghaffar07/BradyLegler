@@ -54,11 +54,10 @@ const Video = (props: VideoProps) => {
   } = props;
   const [isMuted, setIsMuted] = useState(muted);
   const [isReady, setIsReady] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className, {
-    [styles.loading]: !isReady
-  });
+  const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className);
   const videoPlatform = detectVideoPlatform(url);
 
   useEffect(() => {
@@ -127,6 +126,10 @@ const Video = (props: VideoProps) => {
     }
   };
 
+  const markError = () => {
+    setHasError(true);
+  };
+
   const hasPlaceholderImage = Boolean(placeholder?.asset?.url);
 
   const renderPlaceholder = () => (
@@ -162,7 +165,7 @@ const Video = (props: VideoProps) => {
   if (videoPlatform === 'youtube') {
     return (
       <div className={classNames(styles.videoWrapper, styles.youtubeWrapper, { [styles.withAudioControl]: showAudioControl })}>
-        {!isReady && renderPlaceholder()}
+        {hasError && renderPlaceholder()}
         <ReactPlayer
           url={url}
           title={altText}
@@ -172,7 +175,8 @@ const Video = (props: VideoProps) => {
           playing={autoPlay}
           muted={isMuted}
           onReady={markReady}
-          config={{ file: { attributes: { preload: 'auto' } } }}
+          onError={markError}
+          config={{ file: { attributes: { preload: 'auto', playsInline: true } } }}
         />
         {showAudioControl && renderAudioControl()}
       </div>
@@ -182,7 +186,7 @@ const Video = (props: VideoProps) => {
   if (videoPlatform === 'vimeo') {
     return (
       <div className={classNames(styles.videoWrapper, styles.vimeoWrapper, { [styles.withAudioControl]: showAudioControl })}>
-        {!isReady && renderPlaceholder()}
+        {hasError && renderPlaceholder()}
         <ReactPlayer
           url={url}
           title={altText}
@@ -192,7 +196,8 @@ const Video = (props: VideoProps) => {
           playing={autoPlay}
           muted={isMuted}
           onReady={markReady}
-          config={{ file: { attributes: { preload: 'auto' } } }}
+          onError={markError}
+          config={{ file: { attributes: { preload: 'auto', playsInline: true } } }}
         />
         {showAudioControl && renderAudioControl()}
       </div>
@@ -202,7 +207,7 @@ const Video = (props: VideoProps) => {
   if (videoPlatform === 'unknown') {
     return (
       <div className={classNames(styles.videoWrapper, { [styles.withAudioControl]: showAudioControl })}>
-        {!isReady && renderPlaceholder()}
+        {hasError && renderPlaceholder()}
         <video
           ref={videoRef}
           className={classes}
@@ -212,10 +217,12 @@ const Video = (props: VideoProps) => {
           controlsList={showAudioControl ? 'nodownload noplaybackrate nofullscreen noremoteplayback' : undefined}
           playsInline
           preload="auto"
+          poster={placeholder?.asset?.url}
           loop={loop}
           autoPlay={autoPlay}
           muted={isMuted}
           disablePictureInPicture={showAudioControl}
+          onError={markError}
           onLoadedMetadata={() => {
             void attemptAutoPlay();
             markReady();
