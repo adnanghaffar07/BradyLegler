@@ -1,6 +1,8 @@
 .section {
   display: flex;
-  min-height: 100dvh;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #1b1b1b;
   position: relative;
   overflow: hidden;
 }
@@ -129,9 +131,9 @@
 // Video styles
 .videoContainer {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
+  min-height: 100vh;
   height: 100%;
   z-index: 0;
   overflow: hidden;
@@ -142,14 +144,16 @@
   .video {
     width: 100%;
     height: 100%;
+    min-height: 100vh;
     object-fit: cover; // Mobile crop
     object-position: center;
     display: block;
   }
 
   @include media-up-desktop {
-    position: relative;
-    min-height: 100%;
+    position: absolute;
+    inset: 0;
+    min-height: 100vh;
     height: 100%;
     overflow: hidden;
 
@@ -157,8 +161,8 @@
     .video {
       width: 100%;
       height: 100%;
-      object-fit: contain; // Desktop original behavior
-      min-height: 100%;
+      min-height: 100vh;
+      object-fit: cover;
     }
   }
 }
