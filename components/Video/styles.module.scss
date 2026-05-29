@@ -6,6 +6,7 @@
 
   iframe {
     position: absolute;
+    z-index: 0;
     // setting background color because vimeo embed has weird floating control buttons around it without it
     background-color: black;
     top: 0;
@@ -137,7 +138,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 1100;
+  z-index: 2000;
   pointer-events: auto;
   transition: background-color 160ms ease;
 

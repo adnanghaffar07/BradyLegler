@@ -27,6 +27,7 @@
   width: 100%;
   z-index: 1;
   padding: var(--layout-container-spacing);
+  pointer-events: none;
 
   position: absolute !important;
   top: 0;
@@ -49,6 +50,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
+    pointer-events: auto;
 
     @include media-up-desktop {
       top: 100px;

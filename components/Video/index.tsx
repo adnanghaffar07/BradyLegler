@@ -53,9 +53,33 @@ const Video = (props: VideoProps) => {
     muted = true
   } = props;
   const [isMuted, setIsMuted] = useState(muted);
+  const [hasAudio, setHasAudio] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [hasError, setHasError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const detectAudio = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const audioTracks = (video as any).audioTracks;
+    if (audioTracks && typeof audioTracks.length === 'number') {
+      setHasAudio(audioTracks.length > 0);
+      return;
+    }
+
+    if (typeof (video as any).mozHasAudio === 'boolean') {
+      setHasAudio((video as any).mozHasAudio);
+      return;
+    }
+
+    if (typeof (video as any).webkitAudioDecodedByteCount === 'number') {
+      setHasAudio((video as any).webkitAudioDecodedByteCount > 0);
+      return;
+    }
+
+    setHasAudio(true);
+  }, []);
 
   const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className);
   const videoPlatform = detectVideoPlatform(url);
@@ -146,21 +170,25 @@ const Video = (props: VideoProps) => {
     </div>
   );
 
-  const renderAudioControl = () => (
-    <button
-      type="button"
-      className={styles.audioControl}
-      onClick={handleAudioToggle}
-      aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
-      title={isMuted ? 'Unmute' : 'Mute'}
-    >
-      {isMuted ? (
-        <img src="/sound-off.png" alt="Muted" className={styles.icon} />
-      ) : (
-        <img src="/sound-on.png" alt="Unmuted" className={styles.icon} />
-      )}
-    </button>
-  );
+  const renderAudioControl = () => {
+    if (!showAudioControl || !hasAudio) return null;
+
+    return (
+      <button
+        type="button"
+        className={styles.audioControl}
+        onClick={handleAudioToggle}
+        aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+        title={isMuted ? 'Unmute' : 'Mute'}
+      >
+        {isMuted ? (
+          <img src="/sound-off.png" alt="Muted" className={styles.icon} />
+        ) : (
+          <img src="/sound-on.png" alt="Unmuted" className={styles.icon} />
+        )}
+      </button>
+    );
+  };
 
   if (videoPlatform === 'youtube') {
     return (
@@ -224,14 +252,17 @@ const Video = (props: VideoProps) => {
           disablePictureInPicture={showAudioControl}
           onError={markError}
           onLoadedMetadata={() => {
+            detectAudio();
             void attemptAutoPlay();
             markReady();
           }}
           onLoadedData={() => {
+            detectAudio();
             void attemptAutoPlay();
             markReady();
           }}
           onCanPlay={() => {
+            detectAudio();
             void attemptAutoPlay();
             markReady();
           }}
