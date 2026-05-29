@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 import classNames from '@/helpers/classNames';
-import Image, { ImagePropsSanity } from '../Image';
+import type { ImagePropsSanity } from '../Image';
+import LogoMonogram from '@/assets/logo/logo-monogram.svg';
 
 import styles from './styles.module.scss';
 
@@ -52,9 +53,12 @@ const Video = (props: VideoProps) => {
     muted = true
   } = props;
   const [isMuted, setIsMuted] = useState(muted);
+  const [isReady, setIsReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className);
+  const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className, {
+    [styles.loading]: !isReady
+  });
   const videoPlatform = detectVideoPlatform(url);
 
   useEffect(() => {
@@ -117,6 +121,28 @@ const Video = (props: VideoProps) => {
     void toggleAudio();
   };
 
+  const markReady = () => {
+    if (!isReady) {
+      setIsReady(true);
+    }
+  };
+
+  const hasPlaceholderImage = Boolean(placeholder?.asset?.url);
+
+  const renderPlaceholder = () => (
+    <div className={styles.placeholder}>
+      {hasPlaceholderImage ? (
+        <img
+          src={placeholder?.asset?.url}
+          alt={placeholder?.altText || altText || 'Video placeholder'}
+          className={styles.placeholderImage}
+        />
+      ) : (
+        <LogoMonogram className={styles.placeholderLogo} aria-hidden="true" />
+      )}
+    </div>
+  );
+
   const renderAudioControl = () => (
     <button
       type="button"
@@ -136,6 +162,7 @@ const Video = (props: VideoProps) => {
   if (videoPlatform === 'youtube') {
     return (
       <div className={classNames(styles.videoWrapper, styles.youtubeWrapper, { [styles.withAudioControl]: showAudioControl })}>
+        {!isReady && renderPlaceholder()}
         <ReactPlayer
           url={url}
           title={altText}
@@ -144,6 +171,8 @@ const Video = (props: VideoProps) => {
           controls={controls}
           playing={autoPlay}
           muted={isMuted}
+          onReady={markReady}
+          config={{ file: { attributes: { preload: 'auto' } } }}
         />
         {showAudioControl && renderAudioControl()}
       </div>
@@ -153,6 +182,7 @@ const Video = (props: VideoProps) => {
   if (videoPlatform === 'vimeo') {
     return (
       <div className={classNames(styles.videoWrapper, styles.vimeoWrapper, { [styles.withAudioControl]: showAudioControl })}>
+        {!isReady && renderPlaceholder()}
         <ReactPlayer
           url={url}
           title={altText}
@@ -161,6 +191,8 @@ const Video = (props: VideoProps) => {
           controls={controls}
           playing={autoPlay}
           muted={isMuted}
+          onReady={markReady}
+          config={{ file: { attributes: { preload: 'auto' } } }}
         />
         {showAudioControl && renderAudioControl()}
       </div>
@@ -170,6 +202,7 @@ const Video = (props: VideoProps) => {
   if (videoPlatform === 'unknown') {
     return (
       <div className={classNames(styles.videoWrapper, { [styles.withAudioControl]: showAudioControl })}>
+        {!isReady && renderPlaceholder()}
         <video
           ref={videoRef}
           className={classes}
@@ -185,15 +218,19 @@ const Video = (props: VideoProps) => {
           disablePictureInPicture={showAudioControl}
           onLoadedMetadata={() => {
             void attemptAutoPlay();
+            markReady();
           }}
           onLoadedData={() => {
             void attemptAutoPlay();
+            markReady();
           }}
           onCanPlay={() => {
             void attemptAutoPlay();
+            markReady();
           }}
           onCanPlayThrough={() => {
             void attemptAutoPlay();
+            markReady();
           }}
         />
         {showAudioControl && renderAudioControl()}

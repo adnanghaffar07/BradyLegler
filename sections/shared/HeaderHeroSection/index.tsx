@@ -45,14 +45,19 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
       )}
 
       {mediaType === 'video' && mediaUrl && (
-        <Video
-          url={mediaUrl}
-          controls={false}
-          showAudioControl={true}
-          muted={true}
-          autoPlay
-          loop
-        />
+        <div className={styles.videoContainer}>
+          <Video
+            url={mediaUrl}
+            controls={false}
+            altText={tagline}
+            placeholder={thumbnail}
+            objectFit="cover"
+            showAudioControl
+            muted
+            autoPlay
+            loop
+          />
+        </div>
       )}
 
       {/* Content Overlay */}
