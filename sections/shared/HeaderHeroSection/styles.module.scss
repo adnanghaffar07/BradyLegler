@@ -1,13 +1,10 @@
 .section {
   display: flex;
-  height: 100vh; // Mobile full screen
-  background-color: white;
+  min-height: 100vh;
+  height: 100vh;
+  background-color: #1b1b1b;
   position: relative;
-  overflow: visible;
-
-  @include media-up-desktop {
-    height: auto; // Keep desktop same
-  }
+  overflow: hidden;
 }
 
 .tagline {
@@ -154,14 +151,16 @@
 
   @include media-up-desktop {
     position: relative;
-    height: auto;
-    overflow: visible;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 
     video,
     .video {
       width: 100%;
-      height: auto;
+      height: 100%;
       object-fit: contain; // Desktop original behavior
+      min-height: 100vh;
     }
   }
 }
