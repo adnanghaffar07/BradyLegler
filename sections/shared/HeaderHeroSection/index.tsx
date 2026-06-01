@@ -67,15 +67,19 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
             {tagline && <h2 className={styles.tagline} >{tagline}</h2>}
 
             {addButton && button && (
-              <Link
-                {...button.link}
-                className={styles.button}
-                variant="square-overlay-light"
+              <div
+                className={styles.buttonContainer}
                 onMouseOver={() => setIsHover(true)}
                 onMouseLeave={() => setIsHover(false)}
               >
-                <Text text={button.label} weight="medium" />
-              </Link>
+                <Link
+                  {...button.link}
+                  className={styles.button}
+                  variant="square-overlay-light"
+                >
+                  <Text text={button.label} weight="medium" />
+                </Link>
+              </div>
             )}
           </div>
         </div>
