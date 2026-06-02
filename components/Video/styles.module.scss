@@ -153,3 +153,10 @@
     pointer-events: none;
   }
 }
+
+.audioControlFixed {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 9999;
+}

@@ -39,6 +39,7 @@ const Media: React.FC<{
           muted={true}
           autoPlay
           loop
+          audioControlPlacement="fixed"
         />
       </div>
     );

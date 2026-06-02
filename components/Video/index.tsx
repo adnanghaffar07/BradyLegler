@@ -21,6 +21,8 @@ export type VideoProps = {
   autoPlay?: boolean;
   loop?: boolean;
   muted?: boolean;
+  audioControlPlacement?: 'inline' | 'fixed';
+  hasAudio?: boolean;
 };
 
 function detectVideoPlatform(url?: string) {
@@ -50,36 +52,48 @@ const Video = (props: VideoProps) => {
     showAudioControl = false,
     autoPlay = true,
     loop = true,
-    muted = true
+    muted = true,
+    audioControlPlacement = 'inline',
+    hasAudio: hasAudioProp
   } = props;
   const [isMuted, setIsMuted] = useState(muted);
-  const [hasAudio, setHasAudio] = useState(true);
+  const [hasAudioState, setHasAudioState] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [hasError, setHasError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const hasAudio = typeof hasAudioProp === 'boolean' ? hasAudioProp : hasAudioState;
+
+  useEffect(() => {
+    if (typeof hasAudioProp === 'boolean') {
+      setHasAudioState(hasAudioProp);
+    }
+  }, [hasAudioProp]);
+
   const detectAudio = useCallback(() => {
+    if (typeof hasAudioProp === 'boolean') return;
+
     const video = videoRef.current;
     if (!video) return;
 
     const audioTracks = (video as any).audioTracks;
     if (audioTracks && typeof audioTracks.length === 'number') {
-      setHasAudio(audioTracks.length > 0);
+      setHasAudioState(audioTracks.length > 0);
       return;
     }
 
     if (typeof (video as any).mozHasAudio === 'boolean') {
-      setHasAudio((video as any).mozHasAudio);
+      setHasAudioState((video as any).mozHasAudio);
       return;
     }
 
     if (typeof (video as any).webkitAudioDecodedByteCount === 'number') {
-      setHasAudio((video as any).webkitAudioDecodedByteCount > 0);
+      setHasAudioState((video as any).webkitAudioDecodedByteCount > 0);
       return;
     }
 
-    setHasAudio(true);
-  }, []);
+    setHasAudioState(true);
+  }, [hasAudioProp]);
 
   const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className);
   const videoPlatform = detectVideoPlatform(url);
@@ -173,10 +187,14 @@ const Video = (props: VideoProps) => {
   const renderAudioControl = () => {
     if (!showAudioControl || !hasAudio) return null;
 
+    const audioControlClass = classNames(styles.audioControl, {
+      [styles.audioControlFixed]: audioControlPlacement === 'fixed'
+    });
+
     return (
       <button
         type="button"
-        className={styles.audioControl}
+        className={audioControlClass}
         onClick={handleAudioToggle}
         aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
         title={isMuted ? 'Unmute' : 'Mute'}
