@@ -1,4 +1,3 @@
-import { GoogleTagManager } from '@next/third-parties/google';
 import { ScriptProps } from 'next/script';
 import Script from 'next/script';
 
@@ -18,12 +17,6 @@ const Scripts = (props: ScriptProperties) => {
   const { loadAll = false, strategy = 'afterInteractive', scripts = [] } = props;
 
   const scriptsToLoad = [];
-
-  // Google Tag Manager
-  const GOOGLE_TAG_MANAGER_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
-  if ((loadAll || scripts.includes('googleTagManager')) && GOOGLE_TAG_MANAGER_ID) {
-    scriptsToLoad.push(<GoogleTagManager gtmId={GOOGLE_TAG_MANAGER_ID} />);
-  }
 
   // Google Analytics
   const GOOGLE_ANALYTICS_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;

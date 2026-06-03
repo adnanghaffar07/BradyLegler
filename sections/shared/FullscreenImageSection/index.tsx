@@ -43,7 +43,13 @@ const FullscreenImageSection: React.FC<IFullscreenImageSection> = props => {
       </Layout>
 
       <div className={styles.background}>
-        <Image {...image} className={styles.bgImage} />
+        <Image
+          {...image}
+          className={styles.bgImage}
+          priority
+          quality={82}
+          sizes="100vw"
+        />
       </div>
     </Section>
   );

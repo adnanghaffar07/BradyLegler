@@ -14,11 +14,26 @@ import { IHeaderHeroSection } from '@/tools/sanity/schema/sections/shared/header
 import styles from './styles.module.scss';
 
 const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
-  const { addButton, button, image, tagline, mediaType = 'image', videoType, videoFile, videoUrl, thumbnail } = props;
+  const { 
+    addButton, 
+    button, 
+    image, 
+    tagline, 
+    mediaType = 'image', 
+    videoType, 
+    videoFile, 
+    videoUrl, 
+    thumbnail,
+    mobileVideoType,
+    mobileVideoFile,
+    mobileVideoUrl,
+    mobileThumbnail
+  } = props;
 
   const [isHover, setIsHover] = useState(false);
 
-  const mediaUrl = videoUrl || videoFile?.asset?.url;
+  const desktopMediaUrl = videoUrl || videoFile?.asset?.url;
+  const mobileMediaUrl = mobileVideoUrl || mobileVideoFile?.asset?.url;
 
   return (
     <Section
@@ -34,17 +49,32 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
       {...getSectionSpacingProps(props)}
     >
       {/* Media Background - Full width */}
-      {mediaType === 'image' && image && <Image {...image} className={styles.bgImage} />}
-
-      {mediaType === 'video' && mediaUrl && (
-        <Video
-          url={mediaUrl}
-          controls={false}
-          showAudioControl={true}
-          muted={true}
-          autoPlay
-          loop
+      {mediaType === 'image' && image && (
+        <Image
+          {...image}
+          className={styles.bgImage}
+          priority
+          quality={82}
+          sizes="100vw"
         />
+      )}
+
+      {mediaType === 'video' && desktopMediaUrl && (
+        <div className={styles.videoContainer}>
+          <Video
+            desktopUrl={desktopMediaUrl}
+            mobileUrl={mobileMediaUrl}
+            controls={false}
+            altText={tagline}
+            placeholder={thumbnail}
+            placeholderMobile={mobileThumbnail}
+            objectFit="cover"
+            showAudioControl
+            muted
+            autoPlay
+            loop
+          />
+        </div>
       )}
 
       {/* Content Overlay */}
@@ -54,15 +84,19 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
             {tagline && <h2 className={styles.tagline} >{tagline}</h2>}
 
             {addButton && button && (
-              <Link
-                {...button.link}
-                className={styles.button}
-                variant="square-overlay-light"
+              <div
+                className={styles.buttonContainer}
                 onMouseOver={() => setIsHover(true)}
                 onMouseLeave={() => setIsHover(false)}
               >
-                <Text text={button.label} weight="medium" />
-              </Link>
+                <Link
+                  {...button.link}
+                  className={styles.button}
+                  variant="square-overlay-light"
+                >
+                  <Text text={button.label} weight="medium" />
+                </Link>
+              </div>
             )}
           </div>
         </div>

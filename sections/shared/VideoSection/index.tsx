@@ -11,8 +11,20 @@ import classNames from '@/helpers/classNames';
 import styles from './styles.module.scss';
 
 const VideoSection: React.FC<IVideoSection> = props => {
-  const { videoUrl, videoFile, thumbnail, tagline, addButton, button } = props;
-  const mediaUrl = videoUrl || videoFile?.asset?.url;
+  const { 
+    videoUrl, 
+    videoFile, 
+    thumbnail, 
+    mobileVideoUrl, 
+    mobileVideoFile, 
+    mobileThumbnail,
+    tagline, 
+    addButton, 
+    button 
+  } = props;
+  
+  const desktopMediaUrl = videoUrl || videoFile?.asset?.url;
+  const mobileMediaUrl = mobileVideoUrl || mobileVideoFile?.asset?.url;
   const [isHover, setIsHover] = useState(false);
 
   return (
@@ -25,7 +37,17 @@ const VideoSection: React.FC<IVideoSection> = props => {
       theme="light"
       containerClassName={styles.container}
     >
-      <Video url={mediaUrl} controls={false} showAudioControl={true} muted={true} autoPlay loop />
+      <Video 
+        desktopUrl={desktopMediaUrl} 
+        mobileUrl={mobileMediaUrl}
+        controls={false} 
+        showAudioControl={true} 
+        muted={true} 
+        autoPlay 
+        loop 
+        placeholder={thumbnail}
+        placeholderMobile={mobileThumbnail}
+      />
 
       <Layout variant="fullWidth" className={styles.layout}>
         <div className={styles.containerSticky}>

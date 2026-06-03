@@ -17,7 +17,16 @@ const headerHeroSectionProjection = groq`
     videoType,
     videoFile${fileProjection},
     videoUrl,
+    mobileVideoType,
+    mobileVideoFile${fileProjection},
+    mobileVideoUrl,
     thumbnail {
+      asset->{
+        ...,
+        metadata
+      }
+    },
+    mobileThumbnail {
       asset->{
         ...,
         metadata

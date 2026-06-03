@@ -70,7 +70,7 @@ const FormNewsletter = ({
     <>
       <div className={styles.container}>
         <Form onSubmit={handleOnSubmit} layout="normal" disabled={status === 'loading'}>
-          <Field.Email className={styles.email} name="email" placeholder="Subscribe to Newsletter" required />
+          <Field.Email className={styles.email} name="email" placeholder="Join for Private Access" required />
           <Field.Submit 
             className={styles.button} 
             text={status === 'loading' ? 'Submitting...' : 'Submit'}
