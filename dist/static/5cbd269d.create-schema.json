@@ -3964,6 +3964,68 @@
         "type": "image"
       },
       {
+        "options": {
+          "list": [
+            {
+              "value": "file",
+              "title": "Video File (.mp4)"
+            },
+            {
+              "value": "url",
+              "title": "Video URL (Vimeo, YouTube, etc.)"
+            }
+          ],
+          "layout": "radio",
+          "direction": "horizontal"
+        },
+        "description": "Optional: Upload a separate video optimized for mobile (e.g., portrait format). If not provided, the desktop video will be used on mobile.",
+        "hidden": "conditional",
+        "name": "mobileVideoType",
+        "type": "string",
+        "title": "Mobile Video Type (Optional)"
+      },
+      {
+        "options": {
+          "accept": "video/*"
+        },
+        "hidden": "conditional",
+        "name": "mobileVideoFile",
+        "type": "file"
+      },
+      {
+        "placeholder": "https://...",
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "mobileVideoUrl",
+        "type": "url",
+        "title": "Mobile Video URL (Vimeo, YouTube, etc.)"
+      },
+      {
+        "hidden": "conditional",
+        "name": "mobileThumbnail",
+        "type": "image"
+      },
+      {
         "name": "addButton",
         "type": "boolean"
       },
@@ -4360,6 +4422,64 @@
       {
         "hidden": "conditional",
         "name": "thumbnail",
+        "type": "image"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "value": "file",
+              "title": "Video File (.mp4)"
+            },
+            {
+              "value": "url",
+              "title": "Video URL (Vimeo, YouTube, etc.)"
+            }
+          ],
+          "layout": "radio",
+          "direction": "horizontal"
+        },
+        "description": "Optional: Upload a separate video optimized for mobile (e.g., portrait format). If not provided, the desktop video will be used on mobile.",
+        "name": "mobileVideoType",
+        "type": "string",
+        "title": "Mobile Video Type (Optional)"
+      },
+      {
+        "hidden": "conditional",
+        "name": "mobileVideoFile",
+        "type": "file"
+      },
+      {
+        "placeholder": "https://...",
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "hidden": "conditional",
+        "name": "mobileVideoUrl",
+        "type": "url",
+        "title": "Mobile Video URL (Vimeo, YouTube, etc.)"
+      },
+      {
+        "hidden": "conditional",
+        "name": "mobileThumbnail",
         "type": "image"
       },
       {
