@@ -8,9 +8,18 @@ const videoSectionProjection = groq`
     videoType,
     videoFile${fileProjection},
     videoUrl,
+    mobileVideoType,
+    mobileVideoFile${fileProjection},
+    mobileVideoUrl,
     addButton,
     button${buttonProjection},
     thumbnail {
+      asset->{
+        ...,
+        metadata
+      }
+    },
+    mobileThumbnail {
       asset->{
         ...,
         metadata

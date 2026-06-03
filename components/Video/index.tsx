@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 import classNames from '@/helpers/classNames';
+import { useMediaQuery } from '@/tools/hooks/useMediaQuery';
 import type { ImagePropsSanity } from '../Image';
 import LogoMonogram from '@/assets/logo/logo-monogram.svg';
 
@@ -11,11 +12,15 @@ import styles from './styles.module.scss';
 
 export type VideoProps = {
   url?: string;
+  desktopUrl?: string;
+  mobileUrl?: string;
+  mobileBreakpoint?: number;
   className?: string;
   controls?: boolean;
   altText?: string;
   caption?: string;
   placeholder?: ImagePropsSanity;
+  placeholderMobile?: ImagePropsSanity;
   objectFit?: 'cover' | 'contain';
   showAudioControl?: boolean;
   autoPlay?: boolean;
@@ -43,11 +48,15 @@ function detectVideoPlatform(url?: string) {
 const Video = (props: VideoProps) => {
   const {
     url,
+    desktopUrl,
+    mobileUrl,
+    mobileBreakpoint = 768,
     className,
     controls = true,
     altText,
     caption,
     placeholder,
+    placeholderMobile,
     objectFit = 'cover',
     showAudioControl = false,
     autoPlay = true,
@@ -56,6 +65,32 @@ const Video = (props: VideoProps) => {
     audioControlPlacement = 'inline',
     hasAudio: hasAudioProp
   } = props;
+
+  // Media query hook to detect mobile screens
+  const isMobileScreen = useMediaQuery(`(max-width: ${mobileBreakpoint - 1}px)`);
+
+  // Determine which video URL to use
+  const getVideoUrl = (): string | undefined => {
+    // If both mobile and desktop URLs are provided, use mobile on small screens
+    if (mobileUrl && desktopUrl) {
+      return isMobileScreen ? mobileUrl : desktopUrl;
+    }
+    // Fallback to desktopUrl if only one is provided
+    if (desktopUrl) return desktopUrl;
+    if (mobileUrl) return mobileUrl;
+    // Legacy support for single `url` prop
+    return url;
+  };
+
+  // Determine which placeholder to use
+  const getPlaceholder = (): ImagePropsSanity | undefined => {
+    if (isMobileScreen && placeholderMobile) return placeholderMobile;
+    return placeholder;
+  };
+
+  const effectiveUrl = getVideoUrl();
+  const effectivePlaceholder = getPlaceholder();
+
   const [isMuted, setIsMuted] = useState(muted);
   const [hasAudioState, setHasAudioState] = useState(true);
   const [isReady, setIsReady] = useState(false);
@@ -96,7 +131,7 @@ const Video = (props: VideoProps) => {
   }, [hasAudioProp]);
 
   const classes = classNames(styles.container, styles[`object-fit-${objectFit}`], className);
-  const videoPlatform = detectVideoPlatform(url);
+  const videoPlatform = detectVideoPlatform(effectiveUrl);
 
   useEffect(() => {
     setIsMuted(muted);
@@ -168,14 +203,14 @@ const Video = (props: VideoProps) => {
     setHasError(true);
   };
 
-  const hasPlaceholderImage = Boolean(placeholder?.asset?.url);
+  const hasPlaceholderImage = Boolean(effectivePlaceholder?.asset?.url);
 
   const renderPlaceholder = () => (
     <div className={styles.placeholder}>
       {hasPlaceholderImage ? (
         <img
-          src={placeholder?.asset?.url}
-          alt={placeholder?.altText || altText || 'Video placeholder'}
+          src={effectivePlaceholder?.asset?.url}
+          alt={effectivePlaceholder?.altText || altText || 'Video placeholder'}
           className={styles.placeholderImage}
         />
       ) : (
@@ -213,7 +248,7 @@ const Video = (props: VideoProps) => {
       <div className={classNames(styles.videoWrapper, styles.youtubeWrapper, { [styles.withAudioControl]: showAudioControl })}>
         {hasError && renderPlaceholder()}
         <ReactPlayer
-          url={url}
+          url={effectiveUrl}
           title={altText}
           width="100%"
           height="100%"
@@ -234,7 +269,7 @@ const Video = (props: VideoProps) => {
       <div className={classNames(styles.videoWrapper, styles.vimeoWrapper, { [styles.withAudioControl]: showAudioControl })}>
         {hasError && renderPlaceholder()}
         <ReactPlayer
-          url={url}
+          url={effectiveUrl}
           title={altText}
           width="100%"
           height="100%"
@@ -257,13 +292,13 @@ const Video = (props: VideoProps) => {
         <video
           ref={videoRef}
           className={classes}
-          src={url}
+          src={effectiveUrl}
           title={altText}
           controls={showAudioControl ? false : controls}
           controlsList={showAudioControl ? 'nodownload noplaybackrate nofullscreen noremoteplayback' : undefined}
           playsInline
           preload="auto"
-          poster={placeholder?.asset?.url}
+          poster={effectivePlaceholder?.asset?.url}
           loop={loop}
           autoPlay={autoPlay}
           muted={isMuted}

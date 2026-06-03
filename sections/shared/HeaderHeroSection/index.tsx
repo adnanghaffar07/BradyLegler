@@ -14,11 +14,26 @@ import { IHeaderHeroSection } from '@/tools/sanity/schema/sections/shared/header
 import styles from './styles.module.scss';
 
 const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
-  const { addButton, button, image, tagline, mediaType = 'image', videoType, videoFile, videoUrl, thumbnail } = props;
+  const { 
+    addButton, 
+    button, 
+    image, 
+    tagline, 
+    mediaType = 'image', 
+    videoType, 
+    videoFile, 
+    videoUrl, 
+    thumbnail,
+    mobileVideoType,
+    mobileVideoFile,
+    mobileVideoUrl,
+    mobileThumbnail
+  } = props;
 
   const [isHover, setIsHover] = useState(false);
 
-  const mediaUrl = videoUrl || videoFile?.asset?.url;
+  const desktopMediaUrl = videoUrl || videoFile?.asset?.url;
+  const mobileMediaUrl = mobileVideoUrl || mobileVideoFile?.asset?.url;
 
   return (
     <Section
@@ -44,13 +59,15 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
         />
       )}
 
-      {mediaType === 'video' && mediaUrl && (
+      {mediaType === 'video' && desktopMediaUrl && (
         <div className={styles.videoContainer}>
           <Video
-            url={mediaUrl}
+            desktopUrl={desktopMediaUrl}
+            mobileUrl={mobileMediaUrl}
             controls={false}
             altText={tagline}
             placeholder={thumbnail}
+            placeholderMobile={mobileThumbnail}
             objectFit="cover"
             showAudioControl
             muted
