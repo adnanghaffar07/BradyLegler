@@ -52,9 +52,7 @@ const Heading = (props: HeadingProps) => {
         </Animation>
       )}
       {subtitle && (
-        <Animation delay={0.4}>
-          <Text as="p" className={styles.subtitle} text={subtitle} />
-        </Animation>
+        <Text as="p" className={styles.subtitle} text={subtitle} />
       )}
     </div>
   );
