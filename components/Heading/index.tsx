@@ -1,5 +1,4 @@
 import classNames from '@/helpers/classNames';
-import Animation from '@/components/Animation';
 import Text, { TextProps } from '@/components/Text';
 import styles from './styles.module.scss';
 
@@ -42,14 +41,10 @@ const Heading = (props: HeadingProps) => {
   return (
     <div className={classes}>
       {tagline && (
-        <Animation>
-          <Text as="p" className={styles.tagline} text={tagline} />
-        </Animation>
+        <Text as="p" className={styles.tagline} text={tagline} />
       )}
       {title && (
-        <Animation delay={0.4}>
-          <Text as={titleAs} className={styles.title} text={title} />
-        </Animation>
+        <Text as={titleAs} className={styles.title} text={title} />
       )}
       {subtitle && (
         <Text as="p" className={styles.subtitle} text={subtitle} />

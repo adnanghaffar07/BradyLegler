@@ -66,14 +66,22 @@ const Video = (props: VideoProps) => {
     hasAudio: hasAudioProp
   } = props;
 
-  // Media query hook to detect mobile screens
+  // Hydration guard: only read media query after client hydration
+  const [isHydrated, setIsHydrated] = useState(false);
   const isMobileScreen = useMediaQuery(`(max-width: ${mobileBreakpoint - 1}px)`);
+  
+  // Use desktop URL during SSR to avoid hydration mismatch
+  const effectiveIsMobile = isHydrated && isMobileScreen;
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Determine which video URL to use
   const getVideoUrl = (): string | undefined => {
     // If both mobile and desktop URLs are provided, use mobile on small screens
     if (mobileUrl && desktopUrl) {
-      return isMobileScreen ? mobileUrl : desktopUrl;
+      return effectiveIsMobile ? mobileUrl : desktopUrl;
     }
     // Fallback to desktopUrl if only one is provided
     if (desktopUrl) return desktopUrl;
@@ -84,7 +92,7 @@ const Video = (props: VideoProps) => {
 
   // Determine which placeholder to use
   const getPlaceholder = (): ImagePropsSanity | undefined => {
-    if (isMobileScreen && placeholderMobile) return placeholderMobile;
+    if (effectiveIsMobile && placeholderMobile) return placeholderMobile;
     return placeholder;
   };
 
