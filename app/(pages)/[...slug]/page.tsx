@@ -9,7 +9,9 @@ import { client } from '@/tools/sanity/lib/client';
 
 const NOINDEX_PRODUCT_PATHNAMES = new Set([
   'subway-rectangle-id-bracelet-white-gold',
-  'subway-rectangle-id-bracelet-yellow-gold'
+  'subway-rectangle-id-bracelet-yellow-gold',
+  'noir-bracelet',
+  'noir-choker'
 ]);
 
 // Templates
