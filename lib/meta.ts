@@ -217,6 +217,26 @@ export function trackViewContent(data: MetaEventData): void {
  * Called when user adds item to cart
  */
 export function trackAddToCart(data: MetaEventData): void {
+  // Guard: only track once per product per session
+  if (typeof window !== 'undefined') {
+    try {
+      const trackedKey = '_meta_tracked_addtocart';
+      const contentId = Array.isArray(data.content_ids) ? data.content_ids[0] : undefined;
+      if (contentId) {
+        const raw = sessionStorage.getItem(trackedKey) || '[]';
+        const tracked: string[] = JSON.parse(raw);
+        if (tracked.includes(contentId)) {
+          if (process.env.NODE_ENV === 'development') console.log('[Meta] AddToCart already tracked for', contentId);
+          return;
+        }
+        tracked.push(contentId);
+        sessionStorage.setItem(trackedKey, JSON.stringify(tracked));
+      }
+    } catch (e) {
+      // ignore storage errors
+    }
+  }
+
   const eventId = generateEventId();
   const userData = getUserData();
 
