@@ -11,7 +11,11 @@ const NOINDEX_PRODUCT_PATHNAMES = new Set([
   'subway-rectangle-id-bracelet-white-gold',
   'subway-rectangle-id-bracelet-yellow-gold',
   'noir-bracelet',
-  'noir-choker'
+  'noir-choker',
+  'line-four-band-earrings-white-gold',
+  'line-four-band-earrings-yellow-gold',
+  'wave-bracelet-white-gold',
+  'wave-bracelet-yellow-gold'
 ]);
 
 // Templates
