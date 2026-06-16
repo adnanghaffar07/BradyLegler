@@ -56,6 +56,10 @@ function generateEventId(): string {
 /**
  * Get or create Meta FBP (Facebook Pixel ID) from cookies
  */
+function isNonEmptyString(value: string | undefined): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
 function getFbpCookie(): string | undefined {
   if (typeof document === 'undefined') return undefined;
 
@@ -66,7 +70,8 @@ function getFbpCookie(): string | undefined {
   for (let cookie of cookies) {
     cookie = cookie.trim();
     if (cookie.indexOf(nameEQ) === 0) {
-      return cookie.substring(nameEQ.length);
+      const value = cookie.substring(nameEQ.length).trim();
+      return isNonEmptyString(value) ? value : undefined;
     }
   }
 
@@ -74,7 +79,7 @@ function getFbpCookie(): string | undefined {
 }
 
 /**
- * Get or create Meta FBC (First-Party Cookie) from cookies
+ * Get Meta FBC (First-Party Cookie) from cookies
  */
 function getFbcCookie(): string | undefined {
   if (typeof document === 'undefined') return undefined;
@@ -86,11 +91,64 @@ function getFbcCookie(): string | undefined {
   for (let cookie of cookies) {
     cookie = cookie.trim();
     if (cookie.indexOf(nameEQ) === 0) {
-      return cookie.substring(nameEQ.length);
+      const value = cookie.substring(nameEQ.length).trim();
+      return isNonEmptyString(value) ? value : undefined;
     }
   }
 
   return undefined;
+}
+
+/**
+ * Extract fbclid from the URL query string.
+ */
+function getFbclidParam(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+
+  const params = new URLSearchParams(window.location.search);
+  return params.get('fbclid') || undefined;
+}
+
+/**
+ * Build an _fbc value from fbclid and preserve it as a first-party cookie.
+ */
+function createFbcFromFbclid(): string | undefined {
+  const fbclid = getFbclidParam();
+  if (!fbclid || typeof document === 'undefined') return undefined;
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const fbc = `fb.1.${timestamp}.${fbclid}`;
+
+  try {
+    const secureFlag = window.location.protocol === 'https:' ? ' Secure; SameSite=None;' : '';
+    document.cookie = `_fbc=${fbc}; path=/; max-age=${60 * 60 * 24 * 90};${secureFlag}`;
+  } catch (error) {
+    console.warn('[Meta] Failed to persist _fbc cookie from fbclid', error);
+  }
+
+  return fbc;
+}
+
+/**
+ * Get or create Meta FBC for use in CAPI events.
+ */
+function getOrCreateFbc(): string | undefined {
+  const fbc = getFbcCookie();
+  if (fbc) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Meta] _fbc cookie found', fbc);
+    }
+    return fbc;
+  }
+
+  const createdFbc = createFbcFromFbclid();
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Meta] _fbc created from fbclid', {
+      fbclid: getFbclidParam(),
+      fbc: createdFbc,
+    });
+  }
+  return createdFbc;
 }
 
 /**
@@ -99,7 +157,7 @@ function getFbcCookie(): string | undefined {
 function getUserData(): MetaUserData {
   const userData: MetaUserData = {};
   const fbp = getFbpCookie();
-  const fbc = getFbcCookie();
+  const fbc = getOrCreateFbc();
 
   if (fbp) userData.fbp = fbp;
   if (fbc) userData.fbc = fbc;

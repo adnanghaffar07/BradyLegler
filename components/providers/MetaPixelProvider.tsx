@@ -17,6 +17,30 @@ import { trackPageView } from '@/lib/meta';
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const isDev = process.env.NODE_ENV === 'development';
 
+function trackPageViewWhenReady(pathname: string, pathnameRef: React.MutableRefObject<string | null>) {
+  if (pathnameRef.current !== null) return;
+  pathnameRef.current = pathname;
+
+  const sendPageView = () => {
+    trackPageView();
+    if (isDev) console.log('[Meta] Initial PageView tracked when fbq was ready');
+  };
+
+  if (typeof window !== 'undefined' && window.fbq) {
+    sendPageView();
+    return;
+  }
+
+  let attempts = 0;
+  const interval = window.setInterval(() => {
+    attempts += 1;
+    if (window.fbq || attempts >= 15) {
+      window.clearInterval(interval);
+      sendPageView();
+    }
+  }, 200);
+}
+
 export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathnameRef = useRef<string | null>(null);
   const pathname = usePathname();
@@ -32,11 +56,8 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (existing) {
       if (isDev) console.log('[Meta] Pixel already loaded (script present)');
 
-      // Track initial page view if not tracked yet
       if (pathnameRef.current === null) {
-        pathnameRef.current = pathname;
-        trackPageView();
-        if (isDev) console.log('[Meta] Initial PageView tracked (script present)');
+        trackPageViewWhenReady(pathname, pathnameRef);
       }
 
       return;
@@ -57,27 +78,15 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     `;
     script.async = true;
     script.setAttribute('data-meta-pixel', `${PIXEL_ID}`);
-    document.head.appendChild(script);
-
-    // Immediately record initial page view and mark pathname to avoid duplicates
-    if (pathnameRef.current === null) {
-      pathnameRef.current = pathname;
-      trackPageView();
-      if (isDev) console.log('[Meta] Initial PageView tracked (after script injection)');
-    }
-  }, []);
-
-  // Track PageView on route changes
-  useEffect(() => {
-    if (!PIXEL_ID) return;
-
-    // Initialize pathname on first mount
-    if (pathnameRef.current === null) {
-      pathnameRef.current = pathname;
-      // Track initial page view
-      trackPageView();
-      if (isDev) console.log('[Meta] Initial PageView tracked');
-      return;
+    script.onload = () => {
+      trackPageViewWhenReady(pathname, pathnameRef);
+    };
+    script.onerror = () => {
+      console.error('[Meta] Failed to load Facebook Pixel script');
+      if (pathnameRef.current === null) {
+        pathnameRef.current = pathname;
+        trackPageView();
+      }
     }
 
     // Track PageView on pathname change
