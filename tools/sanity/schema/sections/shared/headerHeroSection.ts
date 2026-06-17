@@ -8,6 +8,8 @@ import thumbnail from '../../../../../sections/shared/HeaderHeroSection/thumbnai
 import { IButtonElement } from '../../elements/button';
 import VideoUrlInput from '../../../components/VideoUrlInput'; // Import if you have this
 
+type MobileContentPosition = 'top' | 'center' | 'bottom';
+
 interface IHeaderHeroSection {
   tagline?: string;
   title?: string;
@@ -24,6 +26,10 @@ interface IHeaderHeroSection {
   mobileVideoFile?: any;
   mobileVideoUrl?: string;
   mobileThumbnail?: SanityImage;
+  sectionFields?: {
+    gridPosition?: 'top' | 'middle' | 'bottom';
+    mobileContentPosition?: MobileContentPosition;
+  };
 }
 
 const headerHeroSection = defineType({
@@ -203,6 +209,23 @@ const headerHeroSection = defineType({
             direction: 'horizontal'
           },
           initialValue: 'middle'
+        },
+        {
+          name: 'mobileContentPosition',
+          title: 'Mobile Tagline & Button Position',
+          description:
+            'Controls vertical placement of the tagline and button on mobile. Center and Top use sticky positioning; Bottom uses static positioning.',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Center', value: 'center' },
+              { title: 'Top', value: 'top' },
+              { title: 'Bottom', value: 'bottom' }
+            ],
+            layout: 'radio',
+            direction: 'horizontal'
+          },
+          initialValue: 'center'
         }
       ]
     }

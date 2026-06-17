@@ -10,6 +10,7 @@ import { useCart } from '@/tools/store/useCart';
 import classNames from '@/tools/helpers/classNames';
 import SidePanel from '@/components/SidePanel';
 import { useAnalytics } from '@/tools/analytics';
+import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
 import styles from './styles.module.scss';
 
 const Cart = () => {
@@ -150,46 +151,74 @@ const LineItem = ({ node }) => {
   const updateCart = useCart(state => state.updateCart);
   const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
 
-  const handleMinus = () => {
-    updateCart(node.id, node.quantity - 1);
-    trackRemoveFromCart({
-      item: {
-        id: node.merchandise.product.id,
-        name: node.merchandise.product.title,
-        variant: node.merchandise.id,
-        price: node.merchandise.priceV2.amount,
-        quantity: 1
-      },
-      currency: node.cost.totalAmount.currencyCode
-    });
+  const handleMinus = async () => {
+    try {
+      await updateCart(node.id, node.quantity - 1);
+      trackRemoveFromCart({
+        item: {
+          id: node.merchandise.product.id,
+          name: node.merchandise.product.title,
+          variant: node.merchandise.id,
+          price: node.merchandise.priceV2.amount,
+          quantity: 1
+        },
+        currency: node.cost.totalAmount.currencyCode
+      });
+    } catch (err) {
+      console.error('Cart update failed', err);
+    }
   };
 
-  const handleAdd = () => {
-    updateCart(node.id, node.quantity + 1);
-    trackAddToCart({
-      item: {
-        id: node.merchandise.product.id,
-        name: node.merchandise.product.title,
-        variant: node.merchandise.id,
-        price: node.merchandise.priceV2.amount,
-        quantity: 1
-      },
-      currency: node.cost.totalAmount.currencyCode
-    });
+  const handleAdd = async () => {
+    try {
+      await updateCart(node.id, node.quantity + 1);
+
+      // Use lib/meta tracking after successful update (guard prevents duplicates)
+      if (typeof window !== 'undefined' && metaTrackAddToCart) {
+        try {
+          metaTrackAddToCart({
+            content_ids: [node.merchandise.product.id],
+            content_name: node.merchandise.product.title,
+            value: Number(node.merchandise.priceV2.amount) || 0,
+            currency: node.cost.totalAmount.currencyCode
+          });
+        } catch (err) {
+          // ignore
+        }
+      }
+
+      // Also send analytics GTM event
+      trackAddToCart({
+        item: {
+          id: node.merchandise.product.id,
+          name: node.merchandise.product.title,
+          variant: node.merchandise.id,
+          price: node.merchandise.priceV2.amount,
+          quantity: 1
+        },
+        currency: node.cost.totalAmount.currencyCode
+      });
+    } catch (err) {
+      console.error('Cart update failed', err);
+    }
   };
 
-  const handleRemove = () => {
-    updateCart(node.id, 0);
-    trackRemoveFromCart({
-      item: {
-        id: node.merchandise.product.id,
-        name: node.merchandise.product.title,
-        variant: node.merchandise.id,
-        price: node.merchandise.priceV2.amount,
-        quantity: node.quantity
-      },
-      currency: node.cost.totalAmount.currencyCode
-    });
+  const handleRemove = async () => {
+    try {
+      await updateCart(node.id, 0);
+      trackRemoveFromCart({
+        item: {
+          id: node.merchandise.product.id,
+          name: node.merchandise.product.title,
+          variant: node.merchandise.id,
+          price: node.merchandise.priceV2.amount,
+          quantity: node.quantity
+        },
+        currency: node.cost.totalAmount.currencyCode
+      });
+    } catch (err) {
+      console.error('Cart update failed', err);
+    }
   };
 
   return (

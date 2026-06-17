@@ -6,6 +6,7 @@ import InquireButton from '../InquireButton';
 import Text from '@/components/Text';
 import { useCart } from '@/tools/store/useCart';
 import { useAnalytics } from '@/tools/analytics';
+import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import styles from './styles.module.scss';
 import Price from '../Price';
@@ -157,18 +158,20 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
     e.preventDefault();
     const isSelectedVariantAvailable = selectedVariant?.inventory.isAvailable;
     if (isSelectedVariantAvailable) {
-      addToCart(selectedVariant.gid, 1);
-      trackAddToCart({
-        currency: currencyCode,
-        item: {
-          id: selectedVariant?.productGid,
-          name: sanityProductData?.store?.title,
-          category: sanityProductData?.store?.productType,
-          price: selectedVariant?.price,
-          variant: selectedVariant?.gid,
-          quantity: 1
-        }
-      });
+      try {
+        await addToCart(selectedVariant.gid, 1);
+
+        // Fire Meta AddToCart only after successful cart update
+        metaTrackAddToCart({
+          content_ids: [selectedVariant.gid],
+          content_name: sanityProductData?.store?.title,
+          value: Number(selectedVariant?.price) || 0,
+          currency: currencyCode || 'USD'
+        });
+      } catch (err) {
+        // ignore telemetry on failure
+        console.error('[Meta] addToCart failed, skipping tracking', err);
+      }
     }
   };
 

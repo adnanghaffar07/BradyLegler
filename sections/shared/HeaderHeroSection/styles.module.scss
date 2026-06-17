@@ -69,6 +69,76 @@
       /* no sticky positioning here; wrapper handles it */
     }
   }
+
+  &.mobilePositionTop {
+    .containerSticky {
+      justify-content: flex-start;
+    }
+
+    .contentGroup {
+      justify-content: flex-start;
+      padding-top: 80px;
+      padding-bottom: 0;
+    }
+
+    .buttonContainer {
+      position: sticky;
+      top: 120px;
+    }
+
+    @include media-up-desktop {
+      .containerSticky,
+      .contentGroup {
+        justify-content: center;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+
+      .buttonContainer {
+        position: sticky;
+        top: 360px;
+      }
+    }
+  }
+
+  &.mobilePositionCenter {
+    @include media-up-desktop {
+      .containerSticky,
+      .contentGroup {
+        justify-content: center;
+        padding-bottom: 0;
+      }
+    }
+  }
+
+  &.mobilePositionBottom {
+    .containerSticky {
+      justify-content: flex-end;
+    }
+
+    .contentGroup {
+      justify-content: flex-end;
+      padding-bottom: 80px;
+    }
+
+    .buttonContainer {
+      position: static;
+      top: auto;
+    }
+
+    @include media-up-desktop {
+      .containerSticky,
+      .contentGroup {
+        justify-content: center;
+        padding-bottom: 0;
+      }
+
+      .buttonContainer {
+        position: sticky;
+        top: 360px;
+      }
+    }
+  }
 }
 
 .bgImage {

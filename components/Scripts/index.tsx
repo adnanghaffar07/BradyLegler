@@ -93,6 +93,11 @@ const Scripts = (props: ScriptProperties) => {
   }
 
   // Facebook Pixel
+  // NOTE: Meta Pixel is now loaded and managed by MetaPixelProvider
+  // which handles initialization and PageView tracking automatically.
+  // This legacy code is kept for reference but is no longer used.
+  // If you need to use a different pixel ID or legacy tracking, uncomment below:
+  /*
   const FACEBOOK_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
   if ((loadAll || scripts.includes('facebook')) && FACEBOOK_PIXEL_ID) {
     scriptsToLoad.push(
@@ -128,6 +133,7 @@ const Scripts = (props: ScriptProperties) => {
       />
     );
   }
+  */
 
   // Hotjar
   const HOTJAR_ID = process.env.NEXT_PUBLIC_HOTJAR_ID;
