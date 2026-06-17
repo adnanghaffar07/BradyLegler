@@ -27,8 +27,11 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
     mobileVideoType,
     mobileVideoFile,
     mobileVideoUrl,
-    mobileThumbnail
+    mobileThumbnail,
+    sectionFields
   } = props;
+
+  const mobileContentPosition = sectionFields?.mobileContentPosition || 'center';
 
   const [isHover, setIsHover] = useState(false);
 
@@ -78,7 +81,14 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
       )}
 
       {/* Content Overlay */}
-      <Layout variant="fullWidth" className={styles.layout}>
+      <Layout
+        variant="fullWidth"
+        className={classNames(styles.layout, {
+          [styles.mobilePositionTop]: mobileContentPosition === 'top',
+          [styles.mobilePositionCenter]: mobileContentPosition === 'center',
+          [styles.mobilePositionBottom]: mobileContentPosition === 'bottom'
+        })}
+      >
         <div className={styles.containerSticky}>
           <div className={styles.contentGroup}>
             {tagline && <h2 className={styles.tagline} >{tagline}</h2>}
