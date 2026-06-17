@@ -4059,6 +4059,31 @@
             "description": "Position within the product grid. Top: 25% of products, Middle: 50% of products, Bottom: 75% of products",
             "name": "gridPosition",
             "type": "string"
+          },
+          {
+            "options": {
+              "list": [
+                {
+                  "title": "Center",
+                  "value": "center"
+                },
+                {
+                  "title": "Top",
+                  "value": "top"
+                },
+                {
+                  "title": "Bottom",
+                  "value": "bottom"
+                }
+              ],
+              "layout": "radio",
+              "direction": "horizontal"
+            },
+            "initialValue": "center",
+            "description": "Controls vertical placement of the tagline and button on mobile. Center and Top use sticky positioning; Bottom uses static positioning.",
+            "name": "mobileContentPosition",
+            "type": "string",
+            "title": "Mobile Tagline & Button Position"
           }
         ],
         "name": "sectionFields",
