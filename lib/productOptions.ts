@@ -27,6 +27,16 @@ export function isDefaultTitleValue(value?: string): boolean {
   return normalize(value) === 'default title';
 }
 
+export function shouldHideCartSelectedOption(name?: string, value?: string): boolean {
+  return normalize(name) === 'title' && isDefaultTitleValue(value);
+}
+
+export function getDisplayableCartSelectedOptions(
+  selectedOptions: Array<{ name: string; value: string }> = []
+): Array<{ name: string; value: string }> {
+  return selectedOptions.filter(option => !shouldHideCartSelectedOption(option.name, option.value));
+}
+
 export function getSelectableOptions(options: ProductOption[] = []): ProductOption[] {
   return options
     .filter(option => option.values?.length > 0)

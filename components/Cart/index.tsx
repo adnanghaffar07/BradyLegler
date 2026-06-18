@@ -11,6 +11,7 @@ import classNames from '@/tools/helpers/classNames';
 import SidePanel from '@/components/SidePanel';
 import { useAnalytics } from '@/tools/analytics';
 import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
+import { getDisplayableCartSelectedOptions } from '@/lib/productOptions';
 import styles from './styles.module.scss';
 
 const Cart = () => {
@@ -121,16 +122,6 @@ const Cart = () => {
             <Text weight="medium" size="b2" text="Subtotal" />
             <Text size="b3" text={`${cart?.cost?.subtotalAmount?.amount || '0.0'} ${currency}`} />
           </div>
-
-          <div className={styles.amount}>
-            <Text weight="medium" size="b2" text="Tax" />
-            <Text size="b3" text={`${cart?.cost?.totalTaxAmount?.amount || '0.0'} ${currency}`} />
-          </div>
-
-          <div className={styles.amount}>
-            <Text weight="medium" size="b2" text="Grand Total" />
-            <Text size="b3" text={`${cart?.cost?.totalAmount?.amount || '0.0'} ${currency}`} />
-          </div>
         </div>
 
         <Link
@@ -150,6 +141,7 @@ const LineItem = ({ node }) => {
   const isUpdating = useCart(state => state.isUpdating);
   const updateCart = useCart(state => state.updateCart);
   const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
+  const displayableOptions = getDisplayableCartSelectedOptions(node?.merchandise?.selectedOptions);
 
   const handleMinus = async () => {
     try {
@@ -243,14 +235,16 @@ const LineItem = ({ node }) => {
             text={`${node.cost.amountPerQuantity?.amount} ${node.cost.amountPerQuantity?.currencyCode}`}
           />
         </div>
-        <div className={styles.selectedOptions}>
-          {node?.merchandise?.selectedOptions.map((option, i) => (
-            <div className={styles.selectedOption} key={i}>
-              <Text key={option.name} as="p" size="b2" text={option.name} className={styles.selectedOptionName} />
-              <Text key={option.name} as="p" size="b3" text={option.value} className={styles.selectedOptionValue} />
-            </div>
-          ))}
-        </div>
+        {displayableOptions.length > 0 && (
+          <div className={styles.selectedOptions}>
+            {displayableOptions.map((option, i) => (
+              <div className={styles.selectedOption} key={i}>
+                <Text as="p" size="b2" text={option.name} className={styles.selectedOptionName} />
+                <Text as="p" size="b3" text={option.value} className={styles.selectedOptionValue} />
+              </div>
+            ))}
+          </div>
+        )}
         <div className={styles.detailsBottom}>
           <div className={styles.quantity}>
             <Button
