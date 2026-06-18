@@ -8,6 +8,7 @@ import RingSizeDrawer from '@/components/product/RingSizeDrawer';
 import { useCart } from '@/tools/store/useCart';
 import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
 import { getSelectableOptions, hasMeaningfulVariantChoices } from '@/lib/productOptions';
+import { getVariantRingSize, isValidRingSize } from '@/lib/ringSizes';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import styles from './styles.module.scss';
 import Price from '../Price';
@@ -50,7 +51,16 @@ const Form: React.FC<FormProps> = ({
   const hasAvailableVariants = variants.some(variant => variant.inventory.isAvailable);
   const firstAvailableVariant = variants.find(v => v.inventory.isAvailable) ?? null;
 
-  const [selectedVariant, setVariant] = useState<VariantType | null>(isRing ? null : firstAvailableVariant);
+  const hasRingSizes = useMemo(() => {
+    return variants.some(variant => {
+      const size = getVariantRingSize(variant as any, options as any);
+      return size ? isValidRingSize(size) : false;
+    });
+  }, [variants, options]);
+
+  const showAsRing = isRing && hasRingSizes;
+
+  const [selectedVariant, setVariant] = useState<VariantType | null>(showAsRing ? null : firstAvailableVariant);
   const [ringDrawerOpen, setRingDrawerOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
     if (isRing || !firstAvailableVariant) return {};
@@ -101,7 +111,7 @@ const Form: React.FC<FormProps> = ({
 
   // Set first available variant on mount (non-ring products only)
   useEffect(() => {
-    if (isRing) {
+    if (showAsRing) {
       setSelectedVariant(null);
       setSelectedOptions({});
       return;
@@ -202,7 +212,7 @@ const Form: React.FC<FormProps> = ({
   const handleAddToCart = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    if (isRing) {
+    if (showAsRing) {
       setRingDrawerOpen(true);
       return;
     }
@@ -226,15 +236,15 @@ const Form: React.FC<FormProps> = ({
     setRingDrawerOpen(true);
   };
 
-  const displayPrice = isRing ? ringDisplayPrice : selectedVariant?.price;
-  const displayCompareAtPrice = isRing ? undefined : selectedVariant?.compareAtPrice;
+  const displayPrice = showAsRing ? ringDisplayPrice : selectedVariant?.price;
+  const displayCompareAtPrice = showAsRing ? undefined : selectedVariant?.compareAtPrice;
 
   const availableOptionsForSelection = useMemo(() => getSelectableOptions(options), [options]);
 
   const shouldShowVariantOptions = useMemo(() => {
-    if (isRing) return false;
+    if (showAsRing) return false;
     return hasMeaningfulVariantChoices(variants, options);
-  }, [isRing, variants, options]);
+  }, [showAsRing, variants, options]);
 
   return (
     <div>
@@ -291,7 +301,7 @@ const Form: React.FC<FormProps> = ({
           {!sanityProductData?.inquireButtonEnabled && (
             <AddToCartButton
               disabled={!hasAvailableVariants}
-              isRing={isRing}
+              isRing={showAsRing}
               onSelectSize={handleOpenRingDrawer}
             />
           )}
@@ -301,7 +311,7 @@ const Form: React.FC<FormProps> = ({
         </div>
       </form>
 
-      {isRing && (
+      {showAsRing && (
         <RingSizeDrawer
           show={ringDrawerOpen}
           onClose={() => setRingDrawerOpen(false)}
