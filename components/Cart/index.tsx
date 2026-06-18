@@ -94,7 +94,7 @@ const Cart = () => {
       <SidePanel.Footer className={styles.footer}>
         <div className={styles.totals}>
           <div className={styles.amount}>
-            <Text weight="medium" size="b2" text="Subtotal" />
+            <Text weight="medium" size="b2" text="Total" />
             <Text size="b3" text={`${cart?.cost?.subtotalAmount?.amount || '0.0'} ${currency}`} />
           </div>
         </div>
