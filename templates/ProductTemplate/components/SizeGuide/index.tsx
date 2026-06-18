@@ -3,6 +3,7 @@ import SidePanel from '@/components/SidePanel';
 import Button from '@/components/Button';
 import Text from '@/components/Text';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
+import { getFilteredSizeGuideTables } from './utils';
 import styles from './styles.module.scss';
 
 type Rows = {
@@ -20,28 +21,37 @@ type SizeGuideProps = {
       };
     }[];
   };
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const SizeGuide = (props: SizeGuideProps) => {
-  const { sanitySizeGuide, collections } = props;
-  const [showSizeGuide, toggleSizeGuide] = useState(false);
-  const tables = sanitySizeGuide?.tables || [];
+  const { sanitySizeGuide, collections, isOpen, onOpenChange } = props;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const tables = (Array.isArray(sanitySizeGuide?.tables) ? sanitySizeGuide.tables : []) as Parameters<
+    typeof getFilteredSizeGuideTables
+  >[0];
 
   const productCollectionIds = collections?.edges.map(edge => edge.node.id) || [];
-
-  const filteredTables = tables.filter(table => {
-    const collectionIds = (table.collections || []).map(collection => collection.store.gid);
-    return collectionIds.some(id => productCollectionIds.includes(id));
-  });
-
+  const filteredTables = getFilteredSizeGuideTables(tables, productCollectionIds);
   const hasSizeGuide = filteredTables.length > 0;
+  const isControlled = onOpenChange !== undefined;
+  const showSizeGuide = isControlled ? (isOpen ?? false) : internalOpen;
+
+  const setShowSizeGuide = (open: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(open);
+    } else {
+      setInternalOpen(open);
+    }
+  };
 
   if (!hasSizeGuide) return null;
 
   return (
     <>
-      <Button onClick={() => toggleSizeGuide(true)} text="Size Guide" variant="normal-sm" />
-      <SidePanel title="Size Guide" show={showSizeGuide} onClose={() => toggleSizeGuide(false)}>
+      <Button onClick={() => setShowSizeGuide(true)} text="Size Guide" variant="normal-sm" />
+      <SidePanel title="Size Guide" show={showSizeGuide} onClose={() => setShowSizeGuide(false)}>
         <SidePanel.Body>
           <div className={styles.container}>
             {filteredTables?.map((item, index) => {

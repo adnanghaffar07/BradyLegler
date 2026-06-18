@@ -1,0 +1,89 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 24px;
+
+  @include media-up(tablet) {
+    padding: 35px 24px;
+  }
+}
+
+.sizeList {
+  display: flex;
+  flex-direction: column;
+}
+
+.sizeRow {
+  border-bottom: 0.2px solid rgba(20, 20, 32, 0.7);
+
+  &:first-child {
+    border-top: 0.2px solid rgba(20, 20, 32, 0.7);
+  }
+}
+
+.sizeInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.sizeLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  cursor: pointer;
+  color: var(--brand-black-70);
+  transition: color 0.2s $ease;
+
+  &.selected {
+    color: var(--brand-black);
+    font-weight: 500;
+  }
+
+  &:hover {
+    color: var(--brand-black);
+  }
+}
+
+.diameter {
+  color: inherit;
+}
+
+.sizeChartLink {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.validationError {
+  margin-top: 16px;
+  color: var(--brand-black);
+  text-align: center;
+  font-family: var(--primary-font), sans-serif;
+  font-size: 12px;
+  line-height: 19.2px;
+  letter-spacing: 0.06em;
+}
+
+.footer {
+  display: block;
+}
+
+.purchaseButton {
+  width: 100%;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

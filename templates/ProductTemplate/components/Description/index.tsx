@@ -9,11 +9,15 @@ import styles from './styles.module.scss';
 const Description = ({
   descriptionHtml,
   sanitySizeGuide,
-  collections
+  collections,
+  sizeGuideOpen,
+  onSizeGuideOpenChange
 }: {
   descriptionHtml?: string;
   sanitySizeGuide: ISizeGuideDocument;
   collections?: any;
+  sizeGuideOpen?: boolean;
+  onSizeGuideOpenChange?: (open: boolean) => void;
 }) => {
   const [description, setDescription] = useState<string | null>(null);
 
@@ -45,7 +49,12 @@ const Description = ({
 
   return (
     <div className={styles.container}>
-      <SizeGuide sanitySizeGuide={sanitySizeGuide} collections={collections} />
+      <SizeGuide
+        sanitySizeGuide={sanitySizeGuide}
+        collections={collections}
+        isOpen={sizeGuideOpen}
+        onOpenChange={onSizeGuideOpenChange}
+      />
 
       {description && (
         <div className={styles.description}>
