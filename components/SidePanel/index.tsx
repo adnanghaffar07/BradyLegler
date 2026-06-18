@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Text from '../Text';
 import Button from '../Button';
 import classNames from '@/tools/helpers/classNames';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
 import styles from './styles.module.scss';
 
 type SidePanelProps = {
@@ -56,6 +57,18 @@ const SidePanel = (props: SidePanelProps) => {
       document.body.appendChild(modalDiv);
     }
   }, []);
+
+  useEffect(() => {
+    if (!show) {
+      return;
+    }
+
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+    };
+  }, [show]);
 
   useEffect(() => {
     if (!show || (!trapFocus && !closeOnEscape)) {

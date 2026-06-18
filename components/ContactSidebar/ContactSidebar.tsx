@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import classNames from '@/helpers/classNames';
 import Icon from '@/components/Icon';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
 import styles from './ContactSidebar.module.scss';
 
 interface ContactSidebarProps {
@@ -139,23 +140,16 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  // Prevent body scroll when contact sidebar is open
   useEffect(() => {
-    if (isOpen) {
-      // Store current scroll position
-      const scrollY = window.scrollY;
-      
-      // Apply overflow hidden to prevent scroll
-      document.body.style.overflow = 'hidden';
-      // Use padding instead of position fixed to avoid scroll jump
-      document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
-      
-      return () => {
-        // Restore original styles
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-      };
+    if (!isOpen) {
+      return;
     }
+
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+    };
   }, [isOpen]);
 
   return (
