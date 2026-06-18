@@ -12,13 +12,27 @@
 .sizeList {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  border-left: 1px solid rgba(20, 20, 32, 0.15);
+  border-right: 1px solid rgba(20, 20, 32, 0.15);
 }
 
 .sizeRow {
-  border-bottom: 0.2px solid rgba(20, 20, 32, 0.7);
+  border-bottom: 1px solid rgba(20, 20, 32, 0.15);
 
   &:first-child {
-    border-top: 0.2px solid rgba(20, 20, 32, 0.7);
+    border-top: 1px solid rgba(20, 20, 32, 0.15);
+  }
+
+  &.selected {
+    position: relative;
+    border: 1px solid var(--brand-black);
+    background: rgba(20, 20, 32, 0.04);
+    margin-left: -1px;
+    margin-right: -1px;
+    width: calc(100% + 2px);
   }
 }
 
@@ -33,22 +47,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 0;
+  width: 100%;
+  padding: 16px 12px;
   cursor: pointer;
-  color: var(--brand-black-70);
-  transition: color 0.2s $ease;
+  color: var(--brand-black-40);
+  transition: color 0.2s $ease, background 0.2s $ease;
 
-  &.selected {
-    color: var(--brand-black);
-    font-weight: 500;
+  &:hover {
+    color: var(--brand-black-70);
   }
+}
+
+.sizeRow.selected .sizeLabel {
+  color: var(--brand-black);
 
   &:hover {
     color: var(--brand-black);
   }
 }
 
+.sizeText,
 .diameter {
+  font-family: var(--primary-font), sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19.2px;
+  letter-spacing: 0.06em;
   color: inherit;
 }
 
@@ -74,6 +98,7 @@
 
 .purchaseButton {
   width: 100%;
+  justify-content: center
 }
 
 .srOnly {

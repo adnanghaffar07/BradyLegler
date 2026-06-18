@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import SidePanel from '@/components/SidePanel';
+import SidePanel, { SIDE_PANEL_Z_INDEX } from '@/components/SidePanel';
 import Button from '@/components/Button';
 import Text from '@/components/Text';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
@@ -51,7 +51,12 @@ const SizeGuide = (props: SizeGuideProps) => {
   return (
     <>
       <Button onClick={() => setShowSizeGuide(true)} text="Size Guide" variant="normal-sm" />
-      <SidePanel title="Size Guide" show={showSizeGuide} onClose={() => setShowSizeGuide(false)}>
+      <SidePanel
+        title="Size Guide"
+        show={showSizeGuide}
+        onClose={() => setShowSizeGuide(false)}
+        zIndex={SIDE_PANEL_Z_INDEX.elevated}
+      >
         <SidePanel.Body>
           <div className={styles.container}>
             {filteredTables?.map((item, index) => {

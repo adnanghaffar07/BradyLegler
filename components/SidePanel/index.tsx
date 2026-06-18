@@ -15,7 +15,13 @@ type SidePanelProps = {
   trapFocus?: boolean;
   closeOnEscape?: boolean;
   ariaLabel?: string;
+  zIndex?: number;
 };
+
+export const SIDE_PANEL_Z_INDEX = {
+  base: 10000,
+  elevated: 10002
+} as const;
 
 const SidePanelBody = (props: { children: React.ReactNode }) => {
   const { children } = props;
@@ -28,7 +34,16 @@ const SidePanelFooter = (props: { children: React.ReactNode; className?: string 
 };
 
 const SidePanel = (props: SidePanelProps) => {
-  const { title, show, onClose, children, trapFocus = false, closeOnEscape = false, ariaLabel } = props;
+  const {
+    title,
+    show,
+    onClose,
+    children,
+    trapFocus = false,
+    closeOnEscape = false,
+    ariaLabel,
+    zIndex = SIDE_PANEL_Z_INDEX.base
+  } = props;
 
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -95,10 +110,15 @@ const SidePanel = (props: SidePanelProps) => {
 
   return createPortal(
     <>
-      <div className={classNames(styles.overlay, { [styles.visible]: show })} onClick={onClose} />
+      <div
+        className={classNames(styles.overlay, { [styles.visible]: show })}
+        style={{ zIndex: zIndex - 1 }}
+        onClick={onClose}
+      />
       <div
         ref={containerRef}
         className={classNames(styles.container, { [styles.open]: show })}
+        style={{ zIndex }}
         role={trapFocus ? 'dialog' : undefined}
         aria-modal={trapFocus ? true : undefined}
         aria-label={ariaLabel || title}

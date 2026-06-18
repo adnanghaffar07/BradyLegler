@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import SidePanel from '@/components/SidePanel';
+import SidePanel, { SIDE_PANEL_Z_INDEX } from '@/components/SidePanel';
 import Button from '@/components/Button';
-import Text from '@/components/Text';
 import classNames from '@/tools/helpers/classNames';
 import { useCart } from '@/tools/store/useCart';
 import {
   compareRingVariants,
   getRingDiameter,
-  getVariantRingSize
+  getVariantRingSize,
+  isValidRingSize
 } from '@/lib/ringSizes';
 import styles from './RingSizeDrawer.module.scss';
 
@@ -56,6 +56,10 @@ const RingSizeDrawer: React.FC<RingSizeDrawerProps> = ({
     () =>
       variants
         .filter(variant => variant.inventory.isAvailable)
+        .filter(variant => {
+          const size = getVariantRingSize(variant, options);
+          return size ? isValidRingSize(size) : false;
+        })
         .sort((a, b) => compareRingVariants(a, b, options)),
     [variants, options]
   );
@@ -138,7 +142,10 @@ const RingSizeDrawer: React.FC<RingSizeDrawerProps> = ({
               const inputId = `ring-size-${variant.gid}`;
 
               return (
-                <div key={variant.gid} className={styles.sizeRow}>
+                <div
+                  key={variant.gid}
+                  className={classNames(styles.sizeRow, { [styles.selected]: isSelected })}
+                >
                   <input
                     type="radio"
                     id={inputId}
@@ -148,12 +155,9 @@ const RingSizeDrawer: React.FC<RingSizeDrawerProps> = ({
                     onChange={() => handleSelectSize(variant)}
                     className={styles.sizeInput}
                   />
-                  <label
-                    htmlFor={inputId}
-                    className={classNames(styles.sizeLabel, { [styles.selected]: isSelected })}
-                  >
-                    <Text as="span" size="b2" text={size} />
-                    <Text as="span" size="b2" text={diameter} className={styles.diameter} />
+                  <label htmlFor={inputId} className={styles.sizeLabel}>
+                    <span className={styles.sizeText}>{size}</span>
+                    <span className={styles.diameter}>{diameter}</span>
                   </label>
                 </div>
               );

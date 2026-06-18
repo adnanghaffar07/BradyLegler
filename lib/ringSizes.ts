@@ -5,9 +5,6 @@ type RingProductInput = {
 };
 
 export const RING_SIZE_DIAMETERS: Record<string, string> = {
-  '2.5': '⌀ 13.6 mm',
-  '3': '⌀ 14.0 mm',
-  '3.5': '⌀ 14.5 mm',
   '4': '⌀ 15.0 mm',
   '4.5': '⌀ 15.3 mm',
   '5': '⌀ 15.6 mm',
@@ -35,6 +32,10 @@ const RING_COLLECTION_HANDLES = new Set(['ring', 'rings']);
 
 export function getRingDiameter(size: string): string | undefined {
   return RING_SIZE_DIAMETERS[size.trim()];
+}
+
+export function isValidRingSize(size: string): boolean {
+  return size.trim() in RING_SIZE_DIAMETERS;
 }
 
 export function isRingProduct(input: RingProductInput): boolean {

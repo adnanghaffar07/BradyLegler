@@ -7,6 +7,7 @@ import Text from '@/components/Text';
 import RingSizeDrawer from '@/components/product/RingSizeDrawer';
 import { useCart } from '@/tools/store/useCart';
 import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
+import { getSelectableOptions, hasMeaningfulVariantChoices } from '@/lib/productOptions';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import styles from './styles.module.scss';
 import Price from '../Price';
@@ -228,21 +229,19 @@ const Form: React.FC<FormProps> = ({
   const displayPrice = isRing ? ringDisplayPrice : selectedVariant?.price;
   const displayCompareAtPrice = isRing ? undefined : selectedVariant?.compareAtPrice;
 
-  const availableOptionsForSelection = useMemo(() => {
-    return options.map(option => {
-      return {
-        name: option.name,
-        values: option.values
-      };
-    });
-  }, [options, variants, getSelectedOptions]);
+  const availableOptionsForSelection = useMemo(() => getSelectableOptions(options), [options]);
+
+  const shouldShowVariantOptions = useMemo(() => {
+    if (isRing) return false;
+    return hasMeaningfulVariantChoices(variants, options);
+  }, [isRing, variants, options]);
 
   return (
     <div>
       <form onSubmit={handleAddToCart} className={styles.form}>
         <input id="quantity" name="quantity" type="hidden" min="1" max="1" value="1" />
 
-        {availableOptionsForSelection?.length > 1 && !isRing &&
+        {shouldShowVariantOptions &&
           availableOptionsForSelection.map(option => (
             <div key={option.name} className={styles.optionGroup}>
               <Text as="label" size="b2" className={styles.optionGroupLabel} text={option.name} />
