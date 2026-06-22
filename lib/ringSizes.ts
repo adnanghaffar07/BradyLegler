@@ -97,7 +97,8 @@ export function compareRingVariants<T extends VariantWithOptions>(
   b: T,
   options: ProductOption[] = []
 ): number {
-  const sizeA = getVariantRingSize(a, options) ?? '';
-  const sizeB = getVariantRingSize(b, options) ?? '';
-  return RING_SIZE_ORDER.indexOf(sizeA) - RING_SIZE_ORDER.indexOf(sizeB);
+  const sizeA = Number.parseFloat(getVariantRingSize(a, options) ?? '0');
+  const sizeB = Number.parseFloat(getVariantRingSize(b, options) ?? '0');
+
+  return sizeA - sizeB;
 }
