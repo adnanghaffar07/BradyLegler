@@ -4,10 +4,11 @@
  * Meta Pixel Provider
  *
  * This provider:
- * 1. Loads the Meta Pixel script
- * 2. Initializes the pixel with the correct ID
- * 3. Tracks PageView on route changes (Next.js App Router)
- * 4. Provides tracking context to child components
+ * 1. Loads the Meta Pixel script (which creates _fbp cookie)
+ * 2. Initializes FBP cookie manually if needed
+ * 3. Initializes the pixel with the correct ID
+ * 4. Tracks PageView on route changes (Next.js App Router)
+ * 5. Provides tracking context to child components
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -16,6 +17,36 @@ import { trackPageView } from '@/lib/meta';
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const isDev = process.env.NODE_ENV === 'development';
+
+// Initialize FBP cookie before pixel loads
+function initializeFbpCookie(): void {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+  const name = '_fbp';
+  const nameEQ = name + '=';
+  const cookies = document.cookie.split(';');
+
+  for (let cookie of cookies) {
+    cookie = cookie.trim();
+    if (cookie.indexOf(nameEQ) === 0) {
+      if (isDev) console.log('[Meta] _fbp cookie already exists');
+      return;
+    }
+  }
+
+  // Generate FBP in fb.1.{timestamp}.{random} format
+  const timestamp = Math.floor(Date.now() / 1000);
+  const random = Math.floor(Math.random() * 1000000000);
+  const fbp = `fb.1.${timestamp}.${random}`;
+
+  try {
+    const secureFlag = window.location.protocol === 'https:' ? ' Secure; SameSite=None;' : '';
+    document.cookie = `_fbp=${fbp}; path=/; max-age=${60 * 60 * 24 * 90};${secureFlag}`;
+    if (isDev) console.log('[Meta] Initialized _fbp cookie:', fbp);
+  } catch (error) {
+    console.warn('[Meta] Failed to set _fbp cookie', error);
+  }
+}
 
 function trackPageViewWhenReady(pathname: string, pathnameRef: React.MutableRefObject<string | null>) {
   if (pathnameRef.current !== null) return;
@@ -51,6 +82,10 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.warn('[Meta] Pixel ID not configured');
       return;
     }
+
+    // Initialize FBP cookie before pixel loads (improves coverage)
+    initializeFbpCookie();
+
     // Only load if not already loaded - use a script marker to detect initialization
     const existing = document.querySelector('script[data-meta-pixel="' + PIXEL_ID + '"]');
     if (existing) {
@@ -79,6 +114,7 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     script.async = true;
     script.setAttribute('data-meta-pixel', `${PIXEL_ID}`);
     script.onload = () => {
+      if (isDev) console.log('[Meta] Pixel script loaded successfully');
       trackPageViewWhenReady(pathname, pathnameRef);
     };
     script.onerror = () => {
@@ -88,6 +124,8 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         trackPageView();
       }
     }
+
+    document.head.appendChild(script);
 
     // Track PageView on pathname change
     if (pathname !== pathnameRef.current) {

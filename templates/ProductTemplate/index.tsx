@@ -10,6 +10,7 @@ import SplashScreen from '@/components/SplashScreen';
 import { Analytics } from '@/tools/analytics';
 import { groq } from 'next-sanity';
 import Recommendations from './components/Recommendations';
+import { ViewContentTracker } from './components/ViewContentTracker';
 
 interface WebPageProps extends PageProps {
   data: IProductDocument;
@@ -204,6 +205,9 @@ const ProductTemplate = async (props: WebPageProps) => {
           }}
         />
       )}
+
+      {/* Track ViewContent event for Meta Pixel */}
+      <ViewContentTracker product={sanityProductData} shopifyProduct={shopifyProductData} />
 
       <SplashScreen title={sanityProductData.store.title} />
 

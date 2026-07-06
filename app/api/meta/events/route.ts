@@ -8,12 +8,16 @@
  * - AddToCart
  *
  * Shopify handles its own checkout and purchase events through native Meta integration.
+ * 
+ * IMPORTANT: This API must be publicly accessible and cannot require authentication
+ * because browser-based events need to reach it directly.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
+const API_VERSION = process.env.META_API_VERSION || 'v18.0';
 
 interface MetaCAPIEvent {
   event_name: string;
@@ -23,6 +27,55 @@ interface MetaCAPIEvent {
   action_source: string;
   user_data?: Record<string, string>;
   custom_data?: Record<string, any>;
+}
+
+/**
+ * Hash sensitive user data using SHA256 (server-side)
+ */
+async function sha256Hash(text: string): Promise<string> {
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (error) {
+    console.warn('[Meta CAPI] Failed to hash data:', error);
+    return text;
+  }
+}
+
+/**
+ * Normalize and hash user data field (server-side for additional security)
+ */
+async function normalizeAndHashUserField(value: string | undefined, fieldType: string): Promise<string | undefined> {
+  if (!value) return undefined;
+  
+  let normalized = value.trim().toLowerCase();
+  
+  // For email and phone, remove whitespace
+  if (fieldType === 'em' || fieldType === 'ph') {
+    normalized = normalized.replace(/\s/g, '');
+  }
+  
+  // For phone, remove special characters
+  if (fieldType === 'ph') {
+    normalized = normalized.replace(/[^\d]/g, '');
+  }
+  
+  // For names and locations, keep only alphanumeric
+  if (['fn', 'ln', 'ct', 'st', 'country'].includes(fieldType)) {
+    normalized = normalized.replace(/[^\w\s-]/g, '').replace(/\s+/g, ' ').trim();
+  }
+  
+  if (!normalized) return undefined;
+  
+  try {
+    return await sha256Hash(normalized);
+  } catch (error) {
+    console.warn(`[Meta CAPI] Failed to hash ${fieldType}:`, error);
+    return undefined;
+  }
 }
 
 /**
@@ -43,7 +96,7 @@ function validateConfig(): { valid: boolean; error?: string } {
  */
 async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; error?: string }> {
   try {
-    const url = `https://graph.facebook.com/v18.0/${PIXEL_ID}/events`;
+    const url = `https://graph.facebook.com/${API_VERSION}/${PIXEL_ID}/events`;
 
     // Build payload and include test_event_code when present
     const dataItem: Record<string, any> = {
@@ -54,8 +107,12 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
       action_source: event.action_source,
     };
 
-    if (event.user_data && Object.keys(event.user_data).length) dataItem.user_data = event.user_data;
-    if (event.custom_data && Object.keys(event.custom_data).length) dataItem.custom_data = event.custom_data;
+    if (event.user_data && Object.keys(event.user_data).length) {
+      dataItem.user_data = event.user_data;
+    }
+    if (event.custom_data && Object.keys(event.custom_data).length) {
+      dataItem.custom_data = event.custom_data;
+    }
 
     const payload: Record<string, any> = {
       data: [dataItem],
@@ -72,6 +129,7 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
         url,
         event: event.event_name,
         eventId: event.event_id,
+        userDataFields: event.user_data ? Object.keys(event.user_data).length : 0,
       });
     }
 
@@ -89,12 +147,16 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
       console.error('[Meta CAPI] API Error:', {
         status: response.status,
         error: data.error || 'Unknown error',
+        event: event.event_name,
       });
       return { success: false, error: data.error?.message || 'Failed to send event' };
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Meta CAPI] Event sent successfully:', data);
+      console.log('[Meta CAPI] Event sent successfully:', {
+        eventId: data.events?.[0]?.event_id || event.event_id,
+        success: true,
+      });
     }
 
     return { success: true };
@@ -130,26 +192,45 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Prevent server-side InitiateCheckout or Purchase events - Shopify owns checkout tracking
-    if (body.event_name === 'InitiateCheckout') {
+    if (body.event_name === 'InitiateCheckout' || body.event_name === 'Purchase') {
       return NextResponse.json(
-        { error: 'InitiateCheckout must be sent only as a browser event; do not send server-side' },
+        { error: `${body.event_name} must be sent only as a browser event; do not send server-side` },
         { status: 400 }
       );
     }
 
-    // Extract client IP and user agent from headers and merge with provided user_data
+    // Extract client IP and user agent from headers
     const forwardedFor = (request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '').toString();
     const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
     const userAgent = (request.headers.get('user-agent') || '').toString() || undefined;
 
     const mergedUserData: Record<string, string> = {};
+    
+    // Preserve existing user data from client
     if (body.user_data) {
       for (const [k, v] of Object.entries(body.user_data)) {
-        if (v) mergedUserData[k] = v;
+        if (v && typeof v === 'string') {
+          mergedUserData[k] = v;
+        }
       }
     }
+    
+    // Add server-side collected data
     if (clientIp) mergedUserData.client_ip_address = clientIp;
     if (userAgent) mergedUserData.client_user_agent = userAgent;
+
+    // Log event details for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Meta CAPI] Received event:', {
+        eventName: body.event_name,
+        eventId: body.event_id,
+        fbp: !!mergedUserData.fbp,
+        fbc: !!mergedUserData.fbc,
+        clientIp: !!clientIp,
+        userAgent: !!userAgent,
+        userDataFields: Object.keys(mergedUserData).length,
+      });
+    }
 
     const eventToSend: MetaCAPIEvent = {
       ...body,

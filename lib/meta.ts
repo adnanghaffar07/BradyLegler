@@ -29,6 +29,14 @@ export interface MetaUserData {
   fbc?: string;
   client_ip_address?: string;
   client_user_agent?: string;
+  em?: string;  // email (hashed)
+  ph?: string;  // phone (hashed)
+  fn?: string;  // first name (hashed)
+  ln?: string;  // last name (hashed)
+  ct?: string;  // city (hashed)
+  st?: string;  // state (hashed)
+  zp?: string;  // zip (hashed)
+  country?: string;  // country (hashed)
 }
 
 interface MetaCAPIEvent {
@@ -39,6 +47,57 @@ interface MetaCAPIEvent {
   action_source: string;
   user_data?: Record<string, string>;
   custom_data?: Record<string, any>;
+}
+
+/**
+ * Hash sensitive user data using SHA256
+ * Used for CAPI user_data parameters
+ */
+async function sha256(text: string): Promise<string> {
+  if (typeof window !== 'undefined' && window.crypto) {
+    // Browser implementation
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  // Fallback for SSR or environments without crypto
+  return text;
+}
+
+/**
+ * Normalize and hash user data field
+ * Normalization: lowercase, trim whitespace, remove special characters for some fields
+ */
+async function normalizeAndHashUserField(value: string | undefined, fieldType: string): Promise<string | undefined> {
+  if (!value) return undefined;
+  
+  let normalized = value.trim().toLowerCase();
+  
+  // For email and phone, remove whitespace
+  if (fieldType === 'em' || fieldType === 'ph') {
+    normalized = normalized.replace(/\s/g, '');
+  }
+  
+  // For phone, remove special characters
+  if (fieldType === 'ph') {
+    normalized = normalized.replace(/[^\d]/g, '');
+  }
+  
+  // For names and locations, keep only alphanumeric
+  if (['fn', 'ln', 'ct', 'st', 'country'].includes(fieldType)) {
+    normalized = normalized.replace(/[^\w\s-]/g, '').replace(/\s+/g, ' ').trim();
+  }
+  
+  if (!normalized) return undefined;
+  
+  try {
+    return await sha256(normalized);
+  } catch (error) {
+    console.warn(`[Meta] Failed to hash ${fieldType}:`, error);
+    return undefined;
+  }
 }
 
 /**
@@ -60,6 +119,13 @@ function isNonEmptyString(value: string | undefined): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function generateFbp(): string {
+  // Format: fb.1.{timestamp}.{random}
+  const timestamp = Math.floor(Date.now() / 1000);
+  const random = Math.floor(Math.random() * 1000000000);
+  return `fb.1.${timestamp}.${random}`;
+}
+
 function getFbpCookie(): string | undefined {
   if (typeof document === 'undefined') return undefined;
 
@@ -76,6 +142,33 @@ function getFbpCookie(): string | undefined {
   }
 
   return undefined;
+}
+
+/**
+ * Get or create Meta FBP - if cookie doesn't exist, create and persist it
+ */
+function getOrCreateFbp(): string {
+  if (typeof document === 'undefined') return generateFbp();
+
+  let fbp = getFbpCookie();
+  if (fbp) {
+    return fbp;
+  }
+
+  // Generate new FBP if not found
+  fbp = generateFbp();
+  try {
+    const secureFlag = window.location.protocol === 'https:' ? ' Secure; SameSite=None;' : '';
+    // FBP expires in 90 days
+    document.cookie = `_fbp=${fbp}; path=/; max-age=${60 * 60 * 24 * 90};${secureFlag}`;
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Meta] Generated new _fbp cookie:', fbp);
+    }
+  } catch (error) {
+    console.warn('[Meta] Failed to persist _fbp cookie', error);
+  }
+
+  return fbp;
 }
 
 /**
@@ -156,7 +249,7 @@ function getOrCreateFbc(): string | undefined {
  */
 function getUserData(): MetaUserData {
   const userData: MetaUserData = {};
-  const fbp = getFbpCookie();
+  const fbp = getOrCreateFbp();
   const fbc = getOrCreateFbc();
 
   if (fbp) userData.fbp = fbp;
@@ -196,7 +289,13 @@ async function sendCAPIEvent(
   eventId?: string
 ): Promise<void> {
   try {
-    const url = '/api/meta/events';
+    // Ensure FBP and FBC are always included
+    if (!userData.fbp) {
+      userData.fbp = getOrCreateFbp();
+    }
+    if (!userData.fbc) {
+      userData.fbc = getOrCreateFbc();
+    }
 
     // Filter out empty user data fields
     const filteredUserData: Record<string, string> = {};
@@ -204,6 +303,14 @@ async function sendCAPIEvent(
     if (userData.fbc) filteredUserData.fbc = userData.fbc;
     if (userData.client_ip_address) filteredUserData.client_ip_address = userData.client_ip_address;
     if (userData.client_user_agent) filteredUserData.client_user_agent = userData.client_user_agent;
+    if (userData.em) filteredUserData.em = userData.em;
+    if (userData.ph) filteredUserData.ph = userData.ph;
+    if (userData.fn) filteredUserData.fn = userData.fn;
+    if (userData.ln) filteredUserData.ln = userData.ln;
+    if (userData.ct) filteredUserData.ct = userData.ct;
+    if (userData.st) filteredUserData.st = userData.st;
+    if (userData.zp) filteredUserData.zp = userData.zp;
+    if (userData.country) filteredUserData.country = userData.country;
 
     const payload: MetaCAPIEvent = {
       event_name: eventName,
@@ -222,9 +329,16 @@ async function sendCAPIEvent(
     };
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[Meta CAPI] Server event: ${eventName}`, payload);
+      console.log(`[Meta CAPI] Server event: ${eventName}`, {
+        eventId: payload.event_id,
+        fbp: !!payload.user_data?.fbp,
+        fbc: !!payload.user_data?.fbc,
+        userDataFields: payload.user_data ? Object.keys(payload.user_data).length : 0,
+        customData: payload.custom_data,
+      });
     }
 
+    const url = '/api/meta/events';
     const response = await fetch(url, {
       method: 'POST',
       headers: {
