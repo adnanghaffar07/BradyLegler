@@ -5,6 +5,7 @@ import Form from '@/components/Form';
 import Field from '@/components/Field';
 import styles from './styles.module.scss';
 import FormThankYou from '@/components/Form/FormThankYou';
+import { setMetaUserData } from '@/lib/meta';
 
 const LOADING_DURATION = 3000;
 const SUCCESS_DURATION = 3000;
@@ -45,6 +46,10 @@ const FormNewsletter = ({
         throw new Error(data.message || 'Form submission failed');
       }
 
+      if (values?.email) {
+        setMetaUserData({ email: values.email });
+      }
+
       setStatus('success');
       onStatusChange?.('success', 'Thank you for subscribing to our newsletter.');
 
@@ -71,8 +76,8 @@ const FormNewsletter = ({
       <div className={styles.container}>
         <Form onSubmit={handleOnSubmit} layout="normal" disabled={status === 'loading'}>
           <Field.Email className={styles.email} name="email" placeholder="Join for Private Access" required />
-          <Field.Submit 
-            className={styles.button} 
+          <Field.Submit
+            className={styles.button}
             text={status === 'loading' ? 'Submitting...' : 'Submit'}
             disabled={status === 'loading'}
           />

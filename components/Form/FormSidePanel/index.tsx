@@ -7,6 +7,7 @@ import Link from '@/components/Link';
 import Text from '@/components/Text';
 import SidePanel from '@/components/SidePanel';
 import FormThankYou from '@/components/Form/FormThankYou';
+import { setMetaUserData } from '@/lib/meta';
 import styles from './styles.module.scss';
 
 type FormSidePanelProps = {
@@ -30,6 +31,16 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
       const { captcha, terms, ...otherValues } = values || {};
 
       setStatus('loading');
+
+      const externalId = values?.externalId || values?.customerId || values?.externalIdValue;
+
+      if (values?.email || values?.phone || externalId) {
+        setMetaUserData({
+          email: values?.email,
+          phone: values?.phone,
+          externalId
+        });
+      }
 
       const [response] = await Promise.all([
         fetch('/api/form', {

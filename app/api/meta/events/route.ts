@@ -8,7 +8,7 @@
  * - AddToCart
  *
  * Shopify handles its own checkout and purchase events through native Meta integration.
- * 
+ *
  * IMPORTANT: This API must be publicly accessible and cannot require authentication
  * because browser-based events need to reach it directly.
  */
@@ -45,31 +45,43 @@ async function sha256Hash(text: string): Promise<string> {
   }
 }
 
+function isLikelyHashed(value: string): boolean {
+  return /^[a-f0-9]{64}$/i.test(value);
+}
+
 /**
  * Normalize and hash user data field (server-side for additional security)
  */
 async function normalizeAndHashUserField(value: string | undefined, fieldType: string): Promise<string | undefined> {
   if (!value) return undefined;
-  
-  let normalized = value.trim().toLowerCase();
-  
+
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  if (isLikelyHashed(trimmed)) return trimmed;
+
+  let normalized = trimmed.toLowerCase();
+
   // For email and phone, remove whitespace
   if (fieldType === 'em' || fieldType === 'ph') {
     normalized = normalized.replace(/\s/g, '');
   }
-  
+
   // For phone, remove special characters
   if (fieldType === 'ph') {
     normalized = normalized.replace(/[^\d]/g, '');
   }
-  
+
   // For names and locations, keep only alphanumeric
   if (['fn', 'ln', 'ct', 'st', 'country'].includes(fieldType)) {
-    normalized = normalized.replace(/[^\w\s-]/g, '').replace(/\s+/g, ' ').trim();
+    normalized = normalized
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
-  
+
   if (!normalized) return undefined;
-  
+
   try {
     return await sha256Hash(normalized);
   } catch (error) {
@@ -104,7 +116,7 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
       event_time: event.event_time,
       event_id: event.event_id,
       event_source_url: event.event_source_url,
-      action_source: event.action_source,
+      action_source: event.action_source
     };
 
     if (event.user_data && Object.keys(event.user_data).length) {
@@ -116,7 +128,7 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
 
     const payload: Record<string, any> = {
       data: [dataItem],
-      access_token: ACCESS_TOKEN,
+      access_token: ACCESS_TOKEN
     };
 
     const testCode = process.env.META_TEST_EVENT_CODE;
@@ -129,25 +141,25 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
         url,
         event: event.event_name,
         eventId: event.event_id,
-        userDataFields: event.user_data ? Object.keys(event.user_data).length : 0,
+        userDataFields: event.user_data ? Object.keys(event.user_data).length : 0
       });
     }
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
-    const data = await response.json() as Record<string, any>;
+    const data = (await response.json()) as Record<string, any>;
 
     if (!response.ok) {
       console.error('[Meta CAPI] API Error:', {
         status: response.status,
         error: data.error || 'Unknown error',
-        event: event.event_name,
+        event: event.event_name
       });
       return { success: false, error: data.error?.message || 'Failed to send event' };
     }
@@ -155,7 +167,7 @@ async function sendToMetaAPI(event: MetaCAPIEvent): Promise<{ success: boolean; 
     if (process.env.NODE_ENV === 'development') {
       console.log('[Meta CAPI] Event sent successfully:', {
         eventId: data.events?.[0]?.event_id || event.event_id,
-        success: true,
+        success: true
       });
     }
 
@@ -174,21 +186,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Validate configuration
   const config = validateConfig();
   if (!config.valid) {
-    return NextResponse.json(
-      { error: config.error },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: config.error }, { status: 500 });
   }
 
   try {
-    const body = await request.json() as MetaCAPIEvent;
+    const body = (await request.json()) as MetaCAPIEvent;
 
     // Validate required event fields
     if (!body.event_name || !body.event_id) {
-      return NextResponse.json(
-        { error: 'Missing required fields: event_name, event_id' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields: event_name, event_id' }, { status: 400 });
     }
 
     // Prevent server-side InitiateCheckout or Purchase events - Shopify owns checkout tracking
@@ -205,16 +211,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const userAgent = (request.headers.get('user-agent') || '').toString() || undefined;
 
     const mergedUserData: Record<string, string> = {};
-    
-    // Preserve existing user data from client
+
+    // Preserve existing user data from client and normalize/append any raw identifiers
     if (body.user_data) {
-      for (const [k, v] of Object.entries(body.user_data)) {
-        if (v && typeof v === 'string') {
-          mergedUserData[k] = v;
+      for (const [key, value] of Object.entries(body.user_data)) {
+        if (!value || typeof value !== 'string') continue;
+
+        const normalizedKey = key.toLowerCase();
+        const directKeyMap: Record<string, string> = {
+          email: 'em',
+          phone: 'ph',
+          externalid: 'external_id',
+          external_id: 'external_id',
+          firstname: 'fn',
+          first_name: 'fn',
+          lastname: 'ln',
+          last_name: 'ln',
+          city: 'ct',
+          state: 'st',
+          zip: 'zp',
+          postal_code: 'zp',
+          country: 'country'
+        };
+
+        const mappedKey = directKeyMap[normalizedKey] || normalizedKey;
+
+        if (['em', 'ph', 'external_id', 'fn', 'ln', 'ct', 'st', 'zp', 'country'].includes(mappedKey)) {
+          const hashedValue = await normalizeAndHashUserField(value, mappedKey);
+          if (hashedValue) {
+            mergedUserData[mappedKey] = hashedValue;
+          }
+        } else {
+          mergedUserData[key] = value;
         }
       }
     }
-    
+
     // Add server-side collected data
     if (clientIp) mergedUserData.client_ip_address = clientIp;
     if (userAgent) mergedUserData.client_user_agent = userAgent;
@@ -228,35 +260,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         fbc: !!mergedUserData.fbc,
         clientIp: !!clientIp,
         userAgent: !!userAgent,
-        userDataFields: Object.keys(mergedUserData).length,
+        userDataFields: Object.keys(mergedUserData).length
       });
     }
 
     const eventToSend: MetaCAPIEvent = {
       ...body,
-      user_data: Object.keys(mergedUserData).length ? mergedUserData : undefined,
+      user_data: Object.keys(mergedUserData).length ? mergedUserData : undefined
     };
 
     // Send to Meta API
     const result = await sendToMetaAPI(eventToSend);
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { success: true, eventId: body.event_id },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, eventId: body.event_id }, { status: 200 });
   } catch (error) {
     console.error('[Meta CAPI] Request parsing error:', error);
-    return NextResponse.json(
-      { error: 'Invalid request body' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 }
 
@@ -268,7 +291,7 @@ export async function OPTIONS(): Promise<NextResponse> {
     status: 200,
     headers: {
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
   });
 }
