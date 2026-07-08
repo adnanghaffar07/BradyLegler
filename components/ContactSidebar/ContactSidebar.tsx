@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import classNames from '@/helpers/classNames';
 import Icon from '@/components/Icon';
 import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
-import { setMetaUserData } from '@/lib/meta';
+import { setMetaUserData, trackLead } from '@/lib/meta';
 import styles from './ContactSidebar.module.scss';
 
 interface ContactSidebarProps {
@@ -77,6 +77,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           email: formData.email,
           phone: formData.phone
         });
+        trackLead({ content_name: 'Contact Sidebar Form' }, { email: formData.email, phone: formData.phone });
 
         setSubmitStatus({
           type: 'success',

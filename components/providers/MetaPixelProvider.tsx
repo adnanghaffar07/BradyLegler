@@ -4,11 +4,14 @@
  * Meta Pixel Provider
  *
  * This provider:
- * 1. Loads the Meta Pixel script (which creates _fbp cookie)
- * 2. Initializes FBP cookie manually if needed
- * 3. Initializes the pixel with the correct ID
- * 4. Tracks PageView on route changes (Next.js App Router)
- * 5. Provides tracking context to child components
+ * 1. Loads the Meta Pixel script
+ * 2. Initializes the pixel with the correct ID
+ * 3. Tracks PageView (browser + CAPI, deduplicated via event_id) once on
+ *    initial load and again on every client-side route change
+ *
+ * `_fbp`/`_fbc` cookies are set server-side by middleware.ts before this
+ * component even mounts; trackPageView() reads (or, as a fallback, creates)
+ * them itself.
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -19,35 +22,17 @@ import { trackPageView } from '@/lib/meta';
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const isDev = process.env.NODE_ENV === 'development';
 
-function initializeFbpCookie(): void {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return;
-
-  const name = '_fbp';
-  const nameEQ = name + '=';
-  const cookies = document.cookie.split(';');
-
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.indexOf(nameEQ) === 0) {
-      return;
-    }
-  }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const random = Math.floor(Math.random() * 1000000000);
-  const fbp = `fb.1.${timestamp}.${random}`;
-
-  try {
-    const secureFlag = window.location.protocol === 'https:' ? ' Secure; SameSite=None;' : '';
-    document.cookie = `_fbp=${fbp}; path=/; max-age=${60 * 60 * 24 * 90};${secureFlag}`;
-  } catch (error) {
-    console.warn('[Meta] Failed to set _fbp cookie', error);
-  }
-}
-
 export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathnameRef = useRef<string | null>(null);
+  const firedInitialPageView = useRef(false);
   const pathname = usePathname();
+
+  const fireInitialPageViewOnce = () => {
+    if (firedInitialPageView.current) return;
+    firedInitialPageView.current = true;
+    trackPageView();
+    if (isDev) console.log('[Meta] Initial PageView tracked:', pathname);
+  };
 
   useEffect(() => {
     if (!PIXEL_ID) {
@@ -55,18 +40,22 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return;
     }
 
-    initializeFbpCookie();
-
-    if (pathnameRef.current === pathname) {
+    if (pathnameRef.current === null) {
+      // First mount: the Script tag may still be loading, so only fire here
+      // if fbq is already available (e.g. cached/fast script load). Script's
+      // onLoad handles the more common case where it isn't ready yet.
+      pathnameRef.current = pathname;
+      if (typeof window !== 'undefined' && window.fbq) {
+        fireInitialPageViewOnce();
+      }
       return;
     }
 
+    if (pathnameRef.current === pathname) return;
     pathnameRef.current = pathname;
 
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'PageView');
-      if (isDev) console.log('[Meta] PageView tracked on route change:', pathname);
-    }
+    trackPageView();
+    if (isDev) console.log('[Meta] PageView tracked on route change:', pathname);
   }, [pathname]);
 
   if (!PIXEL_ID) {
@@ -90,14 +79,9 @@ export const MetaPixelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '${PIXEL_ID}');
-            fbq('track', 'PageView');
-          `,
+          `
         }}
-        onLoad={() => {
-          if (typeof window !== 'undefined' && window.fbq) {
-            window.fbq('track', 'PageView');
-          }
-        }}
+        onLoad={fireInitialPageViewOnce}
       />
       <noscript>
         <img
