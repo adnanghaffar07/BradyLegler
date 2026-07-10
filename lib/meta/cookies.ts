@@ -12,6 +12,13 @@ const FBP_COOKIE = '_fbp';
 const FBC_COOKIE = '_fbc';
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 90; // matches Meta's own _fbp/_fbc TTL
 
+// Same cookie tools/analytics/hooks/useAnalytics.ts uses for GA/GTM's client_id.
+// Reusing it as Meta's `external_id` gives every event a stable per-visitor
+// identifier (Meta allows any persistent ID here, not just a logged-in
+// customer id) without introducing a second redundant cookie.
+const CLIENT_ID_COOKIE = 'bl_client_id';
+const CLIENT_ID_MAX_AGE_SECONDS = 60 * 60 * 24 * 730;
+
 export function generateFbp(): string {
   // Meta's fb.subdomainIndex.creationTime.value format requires creationTime
   // in milliseconds. Using Unix seconds here makes Meta parse it as a date in
@@ -45,11 +52,11 @@ function readBrowserCookie(name: string): string | undefined {
   return value.length ? value : undefined;
 }
 
-function writeBrowserCookie(name: string, value: string): void {
+function writeBrowserCookie(name: string, value: string, maxAgeSeconds: number = COOKIE_MAX_AGE_SECONDS): void {
   if (typeof document === 'undefined') return;
   try {
     const secureFlag = window.location.protocol === 'https:' ? ' Secure; SameSite=None;' : '';
-    document.cookie = `${name}=${value}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS};${secureFlag}`;
+    document.cookie = `${name}=${value}; path=/; max-age=${maxAgeSeconds};${secureFlag}`;
   } catch (error) {
     console.warn(`[Meta] Failed to persist ${name} cookie`, error);
   }
@@ -61,6 +68,23 @@ export function getFbpCookie(): string | undefined {
 
 export function getFbcCookie(): string | undefined {
   return readBrowserCookie(FBC_COOKIE);
+}
+
+/**
+ * Read the existing `bl_client_id` cookie (set by useAnalytics' GA/GTM
+ * tracking), or create + persist one. Used as Meta's `external_id` so every
+ * event carries a stable per-visitor identifier, not just the rare event
+ * where a form has already collected an email/phone.
+ */
+export function getOrCreateClientId(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+
+  const existing = readBrowserCookie(CLIENT_ID_COOKIE);
+  if (existing) return existing;
+
+  const id = `${Math.floor(Math.random() * 1_000_000_000)}-${Date.now()}`;
+  writeBrowserCookie(CLIENT_ID_COOKIE, id, CLIENT_ID_MAX_AGE_SECONDS);
+  return id;
 }
 
 export function getFbclidFromLocation(): string | undefined {

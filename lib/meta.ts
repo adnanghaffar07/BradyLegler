@@ -12,7 +12,7 @@
  * Sales Channel integration once checkout redirects off this app's domain, so those are
  * intentionally NOT sent server-side here to avoid double-counting conversions.
  */
-import { getOrCreateFbp, getOrCreateFbc } from '@/lib/meta/cookies';
+import { getOrCreateFbp, getOrCreateFbc, getOrCreateClientId } from '@/lib/meta/cookies';
 import { buildMetaEvent, generateEventId, type MetaCustomData, type MetaEventName } from '@/lib/meta/buildEvent';
 
 export type MetaEventData = MetaCustomData;
@@ -129,6 +129,9 @@ async function sendCapiEvent(
     const identity = { ...getStoredMetaIdentity(), ...identityOverride };
     const fbp = getOrCreateFbp();
     const fbc = getOrCreateFbc();
+    // Fall back to the persistent anonymous client id when no logged-in/form
+    // identity is known yet, so external_id is populated on every event.
+    const externalId = identity.externalId || getOrCreateClientId();
 
     const payload = await buildMetaEvent({
       eventName,
@@ -136,7 +139,7 @@ async function sendCapiEvent(
       rawUserData: {
         email: identity.email,
         phone: identity.phone,
-        externalId: identity.externalId
+        externalId
       },
       fbp,
       fbc,
