@@ -4,11 +4,13 @@
  * This endpoint receives events from the browser (built by lib/meta.ts via the
  * shared lib/meta/buildEvent.ts helper) and forwards them to Meta's Conversions API.
  *
- * Events include: PageView, ViewContent, AddToCart, Lead.
+ * Events include: PageView, ViewContent, AddToCart, Lead, InitiateCheckout.
  *
- * Shopify handles InitiateCheckout, AddPaymentInfo, and Purchase through its own
- * native Meta Sales Channel integration, so those are rejected here to prevent
- * double-counted conversions.
+ * Shopify is only used for inventory and its checkout/payment pages, so it
+ * handles AddPaymentInfo and Purchase through its own native Meta Sales
+ * Channel integration; those are rejected here to prevent double-counted
+ * conversions. InitiateCheckout happens on this site (the "start checkout"
+ * click), so this app owns it end-to-end.
  *
  * IMPORTANT: This API must be publicly accessible and cannot require authentication
  * because browser-based events need to reach it directly.
@@ -24,7 +26,7 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
 const API_VERSION = process.env.META_API_VERSION || 'v18.0';
 
-const BLOCKED_EVENT_NAMES = new Set(['InitiateCheckout', 'AddPaymentInfo', 'Purchase']);
+const BLOCKED_EVENT_NAMES = new Set(['AddPaymentInfo', 'Purchase']);
 
 const RAW_USER_DATA_KEY_MAP: Record<string, string> = {
   email: 'em',

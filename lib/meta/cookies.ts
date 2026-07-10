@@ -13,14 +13,24 @@ const FBC_COOKIE = '_fbc';
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 90; // matches Meta's own _fbp/_fbc TTL
 
 export function generateFbp(): string {
-  const timestamp = Math.floor(Date.now() / 1000);
+  // Meta's fb.subdomainIndex.creationTime.value format requires creationTime
+  // in milliseconds. Using Unix seconds here makes Meta parse it as a date in
+  // 1970, which is exactly the "creationTime before click ID was created" CAPI error.
+  const timestamp = Date.now();
   const random = Math.floor(Math.random() * 1_000_000_000);
   return `fb.1.${timestamp}.${random}`;
 }
 
 export function buildFbcFromFbclid(fbclid: string): string {
-  const timestamp = Math.floor(Date.now() / 1000);
+  const timestamp = Date.now();
   return `fb.1.${timestamp}.${fbclid}`;
+}
+
+/** Extract the fbclid segment from an existing `_fbc` cookie value, if present. */
+function extractFbclid(fbc: string | undefined): string | undefined {
+  if (!fbc) return undefined;
+  const parts = fbc.split('.');
+  return parts.length >= 4 ? parts.slice(3).join('.') : undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -123,7 +133,14 @@ export function ensureMetaCookies(request: NextRequest, response: NextResponse):
 
   const fbclid = request.nextUrl.searchParams.get('fbclid');
   if (fbclid) {
-    // Always refresh _fbc on a fresh ad click so the click id stays current.
-    response.cookies.set(FBC_COOKIE, buildFbcFromFbclid(fbclid), cookieOptions);
+    const existingFbclid = extractFbclid(request.cookies.get(FBC_COOKIE)?.value);
+    // Only (re)generate _fbc when this is a new click id. Meta's guidance is to
+    // never modify the creationTime once set, so re-stamping it on every request
+    // that happens to still carry the same ?fbclid= (e.g. a shared/bookmarked
+    // URL) would send a creationTime that no longer matches when the click
+    // actually happened.
+    if (existingFbclid !== fbclid) {
+      response.cookies.set(FBC_COOKIE, buildFbcFromFbclid(fbclid), cookieOptions);
+    }
   }
 }

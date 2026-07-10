@@ -10,7 +10,7 @@ import { useCart } from '@/tools/store/useCart';
 import classNames from '@/tools/helpers/classNames';
 import SidePanel from '@/components/SidePanel';
 import { useAnalytics } from '@/tools/analytics';
-import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
+import { trackAddToCart as metaTrackAddToCart, trackInitiateCheckout as metaTrackInitiateCheckout } from '@/lib/meta';
 import { getDisplayableCartSelectedOptions } from '@/lib/productOptions';
 import styles from './styles.module.scss';
 
@@ -75,7 +75,19 @@ const Cart = () => {
       currency: cart?.cost?.totalAmount?.currencyCode,
       value: cart?.cost?.totalAmount?.amount
     });
-  }, [cart]);
+
+    // Meta Pixel + CAPI InitiateCheckout, fired the moment the user heads to
+    // Shopify's checkout page. Shopify's Sales Channel integration only owns
+    // AddPaymentInfo/Purchase from here on, since checkout itself is the only
+    // part of the flow Shopify handles.
+    if (cart?.lines?.edges?.length) {
+      metaTrackInitiateCheckout({
+        content_ids: cart.lines.edges.map(({ node: cartItem }) => cartItem.merchandise.product.id),
+        value: Number(cart?.cost?.totalAmount?.amount) || 0,
+        currency: cart?.cost?.totalAmount?.currencyCode || currency
+      });
+    }
+  }, [cart, currency]);
 
   return (
     <SidePanel title="Cart" show={cartOpen} onClose={handleCloseCart}>

@@ -207,7 +207,7 @@ export const debugMeta = {
   generateFbcFromFbclid(): string | undefined {
     const fbclid = this.getFbclidParam();
     if (!fbclid) return undefined;
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = Date.now();
     return `fb.1.${timestamp}.${fbclid}`;
   },
 

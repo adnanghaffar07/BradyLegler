@@ -8,7 +8,7 @@
  */
 import { normalizeAndHashUserField, type MetaHashableField } from './hash';
 
-export type MetaEventName = 'PageView' | 'ViewContent' | 'AddToCart' | 'Lead';
+export type MetaEventName = 'PageView' | 'ViewContent' | 'AddToCart' | 'Lead' | 'InitiateCheckout';
 
 export interface MetaCustomData {
   value?: number;

@@ -235,27 +235,16 @@ export function trackLead(data: MetaEventData = {}, identity?: MetaUserIdentityD
 }
 
 /**
- * Track InitiateCheckout event (browser only).
+ * Track InitiateCheckout event (browser + CAPI, deduplicated via event_id).
  *
- * DO NOT send server-side: checkout happens on Shopify's own checkout domain,
- * and Shopify's native Meta Sales Channel integration already sends
- * InitiateCheckout/AddPaymentInfo/Purchase via its own CAPI connection.
- * Sending these from here too would double-count conversions.
+ * This app owns InitiateCheckout end-to-end: Shopify is only used for
+ * inventory and the checkout/payment pages themselves (AddPaymentInfo,
+ * Purchase), which is why those two remain Shopify's native CAPI
+ * integration. The "start checkout" moment happens on this site, so it's
+ * tracked the same way as every other event here.
  */
 export function trackInitiateCheckout(data: MetaEventData = {}): void {
-  if (typeof window === 'undefined') {
-    console.warn('[Meta] InitiateCheckout should only be called from browser');
-    return;
-  }
-
-  try {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Meta Pixel] Browser event: InitiateCheckout', { data });
-    }
-    window.fbq?.('track', 'InitiateCheckout', data);
-  } catch (error) {
-    console.error('[Meta] Error sending InitiateCheckout event', error);
-  }
+  dispatchMetaEvent('InitiateCheckout', data);
 }
 
 declare global {
