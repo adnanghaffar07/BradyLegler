@@ -203,8 +203,17 @@ export function trackViewContent(data: MetaEventData): void {
   dispatchMetaEvent('ViewContent', data);
 }
 
+const ADD_TO_CART_DEDUPE_WINDOW_MS = 3000;
+
 /**
- * Track AddToCart event. Guarded to fire once per product per session.
+ * Track AddToCart event. Debounced per product so a double-click or a rapid
+ * double-fire from the same action doesn't send two events, but genuinely
+ * separate add actions later in the session (re-adding after removing,
+ * bumping quantity from the cart drawer) are still tracked. A previous
+ * "once per product per session" guard suppressed all of those legitimate
+ * repeat adds — which, if Meta's Pixel independently auto-detects the same
+ * button click, leaves an orphan browser-only event with no CAPI partner and
+ * directly hurts event coverage.
  */
 export function trackAddToCart(data: MetaEventData): void {
   if (typeof window !== 'undefined') {
@@ -212,12 +221,14 @@ export function trackAddToCart(data: MetaEventData): void {
       const trackedKey = '_meta_tracked_addtocart';
       const contentId = Array.isArray(data.content_ids) ? data.content_ids[0] : undefined;
       if (contentId) {
-        const tracked: string[] = JSON.parse(sessionStorage.getItem(trackedKey) || '[]');
-        if (tracked.includes(contentId)) {
-          if (process.env.NODE_ENV === 'development') console.log('[Meta] AddToCart already tracked for', contentId);
+        const tracked: Record<string, number> = JSON.parse(sessionStorage.getItem(trackedKey) || '{}');
+        const lastTrackedAt = tracked[contentId];
+        const now = Date.now();
+        if (lastTrackedAt && now - lastTrackedAt < ADD_TO_CART_DEDUPE_WINDOW_MS) {
+          if (process.env.NODE_ENV === 'development') console.log('[Meta] AddToCart debounced for', contentId);
           return;
         }
-        tracked.push(contentId);
+        tracked[contentId] = now;
         sessionStorage.setItem(trackedKey, JSON.stringify(tracked));
       }
     } catch {
