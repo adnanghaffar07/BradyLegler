@@ -13,6 +13,27 @@ type Rows = {
   cells: string[];
 };
 
+const DEFAULT_HOW_TO_MEASURE = [
+  {
+    _key: 'default-string-or-paper',
+    title: 'Using String or Paper',
+    steps: [
+      "You'll need a tape measure, a length of string, or a thin strip of paper.",
+      "Wrap it snugly around the base of the finger you plan to wear the ring on. If it's for a stack, measure where the ring will actually sit, then mark where the ends meet.",
+      'Lay it flat and measure the length up to your mark with a ruler. Compare that number to the chart above to find your closest Brady Legler size.'
+    ]
+  },
+  {
+    _key: 'default-existing-ring',
+    title: 'Using a Ring You Already Own',
+    steps: [
+      'Pick a ring that already fits the intended finger well.',
+      'Measure across the inside of the band to find its interior diameter in millimeters.',
+      'Match that measurement to the chart above to find your nearest size in mm.'
+    ]
+  }
+];
+
 type SizeGuideProps = {
   sanitySizeGuide: ISizeGuideDocument;
   collections?: {
@@ -39,6 +60,9 @@ const SizeGuide = (props: SizeGuideProps) => {
   const productCollectionIds = collections?.edges.map(edge => edge.node.id) || [];
   const filteredTables = getFilteredSizeGuideTables(tables, productCollectionIds);
   const hasSizeGuide = filteredTables.length > 0;
+  const howToMeasureSections = sanitySizeGuide?.howToMeasure?.length
+    ? sanitySizeGuide.howToMeasure
+    : DEFAULT_HOW_TO_MEASURE;
   const isControlled = onOpenChange !== undefined;
   const showSizeGuide = isControlled ? (isOpen ?? false) : internalOpen;
 
@@ -116,47 +140,16 @@ const SizeGuide = (props: SizeGuideProps) => {
             </div>
           ) : (
             <div className={styles.container}>
-              <div>
-                <Text as="h3" text="Using String or Paper" size="b3" spacing="md" />
-                <Text as="ol">
-                  <Text
-                    as="li"
-                    size="b2"
-                    spacing="md"
-                    text="You'll need a tape measure, a length of string, or a thin strip of paper."
-                  />
-                  <Text
-                    as="li"
-                    size="b2"
-                    spacing="md"
-                    text="Wrap it snugly around the base of the finger you plan to wear the ring on. If it's for a stack, measure where the ring will actually sit, then mark where the ends meet."
-                  />
-                  <Text
-                    as="li"
-                    size="b2"
-                    spacing="md"
-                    text="Lay it flat and measure the length up to your mark with a ruler. Compare that number to the chart above to find your closest Brady Legler size."
-                  />
-                </Text>
-              </div>
-              <div>
-                <Text as="h3" text="Using a Ring You Already Own" size="b3" spacing="md" />
-                <Text as="ol">
-                  <Text as="li" size="b2" spacing="md" text="Pick a ring that already fits the intended finger well." />
-                  <Text
-                    as="li"
-                    size="b2"
-                    spacing="md"
-                    text="Measure across the inside of the band to find its interior diameter in millimeters."
-                  />
-                  <Text
-                    as="li"
-                    size="b2"
-                    spacing="md"
-                    text="Match that measurement to the chart above to find your nearest size in mm."
-                  />
-                </Text>
-              </div>
+              {howToMeasureSections.map((section, sectionIndex) => (
+                <div key={section._key || `${section.title}_${sectionIndex}`}>
+                  <Text as="h3" text={section.title} size="b3" spacing="md" />
+                  <Text as="ol">
+                    {section.steps?.map((step, stepIndex) => (
+                      <Text key={`${section._key || sectionIndex}_step_${stepIndex}`} as="li" size="b2" spacing="md" text={step} />
+                    ))}
+                  </Text>
+                </div>
+              ))}
             </div>
           )}
         </SidePanel.Body>
