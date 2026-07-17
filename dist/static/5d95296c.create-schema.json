@@ -1495,6 +1495,18 @@
         ],
         "name": "tables",
         "type": "array"
+      },
+      {
+        "description": "Sections shown under the \"How to Measure\" tab of the size guide.",
+        "of": [
+          {
+            "type": "howToMeasureSection",
+            "title": "How to Measure Section"
+          }
+        ],
+        "name": "howToMeasure",
+        "type": "array",
+        "title": "How to Measure"
       }
     ],
     "name": "sizeGuideDocument",
@@ -2886,6 +2898,28 @@
     "name": "sizeGuideTable",
     "type": "object",
     "title": "Link Group"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string",
+        "title": "Section Title"
+      },
+      {
+        "description": "Each item is rendered as one numbered step.",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "steps",
+        "type": "array"
+      }
+    ],
+    "name": "howToMeasureSection",
+    "type": "object",
+    "title": "How to Measure Section"
   },
   {
     "fields": [
