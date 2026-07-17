@@ -108,10 +108,10 @@ export function trackCartAddition(
  * Checkout Initiation
  *
  * Call when user clicks "Proceed to Checkout"
- * This sends browser event only - Shopify handles the rest
+ * Sends both browser + CAPI (this app owns InitiateCheckout end-to-end;
+ * Shopify only owns AddPaymentInfo/Purchase on its checkout pages)
  */
 export function handleCheckoutInitiation(checkoutUrl: string): void {
-  // Track browser event (Shopify will handle CAPI via native integration)
   trackInitiateCheckout();
 
   if (process.env.NODE_ENV === 'development') {

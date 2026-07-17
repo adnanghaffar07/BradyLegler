@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import classNames from '@/helpers/classNames';
 import Icon from '@/components/Icon';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
+import { setMetaUserData, trackLead } from '@/lib/meta';
 import styles from './ContactSidebar.module.scss';
 
 interface ContactSidebarProps {
@@ -71,6 +73,12 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
       const result = await response.json();
 
       if (result.status === 'success') {
+        setMetaUserData({
+          email: formData.email,
+          phone: formData.phone
+        });
+        trackLead({ content_name: 'Contact Sidebar Form' }, { email: formData.email, phone: formData.phone });
+
         setSubmitStatus({
           type: 'success',
           message: 'Thank you! Your inquiry has been submitted successfully.'
@@ -139,34 +147,27 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  // Prevent body scroll when contact sidebar is open
   useEffect(() => {
-    if (isOpen) {
-      // Store current scroll position
-      const scrollY = window.scrollY;
-      
-      // Apply overflow hidden to prevent scroll
-      document.body.style.overflow = 'hidden';
-      // Use padding instead of position fixed to avoid scroll jump
-      document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
-      
-      return () => {
-        // Restore original styles
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-      };
+    if (!isOpen) {
+      return;
     }
+
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+    };
   }, [isOpen]);
 
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         className={classNames(styles.overlay, styles.contactOverlay, {
           [styles.overlayVisible]: isOpen
-        })} 
+        })}
         onClick={handleClose}
-        style={{ 
+        style={{
           pointerEvents: isOpen ? 'auto' : 'none',
           opacity: isOpen ? 1 : 0
         }}

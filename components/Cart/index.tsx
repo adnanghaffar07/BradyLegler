@@ -10,7 +10,8 @@ import { useCart } from '@/tools/store/useCart';
 import classNames from '@/tools/helpers/classNames';
 import SidePanel from '@/components/SidePanel';
 import { useAnalytics } from '@/tools/analytics';
-import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
+import { trackAddToCart as metaTrackAddToCart, trackInitiateCheckout as metaTrackInitiateCheckout } from '@/lib/meta';
+import { getDisplayableCartSelectedOptions } from '@/lib/productOptions';
 import styles from './styles.module.scss';
 
 const Cart = () => {
@@ -51,31 +52,6 @@ const Cart = () => {
     }
   }, [cartOpen]);
 
-  // Prevent body scroll when cart is open
-  useEffect(() => {
-    if (cartOpen) {
-      // Store current scroll position
-      const scrollY = window.scrollY;
-      
-      // Apply styles to lock scroll
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-      
-      return () => {
-        // Remove scroll lock styles
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        document.body.style.overflow = '';
-        
-        // Restore scroll position
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [cartOpen]);
-
   // Generate the checkout URL with client_id appended
   const checkoutUrl = useMemo(() => {
     if (!cart?.checkoutUrl) return '';
@@ -99,7 +75,19 @@ const Cart = () => {
       currency: cart?.cost?.totalAmount?.currencyCode,
       value: cart?.cost?.totalAmount?.amount
     });
-  }, [cart]);
+
+    // Meta Pixel + CAPI InitiateCheckout, fired the moment the user heads to
+    // Shopify's checkout page. Shopify's Sales Channel integration only owns
+    // AddPaymentInfo/Purchase from here on, since checkout itself is the only
+    // part of the flow Shopify handles.
+    if (cart?.lines?.edges?.length) {
+      metaTrackInitiateCheckout({
+        content_ids: cart.lines.edges.map(({ node: cartItem }) => cartItem.merchandise.product.id),
+        value: Number(cart?.cost?.totalAmount?.amount) || 0,
+        currency: cart?.cost?.totalAmount?.currencyCode || currency
+      });
+    }
+  }, [cart, currency]);
 
   return (
     <SidePanel title="Cart" show={cartOpen} onClose={handleCloseCart}>
@@ -118,18 +106,8 @@ const Cart = () => {
       <SidePanel.Footer className={styles.footer}>
         <div className={styles.totals}>
           <div className={styles.amount}>
-            <Text weight="medium" size="b2" text="Subtotal" />
+            <Text weight="medium" size="b2" text="Total" />
             <Text size="b3" text={`${cart?.cost?.subtotalAmount?.amount || '0.0'} ${currency}`} />
-          </div>
-
-          <div className={styles.amount}>
-            <Text weight="medium" size="b2" text="Tax" />
-            <Text size="b3" text={`${cart?.cost?.totalTaxAmount?.amount || '0.0'} ${currency}`} />
-          </div>
-
-          <div className={styles.amount}>
-            <Text weight="medium" size="b2" text="Grand Total" />
-            <Text size="b3" text={`${cart?.cost?.totalAmount?.amount || '0.0'} ${currency}`} />
           </div>
         </div>
 
@@ -150,6 +128,7 @@ const LineItem = ({ node }) => {
   const isUpdating = useCart(state => state.isUpdating);
   const updateCart = useCart(state => state.updateCart);
   const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
+  const displayableOptions = getDisplayableCartSelectedOptions(node?.merchandise?.selectedOptions);
 
   const handleMinus = async () => {
     try {
@@ -243,14 +222,16 @@ const LineItem = ({ node }) => {
             text={`${node.cost.amountPerQuantity?.amount} ${node.cost.amountPerQuantity?.currencyCode}`}
           />
         </div>
-        <div className={styles.selectedOptions}>
-          {node?.merchandise?.selectedOptions.map((option, i) => (
-            <div className={styles.selectedOption} key={i}>
-              <Text key={option.name} as="p" size="b2" text={option.name} className={styles.selectedOptionName} />
-              <Text key={option.name} as="p" size="b3" text={option.value} className={styles.selectedOptionValue} />
-            </div>
-          ))}
-        </div>
+        {displayableOptions.length > 0 && (
+          <div className={styles.selectedOptions}>
+            {displayableOptions.map((option, i) => (
+              <div className={styles.selectedOption} key={i}>
+                <Text as="p" size="b2" text={option.name} className={styles.selectedOptionName} />
+                <Text as="p" size="b3" text={option.value} className={styles.selectedOptionValue} />
+              </div>
+            ))}
+          </div>
+        )}
         <div className={styles.detailsBottom}>
           <div className={styles.quantity}>
             <Button

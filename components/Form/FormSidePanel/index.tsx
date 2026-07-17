@@ -7,6 +7,7 @@ import Link from '@/components/Link';
 import Text from '@/components/Text';
 import SidePanel from '@/components/SidePanel';
 import FormThankYou from '@/components/Form/FormThankYou';
+import { setMetaUserData, trackLead } from '@/lib/meta';
 import styles from './styles.module.scss';
 
 type FormSidePanelProps = {
@@ -31,6 +32,13 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
 
       setStatus('loading');
 
+      const externalId = values?.externalId || values?.customerId || values?.externalIdValue;
+      const identity = { email: values?.email, phone: values?.phone, externalId };
+
+      if (identity.email || identity.phone || identity.externalId) {
+        setMetaUserData(identity);
+      }
+
       const [response] = await Promise.all([
         fetch('/api/form', {
           method: 'POST',
@@ -49,6 +57,10 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
       }
 
       setStatus('success');
+
+      if (identity.email || identity.phone || identity.externalId) {
+        trackLead({ content_name: formName }, identity);
+      }
 
       onClose();
       methods?.reset();

@@ -1,4 +1,5 @@
 import { defineType } from 'sanity';
+import { IHowToMeasureSection } from '../objects/howToMeasureSection';
 
 interface ISizeGuideDocument {
   _id: string;
@@ -20,6 +21,7 @@ interface ISizeGuideDocument {
       }[];
     };
   };
+  howToMeasure: IHowToMeasureSection[];
 }
 
 const sizeGuideDocument = defineType({
@@ -32,6 +34,13 @@ const sizeGuideDocument = defineType({
       title: 'Tables',
       type: 'array',
       of: [{ type: 'sizeGuideTable' }]
+    },
+    {
+      name: 'howToMeasure',
+      title: 'How to Measure',
+      description: 'Sections shown under the "How to Measure" tab of the size guide.',
+      type: 'array',
+      of: [{ type: 'howToMeasureSection' }]
     }
   ],
   preview: {

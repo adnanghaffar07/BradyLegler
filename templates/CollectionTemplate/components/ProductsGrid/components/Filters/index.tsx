@@ -10,6 +10,7 @@ import {
   GetCollectionFiltersByHandleResponse,
   GetCollectionSubCollectionFiltersByIdResponse
 } from '@/tools/apis/shopify';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
 import styles from './styles.module.scss';
 
 type Props = {
@@ -30,6 +31,18 @@ const FiltersDrawer: React.FC<Props> = ({ filters, subCollectionFilters, product
   useEffect(() => {
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      return;
+    }
+
+    lockBodyScroll();
+
+    return () => {
+      unlockBodyScroll();
+    };
+  }, [drawerOpen]);
 
   const anyFilterActive = useMemo(() => {
     if (!searchParams) return false;

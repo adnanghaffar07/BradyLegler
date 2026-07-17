@@ -2,235 +2,169 @@
  * Meta Pixel + Conversions API Tracking Module
  *
  * This module provides unified tracking for Meta Pixel (browser) and Conversions API (server).
- * Each event is tracked with a matching event_id to prevent duplication.
+ * Every event goes through `dispatchMetaEvent`, which shares a single `event_id` between the
+ * browser Pixel call and the server CAPI call so Meta can deduplicate them.
  *
- * Browser events: fbq('track', eventName, data)
- * Server events: POST /api/meta/events with CAPI payload
+ * Browser events: fbq('track', eventName, data, { eventID })
+ * Server events: POST /api/meta/events with a CAPI payload built by lib/meta/buildEvent.ts
  *
- * Shopify handles its own events through native Meta integration:
- * - InitiateCheckout (browser only)
- * - AddPaymentInfo
- * - Purchase
+ * Shopify handles InitiateCheckout, AddPaymentInfo, and Purchase through its own native Meta
+ * Sales Channel integration once checkout redirects off this app's domain, so those are
+ * intentionally NOT sent server-side here to avoid double-counting conversions.
  */
+import { getOrCreateFbp, getOrCreateFbc, getOrCreateClientId } from '@/lib/meta/cookies';
+import { buildMetaEvent, generateEventId, type MetaCustomData, type MetaEventName } from '@/lib/meta/buildEvent';
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+export type MetaEventData = MetaCustomData;
 
-// Type definitions
-export interface MetaEventData {
-  value?: number;
-  currency?: string;
-  content_ids?: string[];
-  content_name?: string;
-  content_type?: string;
+export interface MetaUserIdentityData {
+  email?: string;
+  phone?: string;
+  externalId?: string;
 }
 
-export interface MetaUserData {
-  fbp?: string;
-  fbc?: string;
-  client_ip_address?: string;
-  client_user_agent?: string;
+const META_IDENTITY_STORAGE_KEY = 'bradylegler_meta_identity';
+
+function normalizeIdentityValue(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
 }
 
-interface MetaCAPIEvent {
-  event_name: string;
-  event_time: number;
-  event_id: string;
-  event_source_url: string;
-  action_source: string;
-  user_data?: Record<string, string>;
-  custom_data?: Record<string, any>;
-}
-
-/**
- * Generate a UUID for event deduplication
- */
-function generateEventId(): string {
-  // Using a simple UUID v4 equivalent for browser compatibility
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
-/**
- * Get or create Meta FBP (Facebook Pixel ID) from cookies
- */
-function isNonEmptyString(value: string | undefined): value is string {
-  return typeof value === 'string' && value.trim().length > 0;
-}
-
-function getFbpCookie(): string | undefined {
-  if (typeof document === 'undefined') return undefined;
-
-  const name = '_fbp';
-  const nameEQ = name + '=';
-  const cookies = document.cookie.split(';');
-
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.indexOf(nameEQ) === 0) {
-      const value = cookie.substring(nameEQ.length).trim();
-      return isNonEmptyString(value) ? value : undefined;
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Get Meta FBC (First-Party Cookie) from cookies
- */
-function getFbcCookie(): string | undefined {
-  if (typeof document === 'undefined') return undefined;
-
-  const name = '_fbc';
-  const nameEQ = name + '=';
-  const cookies = document.cookie.split(';');
-
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.indexOf(nameEQ) === 0) {
-      const value = cookie.substring(nameEQ.length).trim();
-      return isNonEmptyString(value) ? value : undefined;
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Extract fbclid from the URL query string.
- */
-function getFbclidParam(): string | undefined {
-  if (typeof window === 'undefined') return undefined;
-
-  const params = new URLSearchParams(window.location.search);
-  return params.get('fbclid') || undefined;
-}
-
-/**
- * Build an _fbc value from fbclid and preserve it as a first-party cookie.
- */
-function createFbcFromFbclid(): string | undefined {
-  const fbclid = getFbclidParam();
-  if (!fbclid || typeof document === 'undefined') return undefined;
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const fbc = `fb.1.${timestamp}.${fbclid}`;
+function getStoredMetaIdentity(): MetaUserIdentityData {
+  if (typeof window === 'undefined') return {};
 
   try {
-    const secureFlag = window.location.protocol === 'https:' ? ' Secure; SameSite=None;' : '';
-    document.cookie = `_fbc=${fbc}; path=/; max-age=${60 * 60 * 24 * 90};${secureFlag}`;
+    const raw = window.localStorage.getItem(META_IDENTITY_STORAGE_KEY);
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw) as MetaUserIdentityData;
+    return {
+      email: normalizeIdentityValue(parsed.email),
+      phone: normalizeIdentityValue(parsed.phone),
+      externalId: normalizeIdentityValue(parsed.externalId)
+    };
   } catch (error) {
-    console.warn('[Meta] Failed to persist _fbc cookie from fbclid', error);
+    console.warn('[Meta] Failed to read persisted identity data', error);
+    return {};
   }
-
-  return fbc;
 }
 
-/**
- * Get or create Meta FBC for use in CAPI events.
- */
-function getOrCreateFbc(): string | undefined {
-  const fbc = getFbcCookie();
-  if (fbc) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Meta] _fbc cookie found', fbc);
+function persistMetaIdentity(data: MetaUserIdentityData): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const merged: MetaUserIdentityData = {
+      ...getStoredMetaIdentity(),
+      ...(normalizeIdentityValue(data.email) ? { email: normalizeIdentityValue(data.email) } : {}),
+      ...(normalizeIdentityValue(data.phone) ? { phone: normalizeIdentityValue(data.phone) } : {}),
+      ...(normalizeIdentityValue(data.externalId) ? { externalId: normalizeIdentityValue(data.externalId) } : {})
+    };
+
+    if (merged.email || merged.phone || merged.externalId) {
+      window.localStorage.setItem(META_IDENTITY_STORAGE_KEY, JSON.stringify(merged));
+    } else {
+      window.localStorage.removeItem(META_IDENTITY_STORAGE_KEY);
     }
-    return fbc;
+  } catch (error) {
+    console.warn('[Meta] Failed to persist identity data', error);
   }
-
-  const createdFbc = createFbcFromFbclid();
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Meta] _fbc created from fbclid', {
-      fbclid: getFbclidParam(),
-      fbc: createdFbc,
-    });
-  }
-  return createdFbc;
 }
 
 /**
- * Get user data for CAPI events
+ * Store customer identity (email/phone/externalId) collected from a form or account.
+ * Persisted so subsequent events (ViewContent, AddToCart, etc.) in this browser include it,
+ * enabling Advanced Matching / higher Event Match Quality.
  */
-function getUserData(): MetaUserData {
-  const userData: MetaUserData = {};
-  const fbp = getFbpCookie();
-  const fbc = getOrCreateFbc();
+export function setMetaUserData(data: MetaUserIdentityData): void {
+  if (typeof window === 'undefined') return;
 
-  if (fbp) userData.fbp = fbp;
-  if (fbc) userData.fbc = fbc;
+  const email = normalizeIdentityValue(data.email);
+  const phone = normalizeIdentityValue(data.phone);
+  const externalId = normalizeIdentityValue(data.externalId);
+  if (!email && !phone && !externalId) return;
 
-  // client_ip_address and client_user_agent are injected by the server-side API
-  return userData;
+  persistMetaIdentity({ email, phone, externalId });
+}
+
+export function setMetaCustomerIdentity(data: MetaUserIdentityData): void {
+  setMetaUserData(data);
 }
 
 /**
- * Send browser event via Facebook Pixel
+ * Send the browser-side Meta Pixel event.
  */
-function sendPixelEvent(eventName: string, eventData: MetaEventData = {}, eventId?: string): void {
+function sendPixelEvent(eventName: MetaEventName, customData: MetaEventData, eventId: string): void {
   if (typeof window === 'undefined' || !window.fbq) {
-    console.warn(`[Meta] fbq not available for event: ${eventName}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[Meta] fbq not available for event: ${eventName}`);
+    }
     return;
   }
 
   try {
+    window.fbq('track', eventName, customData, { eventID: eventId });
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[Meta Pixel] Browser event: ${eventName}`, { eventData, eventId });
+      console.log(`[Meta Pixel] Browser event: ${eventName}`, { eventId, customData });
     }
-
-    window.fbq('track', eventName, eventData, { eventID: eventId });
   } catch (error) {
     console.error(`[Meta] Error sending pixel event: ${eventName}`, error);
   }
 }
 
 /**
- * Send server event via Conversions API
+ * Build and send the server-side Conversions API event for the same event_id.
  */
-async function sendCAPIEvent(
-  eventName: string,
-  eventData: MetaEventData = {},
-  userData: MetaUserData = {},
-  eventId?: string
+async function sendCapiEvent(
+  eventName: MetaEventName,
+  customData: MetaEventData,
+  eventId: string,
+  identityOverride?: MetaUserIdentityData
 ): Promise<void> {
   try {
-    const url = '/api/meta/events';
-
-    // Filter out empty user data fields
-    const filteredUserData: Record<string, string> = {};
-    if (userData.fbp) filteredUserData.fbp = userData.fbp;
-    if (userData.fbc) filteredUserData.fbc = userData.fbc;
-    if (userData.client_ip_address) filteredUserData.client_ip_address = userData.client_ip_address;
-    if (userData.client_user_agent) filteredUserData.client_user_agent = userData.client_user_agent;
-
-    const payload: MetaCAPIEvent = {
-      event_name: eventName,
-      event_time: Math.floor(Date.now() / 1000),
-      event_id: eventId || generateEventId(),
-      event_source_url: typeof window !== 'undefined' ? window.location.href : '',
-      action_source: 'website',
-      user_data: Object.keys(filteredUserData).length ? filteredUserData : undefined,
-      custom_data: {
-        value: eventData.value,
-        currency: eventData.currency,
-        content_ids: eventData.content_ids,
-        content_name: eventData.content_name,
-        content_type: eventData.content_type || 'product',
-      },
-    };
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[Meta CAPI] Server event: ${eventName}`, payload);
+    if (identityOverride) {
+      persistMetaIdentity(identityOverride);
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const identity = { ...getStoredMetaIdentity(), ...identityOverride };
+    const fbp = getOrCreateFbp();
+    const fbc = getOrCreateFbc();
+    // Fall back to the persistent anonymous client id when no logged-in/form
+    // identity is known yet, so external_id is populated on every event.
+    const externalId = identity.externalId || getOrCreateClientId();
+
+    const payload = await buildMetaEvent({
+      eventName,
+      customData,
+      rawUserData: {
+        email: identity.email,
+        phone: identity.phone,
+        externalId
       },
+      fbp,
+      fbc,
+      eventSourceUrl: typeof window !== 'undefined' ? window.location.href : '',
+      eventId
+    });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Meta CAPI] Dispatching ${eventName}`, {
+        event_id: payload.event_id,
+        fbp: !!payload.user_data?.fbp,
+        fbc: !!payload.user_data?.fbc,
+        external_id: !!payload.user_data?.external_id,
+        user_data_fields: payload.user_data ? Object.keys(payload.user_data) : []
+      });
+    }
+
+    const response = await fetch('/api/meta/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      // Let the browser finish delivering the event even if the user
+      // navigates away right after it fires (e.g. clicking a link
+      // immediately after a PageView/ViewContent dispatch).
+      keepalive: true
     });
 
     if (!response.ok) {
@@ -242,98 +176,91 @@ async function sendCAPIEvent(
 }
 
 /**
- * Track PageView event (browser + server)
+ * Fire an event on both the browser Pixel and the server CAPI with a shared event_id.
+ */
+function dispatchMetaEvent(
+  eventName: MetaEventName,
+  customData: MetaEventData = {},
+  identityOverride?: MetaUserIdentityData
+): void {
+  const eventId = generateEventId();
+  sendPixelEvent(eventName, customData, eventId);
+  void sendCapiEvent(eventName, customData, eventId, identityOverride);
+}
+
+/**
+ * Track PageView event (browser + server). Call once per real page view
+ * (initial load and every client-side route change).
  */
 export function trackPageView(): void {
-  const eventId = generateEventId();
-  const userData = getUserData();
-
-  // Browser event
-  sendPixelEvent('PageView', {}, eventId);
-
-  // Server event
-  sendCAPIEvent('PageView', {}, userData, eventId);
+  dispatchMetaEvent('PageView', {});
 }
 
 /**
- * Track ViewContent event (product page view)
- * Called when user views a product
+ * Track ViewContent event (product page view).
  */
 export function trackViewContent(data: MetaEventData): void {
-  const eventId = generateEventId();
-  const userData = getUserData();
-
-  // Browser event
-  sendPixelEvent('ViewContent', data, eventId);
-
-  // Server event
-  sendCAPIEvent('ViewContent', data, userData, eventId);
+  dispatchMetaEvent('ViewContent', data);
 }
 
+const ADD_TO_CART_DEDUPE_WINDOW_MS = 3000;
+
 /**
- * Track AddToCart event
- * Called when user adds item to cart
+ * Track AddToCart event. Debounced per product so a double-click or a rapid
+ * double-fire from the same action doesn't send two events, but genuinely
+ * separate add actions later in the session (re-adding after removing,
+ * bumping quantity from the cart drawer) are still tracked. A previous
+ * "once per product per session" guard suppressed all of those legitimate
+ * repeat adds — which, if Meta's Pixel independently auto-detects the same
+ * button click, leaves an orphan browser-only event with no CAPI partner and
+ * directly hurts event coverage.
  */
 export function trackAddToCart(data: MetaEventData): void {
-  // Guard: only track once per product per session
   if (typeof window !== 'undefined') {
     try {
       const trackedKey = '_meta_tracked_addtocart';
       const contentId = Array.isArray(data.content_ids) ? data.content_ids[0] : undefined;
       if (contentId) {
-        const raw = sessionStorage.getItem(trackedKey) || '[]';
-        const tracked: string[] = JSON.parse(raw);
-        if (tracked.includes(contentId)) {
-          if (process.env.NODE_ENV === 'development') console.log('[Meta] AddToCart already tracked for', contentId);
+        const tracked: Record<string, number> = JSON.parse(sessionStorage.getItem(trackedKey) || '{}');
+        const lastTrackedAt = tracked[contentId];
+        const now = Date.now();
+        if (lastTrackedAt && now - lastTrackedAt < ADD_TO_CART_DEDUPE_WINDOW_MS) {
+          if (process.env.NODE_ENV === 'development') console.log('[Meta] AddToCart debounced for', contentId);
           return;
         }
-        tracked.push(contentId);
+        tracked[contentId] = now;
         sessionStorage.setItem(trackedKey, JSON.stringify(tracked));
       }
-    } catch (e) {
+    } catch {
       // ignore storage errors
     }
   }
 
-  const eventId = generateEventId();
-  const userData = getUserData();
-
-  // Browser event
-  sendPixelEvent('AddToCart', data, eventId);
-
-  // Server event
-  sendCAPIEvent('AddToCart', data, userData, eventId);
+  dispatchMetaEvent('AddToCart', data);
 }
 
 /**
- * Track InitiateCheckout event (browser only)
- * Shopify will handle checkout and purchase events through native Meta integration
+ * Track a Lead event (e.g. newsletter signup, contact/inquiry form submission).
+ * Pass the identity fields the form just collected so this specific event —
+ * not just future ones — gets the benefit of them for Advanced Matching.
+ */
+export function trackLead(data: MetaEventData = {}, identity?: MetaUserIdentityData): void {
+  dispatchMetaEvent('Lead', data, identity);
+}
+
+/**
+ * Track InitiateCheckout event (browser + CAPI, deduplicated via event_id).
  *
- * DO NOT send server-side because:
- * 1. Shopify owns checkout event tracking
- * 2. Shopify has Facebook & Instagram integration enabled
- * 3. Would create duplicate events
+ * This app owns InitiateCheckout end-to-end: Shopify is only used for
+ * inventory and the checkout/payment pages themselves (AddPaymentInfo,
+ * Purchase), which is why those two remain Shopify's native CAPI
+ * integration. The "start checkout" moment happens on this site, so it's
+ * tracked the same way as every other event here.
  */
 export function trackInitiateCheckout(data: MetaEventData = {}): void {
-  if (typeof window === 'undefined') {
-    console.warn('[Meta] InitiateCheckout should only be called from browser');
-    return;
-  }
-
-  try {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Meta Pixel] Browser event: InitiateCheckout', { data });
-    }
-
-    window.fbq('track', 'InitiateCheckout', data);
-  } catch (error) {
-    console.error('[Meta] Error sending InitiateCheckout event', error);
-  }
+  dispatchMetaEvent('InitiateCheckout', data);
 }
 
-/**
- * Declare fbq function for TypeScript
- */
 declare global {
   interface Window {
     fbq?: (action: string, event: string, data?: any, options?: any) => void;

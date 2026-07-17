@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Section from '@/components/Section';
 import Description from '../Description';
 import Gallery from '../Gallery';
@@ -11,6 +11,8 @@ import Link from '@/components/Link';
 import { GetProductByHandleResponse } from '@/tools/apis/shopify';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
+import { getFilteredSizeGuideTables } from '../SizeGuide/utils';
+import { isRingProduct } from '@/lib/ringSizes';
 import styles from './styles.module.scss';
 
 interface CollectionData {
@@ -36,14 +38,30 @@ const Details: React.FC<DetailsProps> = ({
   sanitySizeGuide,
   primaryCollection
 }) => {
-  const variants = shopifyProductData?.variants?.edges?.map(({ node }) => node) || [];
-  const defaultVariant = variants[0];
-  const [selectedVariant, setSelectedVariant] = useState<any>(defaultVariant);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
-  const priceAmount = selectedVariant?.priceV2?.amount || shopifyProductData?.priceRange?.minVariantPrice?.amount;
-  const compareAtPriceAmount = selectedVariant?.compareAtPriceV2?.amount;
-  const price = priceAmount ? priceAmount.toString() : '0';
-  const compareAtPrice = compareAtPriceAmount ? compareAtPriceAmount.toString() : undefined;
+  const productCollectionIds = shopifyProductData?.collections?.edges?.map(edge => edge.node.id) || [];
+  const ringCollections =
+    shopifyProductData?.collections?.edges?.map(edge => ({ handle: edge.node.handle })) || [];
+  const isRing = useMemo(
+    () =>
+      isRingProduct({
+        productType: sanityProductData.store?.productType,
+        tags: sanityProductData.store?.tags,
+        collections: ringCollections
+      }),
+    [sanityProductData.store?.productType, sanityProductData.store?.tags, ringCollections]
+  );
+  const hasSizeGuide = useMemo(
+    () =>
+      getFilteredSizeGuideTables(
+        (Array.isArray(sanitySizeGuide?.tables) ? sanitySizeGuide.tables : []) as Parameters<
+          typeof getFilteredSizeGuideTables
+        >[0],
+        productCollectionIds
+      ).length > 0,
+    [sanitySizeGuide?.tables, productCollectionIds]
+  );
 
   return (
     <Section theme="dark" spacing="none" full>
@@ -98,21 +116,20 @@ const Details: React.FC<DetailsProps> = ({
 
               <div className={styles.productDescriptionRight}>
                 <Description
-                  title={sanityProductData.store.title}
                   sanitySizeGuide={sanitySizeGuide}
                   descriptionHtml={shopifyProductData?.descriptionHtml}
                   collections={shopifyProductData?.collections}
+                  sizeGuideOpen={sizeGuideOpen}
+                  onSizeGuideOpenChange={setSizeGuideOpen}
                 />
               </div>
 
               <Form
-                price={price}
-                compareAtPrice={compareAtPrice}
                 currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
-                variants={variants}
                 sanityProductData={sanityProductData}
-                setSelectedVariant={setSelectedVariant}
-                selectedVariant={selectedVariant}
+                onOpenSizeGuide={() => setSizeGuideOpen(true)}
+                showSizeChartLink={hasSizeGuide}
+                isRing={isRing}
               />
             </div>
           </div>

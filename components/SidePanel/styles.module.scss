@@ -4,7 +4,7 @@
   left: 0;
   height: 100vh;
   width: 100vw;
-  z-index: 9;
+  z-index: 10000;
   display: none;
 
   &.visible {
@@ -19,7 +19,7 @@
   height: 100dvh;
   width: 100vw;
   max-width: 540px;
-  z-index: 9999999999;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   border-left: 0.2px solid rgba(20, 20, 32, 0.7);

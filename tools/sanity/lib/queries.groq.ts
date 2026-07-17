@@ -147,6 +147,11 @@ export const SIZE_GUIDE_QUERY = groq`
           cells
         }
       }
+    },
+    howToMeasure[]{
+      _key,
+      title,
+      steps
     }
   }
 `;
