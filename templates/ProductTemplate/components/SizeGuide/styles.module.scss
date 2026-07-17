@@ -10,6 +10,24 @@
   }
 }
 
+.tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+
+  &.tabActive {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
 .guide {
   display: flex;
   flex-direction: column;

@@ -10,6 +10,7 @@ import styles from './styles.module.scss';
 
 type SidePanelProps = {
   title: string;
+  renderTitle?: () => React.ReactNode;
   show: boolean;
   onClose: () => void;
   children: React.ReactNode;
@@ -37,6 +38,7 @@ const SidePanelFooter = (props: { children: React.ReactNode; className?: string 
 const SidePanel = (props: SidePanelProps) => {
   const {
     title,
+    renderTitle,
     show,
     onClose,
     children,
@@ -137,7 +139,7 @@ const SidePanel = (props: SidePanelProps) => {
         aria-label={ariaLabel || title}
       >
         <div className={styles.header}>
-          <Text text={title} size="b2" />
+          {renderTitle ? renderTitle() : <Text text={title} size="b2" />}
           <Button onClick={onClose} variant="normal-sm">
             Close
           </Button>
