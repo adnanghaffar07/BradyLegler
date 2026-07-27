@@ -1,4 +1,5 @@
 type KlaviyoProperties = Record<string, string | number | boolean | undefined | null>;
+type KlaviyoOnsiteQueueEntry = unknown[];
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -10,21 +11,68 @@ const debugLog = (...args: unknown[]) => {
 
 declare global {
   interface Window {
-    _learnq?: Array<unknown[]>;
+    _klOnsite?: KlaviyoOnsiteQueueEntry[];
+    klaviyo?: {
+      push: (...args: unknown[]) => void;
+      identify: (properties: KlaviyoProperties, callback?: (result: unknown) => void) => Promise<unknown> | void;
+      track: (
+        event: string,
+        properties?: KlaviyoProperties,
+        callback?: (result: unknown) => void
+      ) => Promise<unknown> | void;
+    };
   }
 }
 
-const ensureLearnq = () => {
-  if (typeof window === 'undefined') {
-    return null;
+// Official Klaviyo async-loading proxy stub, reproduced verbatim in behaviour from
+// developers.klaviyo.com/en/docs/introduction_to_the_klaviyo_object.
+// Queues identify()/track() calls into window._klOnsite until the real klaviyo.js
+// (loaded by KlaviyoTracker) finishes loading and replaces this Proxy, so calls made
+// before the async script resolves are never lost.
+const installKlaviyoProxyStub = () => {
+  if (typeof window === 'undefined' || window.klaviyo) {
+    return;
   }
 
-  if (!window._learnq) {
-    window._learnq = [];
-  }
+  window._klOnsite = window._klOnsite || [];
+  const onsiteQueue = window._klOnsite;
 
-  return window._learnq;
+  try {
+    window.klaviyo = new Proxy(
+      {},
+      {
+        get(_target, property: string) {
+          if (property === 'push') {
+            return (...args: unknown[]) => {
+              onsiteQueue.push(args);
+            };
+          }
+
+          return (...args: unknown[]) => {
+            const callback = typeof args[args.length - 1] === 'function' ? (args.pop() as (result: unknown) => void) : undefined;
+
+            return new Promise<unknown>(resolve => {
+              onsiteQueue.push([
+                property,
+                ...args,
+                (result: unknown) => {
+                  callback?.(result);
+                  resolve(result);
+                }
+              ]);
+            });
+          };
+        }
+      }
+    ) as Window['klaviyo'];
+  } catch {
+    // Environments without Proxy support (very old browsers): fall back to a plain queue array.
+    const fallback = { push: (...args: unknown[]) => onsiteQueue.push(args) };
+    window.klaviyo = fallback as unknown as Window['klaviyo'];
+  }
 };
+
+installKlaviyoProxyStub();
 
 const sanitiseProperties = (properties?: KlaviyoProperties) => {
   if (!properties) {
@@ -40,44 +88,44 @@ const sanitiseProperties = (properties?: KlaviyoProperties) => {
 };
 
 export const identify = (email: string, firstName?: string, lastName?: string) => {
-  const learnq = ensureLearnq();
+  installKlaviyoProxyStub();
 
-  if (!learnq || !email) {
+  if (typeof window === 'undefined' || !window.klaviyo || !email) {
     debugLog('identify skipped', { email, firstName, lastName });
     return;
   }
 
   const properties: KlaviyoProperties = {
-    $email: email,
-    ...(firstName ? { $first_name: firstName } : {}),
-    ...(lastName ? { $last_name: lastName } : {})
+    email,
+    ...(firstName ? { first_name: firstName } : {}),
+    ...(lastName ? { last_name: lastName } : {})
   };
 
   debugLog('identify queued', { email, firstName, lastName, properties });
-  learnq.push(['identify', properties]);
+  window.klaviyo.identify(properties);
 };
 
 export const trackPage = () => {
-  const learnq = ensureLearnq();
+  installKlaviyoProxyStub();
 
-  if (!learnq) {
-    debugLog('page view skipped because _learnq is unavailable');
+  if (typeof window === 'undefined' || !window.klaviyo) {
+    debugLog('page view skipped because klaviyo object is unavailable');
     return;
   }
 
   debugLog('page view queued', { event: 'Viewed Page' });
-  learnq.push(['track', 'Viewed Page']);
+  window.klaviyo.track('Viewed Page');
 };
 
 export const track = (eventName: string, properties?: KlaviyoProperties) => {
-  const learnq = ensureLearnq();
+  installKlaviyoProxyStub();
 
-  if (!learnq || !eventName) {
+  if (typeof window === 'undefined' || !window.klaviyo || !eventName) {
     debugLog('custom event skipped', { eventName, properties });
     return;
   }
 
   const sanitisedProperties = sanitiseProperties(properties);
   debugLog('custom event queued', { eventName, properties: sanitisedProperties });
-  learnq.push(['track', eventName, sanitisedProperties]);
+  window.klaviyo.track(eventName, sanitisedProperties);
 };

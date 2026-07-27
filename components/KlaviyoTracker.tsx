@@ -7,8 +7,13 @@ import { track, trackPage } from '@/tools/klaviyo/client';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const klaviyoPublicKey = process.env.NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY;
+
+// Official Klaviyo.js onsite tracking snippet URL, per developers.klaviyo.com/en/docs/javascript_api
+// and help.klaviyo.com "Getting started with Klaviyo onsite tracking":
+//   https://static.klaviyo.com/onsite/js/PUBLIC_API_KEY/klaviyo.js
+// (NOT /onsite/onsite.js?kid=... — that path/param does not exist on Klaviyo's CDN and 403s.)
 const KLAVIYO_SCRIPT_URL = klaviyoPublicKey
-  ? `https://static.klaviyo.com/onsite/onsite.js?kid=${klaviyoPublicKey}`
+  ? `https://static.klaviyo.com/onsite/js/${klaviyoPublicKey}/klaviyo.js`
   : null;
 
 const MARKETING_PAGE_EVENTS: Record<string, string> = {
@@ -18,15 +23,6 @@ const MARKETING_PAGE_EVENTS: Record<string, string> = {
   '/collections': 'Viewed Collections Page'
 };
 const TRACKED_PATH_STORAGE_KEY = 'klaviyo-last-tracked-path';
-
-declare global {
-  interface Window {
-    _learnq?: Array<unknown[]>;
-    klaviyo?: {
-      push: (...args: unknown[]) => void;
-    };
-  }
-}
 
 const KlaviyoTracker = () => {
   const pathname = usePathname();
@@ -39,7 +35,12 @@ const KlaviyoTracker = () => {
     }
 
     if (isDevelopment) {
-      console.log('[Klaviyo] Script loading started', { url: KLAVIYO_SCRIPT_URL, pathname, searchParams: searchParams?.toString() });
+      console.log('[Klaviyo] Tracking pathname change', {
+        url: KLAVIYO_SCRIPT_URL,
+        pathname,
+        searchParams: searchParams?.toString(),
+        klaviyoExists: Boolean(window.klaviyo)
+      });
     }
 
     const currentPath = `${pathname}${searchParams?.toString() ? `?${searchParams.toString()}` : ''}`;
@@ -52,7 +53,7 @@ const KlaviyoTracker = () => {
     lastTrackedPathRef.current = currentPath;
     window.sessionStorage.setItem(TRACKED_PATH_STORAGE_KEY, currentPath);
 
-    trackPage(currentPath);
+    trackPage();
 
     const marketingEvent = MARKETING_PAGE_EVENTS[currentPath.split('?')[0]];
     if (marketingEvent) {
@@ -70,26 +71,16 @@ const KlaviyoTracker = () => {
       strategy="afterInteractive"
       src={KLAVIYO_SCRIPT_URL}
       onLoad={() => {
-        if (typeof window !== 'undefined') {
-          if (isDevelopment) {
-            console.log('[Klaviyo] Script finished loading', {
-              url: KLAVIYO_SCRIPT_URL,
-              learnqExists: Boolean(window._learnq),
-              klaviyoExists: Boolean(window.klaviyo)
-            });
-          }
-
-          window._learnq = window._learnq || [];
-          if (isDevelopment) {
-            console.log('[Klaviyo] _learnq state after init', { learnqExists: Boolean(window._learnq), klaviyoExists: Boolean(window.klaviyo) });
-          }
-          window._learnq.push(['account', klaviyoPublicKey]);
-          window._learnq.push(['track', 'Viewed Page']);
+        if (isDevelopment && typeof window !== 'undefined') {
+          console.log('[Klaviyo] onsite.js finished loading', {
+            url: KLAVIYO_SCRIPT_URL,
+            klaviyoExists: Boolean(window.klaviyo)
+          });
         }
       }}
       onError={() => {
         if (isDevelopment) {
-          console.error('[Klaviyo] Script load failed', { url: KLAVIYO_SCRIPT_URL });
+          console.error('[Klaviyo] onsite.js failed to load', { url: KLAVIYO_SCRIPT_URL });
         }
       }}
     />
