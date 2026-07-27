@@ -105,7 +105,7 @@ export const identify = (email: string, firstName?: string, lastName?: string) =
   window.klaviyo.identify(properties);
 };
 
-export const trackPage = () => {
+export const trackPage = (path: string) => {
   installKlaviyoProxyStub();
 
   if (typeof window === 'undefined' || !window.klaviyo) {
@@ -113,8 +113,13 @@ export const trackPage = () => {
     return;
   }
 
-  debugLog('page view queued', { event: 'Viewed Page' });
-  window.klaviyo.track('Viewed Page');
+  const properties: KlaviyoProperties = {
+    url: window.location.href,
+    path
+  };
+
+  debugLog('page view queued', { event: 'Viewed Page', properties });
+  window.klaviyo.track('Viewed Page', properties);
 };
 
 export const track = (eventName: string, properties?: KlaviyoProperties) => {

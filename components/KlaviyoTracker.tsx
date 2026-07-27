@@ -53,11 +53,11 @@ const KlaviyoTracker = () => {
     lastTrackedPathRef.current = currentPath;
     window.sessionStorage.setItem(TRACKED_PATH_STORAGE_KEY, currentPath);
 
-    trackPage();
+    trackPage(currentPath);
 
     const marketingEvent = MARKETING_PAGE_EVENTS[currentPath.split('?')[0]];
     if (marketingEvent) {
-      track(marketingEvent);
+      track(marketingEvent, { url: window.location.href, path: currentPath });
     }
   }, [pathname, searchParams]);
 
