@@ -5,6 +5,7 @@ import classNames from '@/helpers/classNames';
 import Icon from '@/components/Icon';
 import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
 import { setMetaUserData, trackLead } from '@/lib/meta';
+import { identify } from '@/tools/klaviyo/client';
 import styles from './ContactSidebar.module.scss';
 
 interface ContactSidebarProps {
@@ -78,6 +79,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           phone: formData.phone
         });
         trackLead({ content_name: 'Contact Sidebar Form' }, { email: formData.email, phone: formData.phone });
+        identify(formData.email, formData.firstName, formData.lastName);
 
         setSubmitStatus({
           type: 'success',

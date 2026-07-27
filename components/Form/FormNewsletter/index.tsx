@@ -6,6 +6,7 @@ import Field from '@/components/Field';
 import styles from './styles.module.scss';
 import FormThankYou from '@/components/Form/FormThankYou';
 import { setMetaUserData, trackLead } from '@/lib/meta';
+import { identify } from '@/tools/klaviyo/client';
 
 const LOADING_DURATION = 3000;
 const SUCCESS_DURATION = 3000;
@@ -49,6 +50,7 @@ const FormNewsletter = ({
       if (values?.email) {
         setMetaUserData({ email: values.email });
         trackLead({ content_name: 'Newsletter Signup' }, { email: values.email });
+        identify(values.email);
       }
 
       setStatus('success');
