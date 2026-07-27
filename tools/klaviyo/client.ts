@@ -1,6 +1,12 @@
 type KlaviyoProperties = Record<string, string | number | boolean | undefined | null>;
 
-const PENDING_IDENTIFY_STORAGE_KEY = 'klaviyo-pending-identify';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const debugLog = (...args: unknown[]) => {
+  if (isDevelopment && typeof window !== 'undefined') {
+    console.log('[Klaviyo]', ...args);
+  }
+};
 
 declare global {
   interface Window {
@@ -37,6 +43,7 @@ export const identify = (email: string, firstName?: string, lastName?: string) =
   const learnq = ensureLearnq();
 
   if (!learnq || !email) {
+    debugLog('identify skipped', { email, firstName, lastName });
     return;
   }
 
@@ -46,44 +53,31 @@ export const identify = (email: string, firstName?: string, lastName?: string) =
     ...(lastName ? { $last_name: lastName } : {})
   };
 
-  if (typeof window !== 'undefined') {
-    window.sessionStorage.setItem(PENDING_IDENTIFY_STORAGE_KEY, '1');
-  }
-
+  debugLog('identify queued', { email, firstName, lastName, properties });
   learnq.push(['identify', properties]);
-
-  if (typeof window !== 'undefined') {
-    queueMicrotask(() => {
-      window.sessionStorage.removeItem(PENDING_IDENTIFY_STORAGE_KEY);
-    });
-  }
 };
 
-export const trackPage = (path?: string) => {
+export const trackPage = () => {
   const learnq = ensureLearnq();
 
   if (!learnq) {
+    debugLog('page view skipped because _learnq is unavailable');
     return;
   }
 
-  const sendPageView = () => {
-    learnq.push(['track', 'Viewed Page']);
-  };
-
-  if (typeof window !== 'undefined' && window.sessionStorage.getItem(PENDING_IDENTIFY_STORAGE_KEY) === '1') {
-    queueMicrotask(sendPageView);
-    return;
-  }
-
-  sendPageView();
+  debugLog('page view queued', { event: 'Viewed Page' });
+  learnq.push(['track', 'Viewed Page']);
 };
 
 export const track = (eventName: string, properties?: KlaviyoProperties) => {
   const learnq = ensureLearnq();
 
   if (!learnq || !eventName) {
+    debugLog('custom event skipped', { eventName, properties });
     return;
   }
 
-  learnq.push(['track', eventName, sanitiseProperties(properties)]);
+  const sanitisedProperties = sanitiseProperties(properties);
+  debugLog('custom event queued', { eventName, properties: sanitisedProperties });
+  learnq.push(['track', eventName, sanitisedProperties]);
 };
