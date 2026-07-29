@@ -6,6 +6,7 @@ import InquireButton from '../InquireButton';
 import Text from '@/components/Text';
 import RingSizeDrawer from '@/components/product/RingSizeDrawer';
 import { useCart } from '@/tools/store/useCart';
+import { useAnalytics } from '@/tools/analytics';
 import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
 import { getSelectableOptions, hasMeaningfulVariantChoices } from '@/lib/productOptions';
 import { getVariantRingSize, isValidRingSize } from '@/lib/ringSizes';
@@ -193,6 +194,7 @@ const Form: React.FC<FormProps> = ({
   };
 
   const addToCart = useCart(state => state.addToCart);
+  const { trackAddToCart } = useAnalytics();
 
   const trackSuccessfulAddToCart = async (variant: VariantType) => {
     try {
@@ -202,6 +204,18 @@ const Form: React.FC<FormProps> = ({
         content_ids: [variant.gid],
         content_name: sanityProductData?.store?.title,
         value: Number(variant?.price) || 0,
+        currency: currencyCode || 'USD'
+      });
+
+      // GA4 ecommerce `add_to_cart` event pushed to the dataLayer for GTM/GA4.
+      trackAddToCart({
+        item: {
+          id: product?.id || variant.gid,
+          name: sanityProductData?.store?.title,
+          variant: variant.gid,
+          price: variant.price,
+          quantity: 1
+        },
         currency: currencyCode || 'USD'
       });
     } catch (err) {
