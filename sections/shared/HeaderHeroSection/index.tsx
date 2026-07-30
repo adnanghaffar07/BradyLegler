@@ -59,6 +59,7 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
           priority
           quality={82}
           sizes="100vw"
+          fullBleed
         />
       )}
 

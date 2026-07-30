@@ -34,6 +34,7 @@ export type ImagePropsSanity = {
   aspectRatio?: SanityAspectRatio;
   disableHotspotCrop?: boolean;
   smallImage?: boolean;
+  fullBleed?: boolean;
 };
 
 export type ImagePropsStandard = {
@@ -51,6 +52,7 @@ export type ImagePropsStandard = {
   aspectRatio?: SanityAspectRatio;
   disableHotspotCrop?: boolean;
   smallImage?: boolean;
+  fullBleed?: boolean;
 };
 
 export type ImageProps = ImagePropsStandard | ImagePropsSanity;
@@ -66,7 +68,8 @@ const Image = (props: ImageProps) => {
     placeholder,
     fill,
     disableHotspotCrop = false,
-    smallImage = false
+    smallImage = false,
+    fullBleed = false
   } = props;
 
   const [error, setError] = useState<any>(null);
@@ -120,6 +123,7 @@ const Image = (props: ImageProps) => {
           placeholder={placeholder}
           disableHotspotCrop={disableHotspotCrop}
           smallImage={smallImage}
+          fullBleed={fullBleed}
         />
       </div>
     );

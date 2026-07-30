@@ -23,8 +23,9 @@ const Media: React.FC<{
   };
   className?: string;
   smallImage?: boolean;
+  fullBleed?: boolean;
 }> = props => {
-  const { type, video, image, className, smallImage = false } = props;
+  const { type, video, image, className, smallImage = false, fullBleed = false } = props;
 
   const classes = classNames(styles.media, className);
 
@@ -55,6 +56,7 @@ const Media: React.FC<{
           className={styles.media}
           objectFit="cover"
           smallImage={smallImage}
+          fullBleed={fullBleed}
         />
       </div>
     );
@@ -79,7 +81,15 @@ const Header = ({ sanityCollectionData }: { sanityCollectionData: ICollectionDoc
         <Layout variant={layout === 'split' ? 'leftLargeFullWidth' : 'fullWidth'} className={styles.container}>
           {(layout === 'split' || layout === 'fullWidth') && (
             <div className={styles.mediaContainer}>
-              {mediaOne && <Media type={mediaOne.mediaType} image={mediaOne.image} video={mediaOne.video} smallImage={layout === 'split'} />}
+              {mediaOne && (
+                <Media
+                  type={mediaOne.mediaType}
+                  image={mediaOne.image}
+                  video={mediaOne.video}
+                  smallImage={layout === 'split'}
+                  fullBleed={layout === 'fullWidth'}
+                />
+              )}
             </div>
           )}
 
