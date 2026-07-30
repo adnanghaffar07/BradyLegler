@@ -7,6 +7,7 @@ import styles from './styles.module.scss';
 import FormThankYou from '@/components/Form/FormThankYou';
 import { setMetaUserData, trackLead } from '@/lib/meta';
 import { identify } from '@/tools/klaviyo/client';
+import { useAnalytics } from '@/tools/analytics';
 
 const LOADING_DURATION = 3000;
 const SUCCESS_DURATION = 3000;
@@ -21,6 +22,7 @@ const FormNewsletter = ({
   showThankYouOverlay?: boolean;
 } = {}) => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { trackGenerateLead } = useAnalytics();
 
   const handleOnSubmit = async (values: any, methods) => {
     try {
@@ -51,6 +53,7 @@ const FormNewsletter = ({
         setMetaUserData({ email: values.email });
         trackLead({ content_name: 'Newsletter Signup' }, { email: values.email });
         identify(values.email);
+        trackGenerateLead({ formName: 'Newsletter Signup' });
       }
 
       setStatus('success');

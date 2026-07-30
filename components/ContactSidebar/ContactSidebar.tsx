@@ -6,6 +6,7 @@ import Icon from '@/components/Icon';
 import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
 import { setMetaUserData, trackLead } from '@/lib/meta';
 import { identify } from '@/tools/klaviyo/client';
+import { useAnalytics } from '@/tools/analytics';
 import styles from './ContactSidebar.module.scss';
 
 interface ContactSidebarProps {
@@ -37,6 +38,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const { trackGenerateLead } = useAnalytics();
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -80,6 +82,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
         });
         trackLead({ content_name: 'Contact Sidebar Form' }, { email: formData.email, phone: formData.phone });
         identify(formData.email, formData.firstName, formData.lastName);
+        trackGenerateLead({ formName: 'Contact Sidebar Form' });
 
         setSubmitStatus({
           type: 'success',
