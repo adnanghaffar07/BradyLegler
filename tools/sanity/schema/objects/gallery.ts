@@ -1,6 +1,6 @@
 import { defineType } from 'sanity';
 import { imageElementAdvanced } from '../elements/image';
-import stripTitleTags from '@/tools/sanity/helpers/stripTitleTags';
+import stripTitleTags from '../../helpers/stripTitleTags';
 
 interface IGalleryVideo {
   video?: {

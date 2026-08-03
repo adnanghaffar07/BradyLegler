@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "createdAt": "2026-08-03T18:21:08.311Z",
+  "workspaces": [
+    {
+      "name": "default",
+      "title": "Brady Legler",
+      "basePath": "/studio",
+      "projectId": "79j3g10q",
+      "dataset": "staging",
+      "icon": "👗",
+      "mediaLibrary": {
+        "enabled": false
+      },
+      "schema": "4596e13c.create-schema.json",
+      "tools": "380e92d7.create-tools.json"
+    }
+  ]
+}

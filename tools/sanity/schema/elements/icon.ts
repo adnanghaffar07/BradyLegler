@@ -1,5 +1,5 @@
-import * as icons from '@/assets/icons';
-import { toTitleCase } from '@/helpers/string';
+import * as icons from '../../../../assets/icons';
+import { toTitleCase } from '../../../helpers/string';
 
 const options = Object.keys(icons).map(key => ({
   title: toTitleCase(key),
