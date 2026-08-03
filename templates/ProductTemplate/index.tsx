@@ -199,6 +199,7 @@ const ProductTemplate = async (props: WebPageProps) => {
               id: shopifyProductData.id || '',
               name: shopifyProductData.title || '',
               category: shopifyProductData.productType || '',
+              variant: shopifyProductData.variants?.edges?.[0]?.node?.id,
               price: shopifyProductData.priceRange?.minVariantPrice?.amount || 0
             },
             currency: shopifyProductData.priceRange?.minVariantPrice?.currencyCode || 'USD'

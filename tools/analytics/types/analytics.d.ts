@@ -58,6 +58,7 @@ type AnalyticsBeginCheckoutParams = {
 type AnalyticsGenerateLeadParams = {
   value?: number;
   currency?: string;
+  formName?: string;
 };
 
 type AnalyticsSignUpParams = {

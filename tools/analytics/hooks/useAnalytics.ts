@@ -18,7 +18,7 @@ const useAnalytics = (props: UseAnalyticsProps = {}) => {
   const [clientId, setClientId] = useState<string | undefined>(undefined);
 
   // Queue to store events when client ID is not yet loaded
-  const eventQueue = useRef<Array<{ event: string; ecommerce: Record<string, any> }>>([]);
+  const eventQueue = useRef<Array<{ event: string; [key: string]: any }>>([]);
 
   // Initialize client ID
   useEffect(() => {
@@ -72,7 +72,7 @@ const useAnalytics = (props: UseAnalyticsProps = {}) => {
   // ===== Helper Functions =====
 
   const sendEvent = useCallback(
-    (data: { event: string; ecommerce: Record<string, any> }) => {
+    (data: { event: string; [key: string]: any }) => {
       // If client ID is not available yet, queue the event for later
       if (!clientId) {
         if (DEBUG_MODE) {
@@ -298,16 +298,19 @@ const useAnalytics = (props: UseAnalyticsProps = {}) => {
   );
 
   /**
-   * Track when a user generates a lead (e.g., signs up for newsletter)
+   * Track when a user generates a lead (e.g., signs up for newsletter).
+   * `generate_lead` is a standard GA4 event, not an ecommerce one, so its
+   * parameters are sent at the top level of the dataLayer push rather than
+   * nested under `ecommerce` (see https://support.google.com/analytics/answer/9267735).
    */
   const trackGenerateLead = useCallback(
-    ({ value, currency }: AnalyticsGenerateLeadParams) => {
+    ({ value, currency, formName }: AnalyticsGenerateLeadParams) => {
       sendEvent({
         event: 'generate_lead',
-        ecommerce: {
-          currency,
-          value
-        }
+        ...(currency ? { currency } : {}),
+        ...(value !== undefined ? { value } : {}),
+        ...(formName ? { form_name: formName } : {}),
+        page_location: typeof window !== 'undefined' ? window.location.href : undefined
       });
     },
     [sendEvent]

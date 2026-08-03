@@ -1,6 +1,6 @@
 const KLAVIYO_PRIVATE_API_KEY = process.env.KLAVIYO_PRIVATE_API_KEY!;
 const KLAVIYO_LIST_ID = process.env.KLAVIYO_LIST_ID!;
-const KLAVIYO_API_REVISION = '2024-05-15';
+const KLAVIYO_API_REVISION = '2024-10-15';
 
 type SubmitFormResponse = {
   status: 'success' | 'error';
