@@ -26,7 +26,22 @@ type ImageSanityProps = {
   priority: boolean;
   placeholder?: 'blur' | 'empty';
   disableHotspotCrop?: boolean;
+  /**
+   * For full-viewport-height hero images (e.g. `fullWidth` collection header,
+   * HeaderHeroSection). The default mobile focal-point crop targets a fixed
+   * 800x1000/800x1400 box, which is much shorter/wider than a `min-height: 100vh`
+   * hero on a phone — so the browser's own object-fit: cover re-crops the
+   * already-focal-point-cropped image a second time, blind to the hotspot, and
+   * can push it back out of frame. When true, the crop target uses a taller
+   * aspect ratio representative of a full-height phone hero instead.
+   */
+  fullBleed?: boolean;
 };
+
+// Typical full-viewport-height phone hero aspect ratio (height/width). Modern
+// phones range roughly 1.9-2.2; 2.0 is a reasonable middle ground that keeps a
+// centered focal point in frame across that range without over-cropping.
+const FULL_BLEED_ASPECT = 2.0;
 
 const ImageSanity: React.FC<ImageSanityProps> = props => {
   const {
@@ -44,7 +59,8 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     error,
     fallback,
     smallImage = false,
-    disableHotspotCrop = false
+    disableHotspotCrop = false,
+    fullBleed = false
   } = props;
 
   const [isMobile, setIsMobile] = useState(true);
@@ -63,12 +79,22 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
   }, []);
 
   const imageObject = useMemo(() => {
-    return isMobile
-      ? { asset, crop, hotspot }
-      : crop
-      ? { asset, crop }
-      : asset;
-  }, [isMobile, asset, crop, hotspot]);
+    const hasValidHotspot = !!(hotspot && hotspot.x !== undefined && hotspot.y !== undefined && !disableHotspotCrop);
+    const usesOwnFocalPointCrop = smallImage || isMobile;
+
+    // Hotspot coordinates (fp-x/fp-y, appended as URL params further below) are
+    // always relative to the *original* full image. Sanity applies a manual `crop`
+    // rect first, so if `crop` is also baked into the base URL here, fp-x/fp-y end
+    // up being interpreted relative to that already-cropped sub-image instead —
+    // misplacing the focal point (sometimes entirely outside the visible crop).
+    // When we're about to build our own focal-point crop, exclude `crop` so it
+    // operates on the original asset, matching where the hotspot was actually set.
+    if (usesOwnFocalPointCrop && hasValidHotspot) {
+      return { asset, hotspot };
+    }
+
+    return crop ? { asset, crop } : asset;
+  }, [isMobile, asset, crop, hotspot, disableHotspotCrop, smallImage]);
 
   const sanityImage: any = useNextSanityImage(sanityClient, imageObject);
 
@@ -76,6 +102,8 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
 
   if (sanityImage && sanityImage?.src && !error) {
     let imageSrc = sanityImage.src;
+    let mobileCropWidth: number | undefined;
+    let mobileCropHeight: number | undefined;
 
   try {
   const url = new URL(imageSrc);
@@ -91,7 +119,7 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     url.searchParams.set('w', '800');
     url.searchParams.set('h', '800');
     url.searchParams.set('fit', 'crop');
-    
+
     if (hotspot && hotspot.x !== undefined && hotspot.y !== undefined && !disableHotspotCrop) {
       url.searchParams.set('crop', 'focalpoint');
       url.searchParams.set('fp-x', hotspot.x.toString());
@@ -109,15 +137,16 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
     url.searchParams.delete('fit');
     url.searchParams.delete('crop');
 
-    const isPortrait = sanityImage.height > sanityImage.width;
+    mobileCropWidth = 800;
 
-    if (isPortrait) {
-      url.searchParams.set('w', '800');
-      url.searchParams.set('h', '1400');
+    if (fullBleed) {
+      mobileCropHeight = Math.round(mobileCropWidth * FULL_BLEED_ASPECT);
     } else {
-      url.searchParams.set('w', '800');
-      url.searchParams.set('h', '1000');
+      const isPortrait = sanityImage.height > sanityImage.width;
+      mobileCropHeight = isPortrait ? 1400 : 1000;
     }
+    url.searchParams.set('w', String(mobileCropWidth));
+    url.searchParams.set('h', String(mobileCropHeight));
 
     url.searchParams.set('fit', 'crop');
     url.searchParams.set('crop', 'focalpoint');
@@ -153,10 +182,13 @@ const ImageSanity: React.FC<ImageSanityProps> = props => {
           placeholder: defaultPlaceholder
         };
       } else {
+        // Use the actual mobile focal-point crop dimensions, not the original
+        // asset's dimensions — otherwise <Image> lays out the box for the wrong
+        // aspect ratio while a differently-shaped cropped image is served underneath.
         imageProps = {
           src: imageSrc,
-          width: sanityImage.width,
-          height: sanityImage.height,
+          width: mobileCropWidth || sanityImage.width,
+          height: mobileCropHeight || sanityImage.height,
           placeholder: defaultPlaceholder
         };
       }

@@ -18,22 +18,6 @@ const Scripts = (props: ScriptProperties) => {
 
   const scriptsToLoad = [];
 
-  // Google Tag Manager
-  const rawGtmId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
-  const GOOGLE_TAG_MANAGER_ID = rawGtmId === '' ? null : rawGtmId ?? 'GTM-5WPFTSXZ';
-  if ((loadAll || scripts.includes('googleTagManager')) && GOOGLE_TAG_MANAGER_ID) {
-    scriptsToLoad.push(
-      <Script
-        key="google-tag-manager-bootstrap"
-        id="google-tag-manager-bootstrap"
-        strategy="lazyOnload"
-        dangerouslySetInnerHTML={{
-          __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GOOGLE_TAG_MANAGER_ID}');`
-        }}
-      />
-    );
-  }
-
   // Google Analytics
   const GOOGLE_ANALYTICS_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
   if ((loadAll || scripts.includes('googleAnalytics')) && GOOGLE_ANALYTICS_ID) {
@@ -109,6 +93,11 @@ const Scripts = (props: ScriptProperties) => {
   }
 
   // Facebook Pixel
+  // NOTE: Meta Pixel is now loaded and managed by MetaPixelProvider
+  // which handles initialization and PageView tracking automatically.
+  // This legacy code is kept for reference but is no longer used.
+  // If you need to use a different pixel ID or legacy tracking, uncomment below:
+  /*
   const FACEBOOK_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
   if ((loadAll || scripts.includes('facebook')) && FACEBOOK_PIXEL_ID) {
     scriptsToLoad.push(
@@ -144,6 +133,7 @@ const Scripts = (props: ScriptProperties) => {
       />
     );
   }
+  */
 
   // Hotjar
   const HOTJAR_ID = process.env.NEXT_PUBLIC_HOTJAR_ID;

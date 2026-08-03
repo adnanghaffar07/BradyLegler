@@ -7,6 +7,17 @@ import { generateSanityMetadata, getSanityDocumentMetaDescription } from '@/tool
 import { resolveShareImage } from '@/tools/sanity/helpers';
 import { client } from '@/tools/sanity/lib/client';
 
+const NOINDEX_PRODUCT_PATHNAMES = new Set([
+  'subway-rectangle-id-bracelet-white-gold',
+  'subway-rectangle-id-bracelet-yellow-gold',
+  'noir-bracelet',
+  'noir-choker',
+  'line-four-band-earrings-white-gold',
+  'line-four-band-earrings-yellow-gold',
+  'wave-bracelet-white-gold',
+  'wave-bracelet-yellow-gold'
+]);
+
 // Templates
 import PageTemplate from '@/templates/PageTemplate';
 import ArtworkTemplate from '@/templates/ArtworkTemplate';
@@ -146,6 +157,7 @@ export const generateMetadata = generateSanityMetadata({
         }
         case 'product': {
           const seoData = document?.product?.seoData;
+          const isNoIndexProduct = NOINDEX_PRODUCT_PATHNAMES.has(canonicalPath);
           return {
             seoTitle: seoData?.seoTitle || `${document?.product?.store?.title} | ${metadata.title}`,
             seoDescription: seoData?.seoDescription?.trim() || getSanityDocumentMetaDescription(document),
@@ -153,7 +165,9 @@ export const generateMetadata = generateSanityMetadata({
             alternates: {
               canonical: seoData?.canonicalUrl || `${baseUrl}/${canonicalPath}`
             },
-            // robots: seoData?.noIndex ? { index: false, googleBot: { index: false } } : undefined
+            robots: isNoIndexProduct
+              ? { index: false, follow: false, googleBot: { index: false, follow: false } }
+              : seoData?.robots
           };
         }
         case 'collection': {

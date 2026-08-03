@@ -41,6 +41,7 @@ import collectionHeader from './objects/collectionHeader';
 import customMedia from './objects/customMedia';
 import alignMedia from './objects/alignMedia';
 import sizeGuideTable from '@/tools/sanity/schema/objects/sizeGuideTable';
+import howToMeasureSection from '@/tools/sanity/schema/objects/howToMeasureSection';
 
 // Shopify objects
 import inventory from './objects/shopify/inventory';
@@ -129,6 +130,7 @@ const schema: SchemaTypeDefinition[] = [
   collectionHeader,
   customMedia,
   sizeGuideTable,
+  howToMeasureSection,
   quote,
   ...gallery,
 

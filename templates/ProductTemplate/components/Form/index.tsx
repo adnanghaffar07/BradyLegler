@@ -4,8 +4,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AddToCartButton from '../AddToCartButton';
 import InquireButton from '../InquireButton';
 import Text from '@/components/Text';
+import RingSizeDrawer from '@/components/product/RingSizeDrawer';
 import { useCart } from '@/tools/store/useCart';
 import { useAnalytics } from '@/tools/analytics';
+import { trackAddToCart as metaTrackAddToCart } from '@/lib/meta';
+import { getSelectableOptions, hasMeaningfulVariantChoices } from '@/lib/productOptions';
+import { getVariantRingSize, isValidRingSize } from '@/lib/ringSizes';
 import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import styles from './styles.module.scss';
 import Price from '../Price';
@@ -14,6 +18,8 @@ import classNames from 'classnames';
 type VariantType = {
   gid: string;
   title: string;
+  price?: string;
+  compareAtPrice?: string;
   inventory: { isAvailable: boolean };
   option1?: string;
   option2?: string;
@@ -22,21 +28,43 @@ type VariantType = {
 
 type FormProps = {
   sanityProductData: IProductDocument;
-  setSelectedVariant: React.Dispatch<React.SetStateAction<VariantType | null>>;
+  setSelectedVariant?: React.Dispatch<React.SetStateAction<VariantType | null>>;
   currencyCode?: string;
+  onOpenSizeGuide?: () => void;
+  showSizeChartLink?: boolean;
+  isRing?: boolean;
 };
 
-const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: handleSetSelectVariant, currencyCode }) => {
-  const { trackAddToCart } = useAnalytics();
-
+const Form: React.FC<FormProps> = ({
+  sanityProductData,
+  setSelectedVariant: handleSetSelectVariant,
+  currencyCode,
+  onOpenSizeGuide,
+  showSizeChartLink = false,
+  isRing = false
+}) => {
   const product = sanityProductData?.store;
-  const variants = useMemo(() => product?.variants?.map(({ store }) => store) ?? [], [product]);
+  const variants = useMemo(
+    () => (product?.variants?.map(({ store }) => store as unknown as VariantType) ?? []) as VariantType[],
+    [product]
+  );
   const options = product?.options ?? [];
+  const hasAvailableVariants = variants.some(variant => variant.inventory.isAvailable);
   const firstAvailableVariant = variants.find(v => v.inventory.isAvailable) ?? null;
 
-  const [selectedVariant, setVariant] = useState<VariantType | null>(firstAvailableVariant);
+  const hasRingSizes = useMemo(() => {
+    return variants.some(variant => {
+      const size = getVariantRingSize(variant as any, options as any);
+      return size ? isValidRingSize(size) : false;
+    });
+  }, [variants, options]);
+
+  const showAsRing = isRing && hasRingSizes;
+
+  const [selectedVariant, setVariant] = useState<VariantType | null>(showAsRing ? null : firstAvailableVariant);
+  const [ringDrawerOpen, setRingDrawerOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
-    if (!firstAvailableVariant) return {};
+    if (isRing || !firstAvailableVariant) return {};
 
     const { option1, option2, option3 } = firstAvailableVariant;
     const selectedOptionsValues = [option1, option2, option3];
@@ -58,7 +86,14 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
   }, []);
 
   const minVariantPrice = product?.priceRange?.minVariantPrice;
-  const variantPrice = selectedVariant?.price;
+  const ringDisplayPrice = useMemo(() => {
+    if (typeof minVariantPrice === 'number') {
+      return String(minVariantPrice);
+    }
+
+    const firstAvailable = variants.find(variant => variant.inventory.isAvailable);
+    return firstAvailable?.price;
+  }, [minVariantPrice, variants]);
 
   const getSelectedOptions = useCallback(
     (variant: VariantType) => {
@@ -75,19 +110,25 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
     [options]
   );
 
-  // Set first available variant on mount
+  // Set first available variant on mount (non-ring products only)
   useEffect(() => {
+    if (showAsRing) {
+      setSelectedVariant(null);
+      setSelectedOptions({});
+      return;
+    }
+
     if (variants.length > 0) {
-      const firstAvailableVariant = variants.find(v => v.inventory.isAvailable);
-      if (firstAvailableVariant) {
-        setSelectedVariant(firstAvailableVariant);
-        setSelectedOptions(getSelectedOptions(firstAvailableVariant));
+      const availableVariant = variants.find(v => v.inventory.isAvailable);
+      if (availableVariant) {
+        setSelectedVariant(availableVariant);
+        setSelectedOptions(getSelectedOptions(availableVariant));
       } else {
         setSelectedVariant(null);
         setSelectedOptions({});
       }
     }
-  }, [variants, getSelectedOptions]);
+  }, [variants, getSelectedOptions, isRing]);
 
   // Find matching variant based on selected options
   const findMatchingVariant = useCallback(
@@ -153,40 +194,78 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
   };
 
   const addToCart = useCart(state => state.addToCart);
-  const handleAddToCart = async (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    const isSelectedVariantAvailable = selectedVariant?.inventory.isAvailable;
-    if (isSelectedVariantAvailable) {
-      addToCart(selectedVariant.gid, 1);
-      trackAddToCart({
-        currency: currencyCode,
-        item: {
-          id: selectedVariant?.productGid,
-          name: sanityProductData?.store?.title,
-          category: sanityProductData?.store?.productType,
-          price: selectedVariant?.price,
-          variant: selectedVariant?.gid,
-          quantity: 1
-        }
+  const { trackAddToCart } = useAnalytics();
+
+  const trackSuccessfulAddToCart = async (variant: VariantType) => {
+    try {
+      await addToCart(variant.gid, 1);
+
+      metaTrackAddToCart({
+        content_ids: [variant.gid],
+        content_name: sanityProductData?.store?.title,
+        value: Number(variant?.price) || 0,
+        currency: currencyCode || 'USD'
       });
+
+      // GA4 ecommerce `add_to_cart` event pushed to the dataLayer for GTM/GA4.
+      trackAddToCart({
+        item: {
+          id: product?.id || variant.gid,
+          name: sanityProductData?.store?.title,
+          variant: variant.gid,
+          price: variant.price,
+          quantity: 1
+        },
+        currency: currencyCode || 'USD'
+      });
+    } catch (err) {
+      console.error('[Meta] addToCart failed, skipping tracking', err);
     }
   };
 
-  const availableOptionsForSelection = useMemo(() => {
-    return options.map(option => {
-      return {
-        name: option.name,
-        values: option.values
-      };
-    });
-  }, [options, variants, getSelectedOptions]);
+  const handleAddToCart = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    if (showAsRing) {
+      setRingDrawerOpen(true);
+      return;
+    }
+
+    const isSelectedVariantAvailable = selectedVariant?.inventory.isAvailable;
+    if (isSelectedVariantAvailable && selectedVariant) {
+      await trackSuccessfulAddToCart(selectedVariant);
+    }
+  };
+
+  const handleRingPurchase = async (variant: VariantType) => {
+    if (!variant.inventory.isAvailable) {
+      return;
+    }
+
+    await trackSuccessfulAddToCart(variant);
+    setRingDrawerOpen(false);
+  };
+
+  const handleOpenRingDrawer = () => {
+    setRingDrawerOpen(true);
+  };
+
+  const displayPrice = showAsRing ? ringDisplayPrice : selectedVariant?.price;
+  const displayCompareAtPrice = showAsRing ? undefined : selectedVariant?.compareAtPrice;
+
+  const availableOptionsForSelection = useMemo(() => getSelectableOptions(options), [options]);
+
+  const shouldShowVariantOptions = useMemo(() => {
+    if (showAsRing) return false;
+    return hasMeaningfulVariantChoices(variants, options);
+  }, [showAsRing, variants, options]);
 
   return (
     <div>
       <form onSubmit={handleAddToCart} className={styles.form}>
         <input id="quantity" name="quantity" type="hidden" min="1" max="1" value="1" />
 
-        {availableOptionsForSelection?.length > 1 &&
+        {shouldShowVariantOptions &&
           availableOptionsForSelection.map(option => (
             <div key={option.name} className={styles.optionGroup}>
               <Text as="label" size="b2" className={styles.optionGroupLabel} text={option.name} />
@@ -224,9 +303,9 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
           ))}
 
         <div className={styles.price}>
-          <Price 
-            price={selectedVariant?.price} 
-            compareAtPrice={selectedVariant?.compareAtPrice}
+          <Price
+            price={displayPrice || '0'}
+            compareAtPrice={displayCompareAtPrice}
             inquiryEnabled={sanityProductData?.inquireButtonEnabled}
             inquirePriceText={sanityProductData?.inquirePriceText}
           />
@@ -234,13 +313,29 @@ const Form: React.FC<FormProps> = ({ sanityProductData, setSelectedVariant: hand
 
         <div className={styles.action}>
           {!sanityProductData?.inquireButtonEnabled && (
-            <AddToCartButton disabled={!selectedVariant?.inventory.isAvailable} />
+            <AddToCartButton
+              disabled={!hasAvailableVariants}
+              isRing={showAsRing}
+              onSelectSize={handleOpenRingDrawer}
+            />
           )}
           {sanityProductData?.inquireButtonEnabled && (
             <InquireButton label={sanityProductData?.inquireButtonLabel || 'Make an Inquiry'} />
           )}
         </div>
       </form>
+
+      {showAsRing && (
+        <RingSizeDrawer
+          show={ringDrawerOpen}
+          onClose={() => setRingDrawerOpen(false)}
+          variants={variants}
+          options={options}
+          onPurchase={handleRingPurchase}
+          onOpenSizeGuide={onOpenSizeGuide}
+          showSizeChartLink={showSizeChartLink}
+        />
+      )}
     </div>
   );
 };

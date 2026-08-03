@@ -5,6 +5,9 @@ import Form from '@/components/Form';
 import Field from '@/components/Field';
 import styles from './styles.module.scss';
 import FormThankYou from '@/components/Form/FormThankYou';
+import { setMetaUserData, trackLead } from '@/lib/meta';
+import { identify } from '@/tools/klaviyo/client';
+import { useAnalytics } from '@/tools/analytics';
 
 const LOADING_DURATION = 3000;
 const SUCCESS_DURATION = 3000;
@@ -19,6 +22,7 @@ const FormNewsletter = ({
   showThankYouOverlay?: boolean;
 } = {}) => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { trackGenerateLead } = useAnalytics();
 
   const handleOnSubmit = async (values: any, methods) => {
     try {
@@ -43,6 +47,13 @@ const FormNewsletter = ({
 
       if (!response.ok || data.status !== 'success') {
         throw new Error(data.message || 'Form submission failed');
+      }
+
+      if (values?.email) {
+        setMetaUserData({ email: values.email });
+        trackLead({ content_name: 'Newsletter Signup' }, { email: values.email });
+        identify(values.email);
+        trackGenerateLead({ formName: 'Newsletter Signup' });
       }
 
       setStatus('success');
@@ -70,9 +81,9 @@ const FormNewsletter = ({
     <>
       <div className={styles.container}>
         <Form onSubmit={handleOnSubmit} layout="normal" disabled={status === 'loading'}>
-          <Field.Email className={styles.email} name="email" placeholder="Subscribe to Newsletter" required />
-          <Field.Submit 
-            className={styles.button} 
+          <Field.Email className={styles.email} name="email" placeholder="Join for Private Access" required />
+          <Field.Submit
+            className={styles.button}
             text={status === 'loading' ? 'Submitting...' : 'Submit'}
             disabled={status === 'loading'}
           />

@@ -14,11 +14,29 @@ import { IHeaderHeroSection } from '@/tools/sanity/schema/sections/shared/header
 import styles from './styles.module.scss';
 
 const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
-  const { addButton, button, image, tagline, mediaType = 'image', videoType, videoFile, videoUrl, thumbnail } = props;
+  const { 
+    addButton, 
+    button, 
+    image, 
+    tagline, 
+    mediaType = 'image', 
+    videoType, 
+    videoFile, 
+    videoUrl, 
+    thumbnail,
+    mobileVideoType,
+    mobileVideoFile,
+    mobileVideoUrl,
+    mobileThumbnail,
+    sectionFields
+  } = props;
+
+  const mobileContentPosition = sectionFields?.mobileContentPosition || 'center';
 
   const [isHover, setIsHover] = useState(false);
 
-  const mediaUrl = videoUrl || videoFile?.asset?.url;
+  const desktopMediaUrl = videoUrl || videoFile?.asset?.url;
+  const mobileMediaUrl = mobileVideoUrl || mobileVideoFile?.asset?.url;
 
   return (
     <Section
@@ -41,39 +59,55 @@ const HeaderHeroSection: React.FC<IHeaderHeroSection> = props => {
           priority
           quality={82}
           sizes="100vw"
+          fullBleed
         />
       )}
 
-      {mediaType === 'video' && mediaUrl && (
+      {mediaType === 'video' && desktopMediaUrl && (
         <div className={styles.videoContainer}>
           <Video
-            url={mediaUrl}
+            desktopUrl={desktopMediaUrl}
+            mobileUrl={mobileMediaUrl}
             controls={false}
-            showAudioControl={true}
-            muted={true}
+            altText={tagline}
+            placeholder={thumbnail}
+            placeholderMobile={mobileThumbnail}
+            objectFit="cover"
+            showAudioControl
+            muted
             autoPlay
             loop
-            objectFit="contain"
           />
         </div>
       )}
 
       {/* Content Overlay */}
-      <Layout variant="fullWidth" className={styles.layout}>
+      <Layout
+        variant="fullWidth"
+        className={classNames(styles.layout, {
+          [styles.mobilePositionTop]: mobileContentPosition === 'top',
+          [styles.mobilePositionCenter]: mobileContentPosition === 'center',
+          [styles.mobilePositionBottom]: mobileContentPosition === 'bottom'
+        })}
+      >
         <div className={styles.containerSticky}>
           <div className={styles.contentGroup}>
             {tagline && <h2 className={styles.tagline} >{tagline}</h2>}
 
             {addButton && button && (
-              <Link
-                {...button.link}
-                className={styles.button}
-                variant="square-overlay-light"
+              <div
+                className={styles.buttonContainer}
                 onMouseOver={() => setIsHover(true)}
                 onMouseLeave={() => setIsHover(false)}
               >
-                <Text text={button.label} weight="medium" />
-              </Link>
+                <Link
+                  {...button.link}
+                  className={styles.button}
+                  variant="square-overlay-light"
+                >
+                  <Text text={button.label} weight="medium" />
+                </Link>
+              </div>
             )}
           </div>
         </div>

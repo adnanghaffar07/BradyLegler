@@ -8,6 +8,8 @@ import thumbnail from '../../../../../sections/shared/HeaderHeroSection/thumbnai
 import { IButtonElement } from '../../elements/button';
 import VideoUrlInput from '../../../components/VideoUrlInput'; // Import if you have this
 
+type MobileContentPosition = 'top' | 'center' | 'bottom';
+
 interface IHeaderHeroSection {
   tagline?: string;
   title?: string;
@@ -20,6 +22,14 @@ interface IHeaderHeroSection {
   videoFile?: any;
   videoUrl?: string;
   thumbnail?: SanityImage;
+  mobileVideoType?: 'file' | 'url';
+  mobileVideoFile?: any;
+  mobileVideoUrl?: string;
+  mobileThumbnail?: SanityImage;
+  sectionFields?: {
+    gridPosition?: 'top' | 'middle' | 'bottom';
+    mobileContentPosition?: MobileContentPosition;
+  };
 }
 
 const headerHeroSection = defineType({
@@ -118,6 +128,54 @@ const headerHeroSection = defineType({
       hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.videoType !== 'url'
     },
     {
+      name: 'mobileVideoType',
+      title: 'Mobile Video Type (Optional)',
+      description: 'Optional: Upload a separate video optimized for mobile (e.g., portrait format). If not provided, the desktop video will be used on mobile.',
+      type: 'string',
+      options: {
+        list: [
+          { value: 'file', title: 'Video File (.mp4)' },
+          { value: 'url', title: 'Video URL (Vimeo, YouTube, etc.)' }
+        ],
+        layout: 'radio',
+        direction: 'horizontal'
+      },
+      group: 'data',
+      hidden: ({ parent }) => parent?.mediaType !== 'video'
+    },
+    {
+      name: 'mobileVideoFile',
+      title: 'Mobile Video File',
+      type: 'file',
+      options: {
+        accept: 'video/*'
+      },
+      group: 'data',
+      hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.mobileVideoType !== 'file'
+    },
+    {
+      name: 'mobileVideoUrl',
+      title: 'Mobile Video URL (Vimeo, YouTube, etc.)',
+      type: 'url',
+      placeholder: 'https://...',
+      group: 'data',
+      components: {
+        input: VideoUrlInput,
+        // @ts-ignore
+        options: {
+          thumbnailField: 'mobileThumbnail'
+        }
+      },
+      hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.mobileVideoType !== 'url'
+    },
+    {
+      name: 'mobileThumbnail',
+      title: 'Mobile Thumbnail',
+      type: 'image',
+      group: 'data',
+      hidden: ({ parent }) => parent?.mediaType !== 'video' || parent?.mobileVideoType !== 'url'
+    },
+    {
       name: 'addButton',
       title: 'Add Button',
       type: 'boolean',
@@ -151,6 +209,23 @@ const headerHeroSection = defineType({
             direction: 'horizontal'
           },
           initialValue: 'middle'
+        },
+        {
+          name: 'mobileContentPosition',
+          title: 'Mobile Tagline & Button Position',
+          description:
+            'Controls vertical placement of the tagline and button on mobile. Center and Top use sticky positioning; Bottom uses static positioning.',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Center', value: 'center' },
+              { title: 'Top', value: 'top' },
+              { title: 'Bottom', value: 'bottom' }
+            ],
+            layout: 'radio',
+            direction: 'horizontal'
+          },
+          initialValue: 'center'
         }
       ]
     }

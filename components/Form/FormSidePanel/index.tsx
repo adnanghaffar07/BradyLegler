@@ -7,6 +7,8 @@ import Link from '@/components/Link';
 import Text from '@/components/Text';
 import SidePanel from '@/components/SidePanel';
 import FormThankYou from '@/components/Form/FormThankYou';
+import { setMetaUserData, trackLead } from '@/lib/meta';
+import { useAnalytics } from '@/tools/analytics';
 import styles from './styles.module.scss';
 
 type FormSidePanelProps = {
@@ -24,12 +26,20 @@ const SUCCESS_DURATION = 3000;
 const FormSidePanel: React.FC<FormSidePanelProps> = props => {
   const { title = 'Inquiry', show = true, submitText = 'Inquire', onClose, children, formName } = props;
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { trackGenerateLead } = useAnalytics();
 
   const handleOnSubmit = async (values: any, methods) => {
     try {
       const { captcha, terms, ...otherValues } = values || {};
 
       setStatus('loading');
+
+      const externalId = values?.externalId || values?.customerId || values?.externalIdValue;
+      const identity = { email: values?.email, phone: values?.phone, externalId };
+
+      if (identity.email || identity.phone || identity.externalId) {
+        setMetaUserData(identity);
+      }
 
       const [response] = await Promise.all([
         fetch('/api/form', {
@@ -49,6 +59,11 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
       }
 
       setStatus('success');
+
+      if (identity.email || identity.phone || identity.externalId) {
+        trackLead({ content_name: formName }, identity);
+      }
+      trackGenerateLead({ formName });
 
       onClose();
       methods?.reset();

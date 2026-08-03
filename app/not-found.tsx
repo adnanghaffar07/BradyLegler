@@ -6,12 +6,20 @@ import { sanityFetch } from '@/tools/sanity/lib/fetch';
 import { IHeaderDocument } from '@/tools/sanity/schema/documents/headerDocument';
 import { HEADER_QUERY } from '@/tools/sanity/lib/queries.groq';
 
+export const dynamic = 'force-dynamic';
+
 const NotFound = async () => {
-  const headerDocument = await sanityFetch<IHeaderDocument>({ query: HEADER_QUERY });
+  let headerDocument: IHeaderDocument | null = null;
+
+  try {
+    headerDocument = await sanityFetch<IHeaderDocument>({ query: HEADER_QUERY });
+  } catch (error) {
+    console.error('Failed to fetch header for not-found page', error);
+  }
 
   return (
     <>
-      <Header {...headerDocument} isPageNotFound />
+      {headerDocument ? <Header {...headerDocument} isPageNotFound /> : null}
       <main
         style={{
           display: 'flex',

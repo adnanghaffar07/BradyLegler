@@ -46,7 +46,8 @@ const sectionsProjection = groq`{
   ${spacerSectionProjection}
 ${homeCollectionsProjection}
   sectionFields {
-    gridPosition
+    gridPosition,
+    mobileContentPosition
   }
 }`;
 

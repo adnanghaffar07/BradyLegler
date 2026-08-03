@@ -10,6 +10,7 @@ import SplashScreen from '@/components/SplashScreen';
 import { Analytics } from '@/tools/analytics';
 import { groq } from 'next-sanity';
 import Recommendations from './components/Recommendations';
+import { ViewContentTracker } from './components/ViewContentTracker';
 
 interface WebPageProps extends PageProps {
   data: IProductDocument;
@@ -198,12 +199,16 @@ const ProductTemplate = async (props: WebPageProps) => {
               id: shopifyProductData.id || '',
               name: shopifyProductData.title || '',
               category: shopifyProductData.productType || '',
+              variant: shopifyProductData.variants?.edges?.[0]?.node?.id,
               price: shopifyProductData.priceRange?.minVariantPrice?.amount || 0
             },
             currency: shopifyProductData.priceRange?.minVariantPrice?.currencyCode || 'USD'
           }}
         />
       )}
+
+      {/* Track ViewContent event for Meta Pixel */}
+      <ViewContentTracker product={sanityProductData} shopifyProduct={shopifyProductData} />
 
       <SplashScreen title={sanityProductData.store.title} />
 
