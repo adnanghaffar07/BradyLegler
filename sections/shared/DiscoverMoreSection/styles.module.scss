@@ -121,11 +121,11 @@
     object-fit: cover;
     // Crop into the whitespace the source photos are shot with so the product reads larger.
     // 1.15 measured safe against the same catalog as ProductCard.
-    transform: scale(1.4);
+    transform: scale(1.3);
     transition: transform 0.3s ease;
 
     .item:hover & {
-      transform: scale(1.45);
+      transform: scale(1.35);
     }
   }
 
