@@ -230,7 +230,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
 
       return (
         <>
-          <Video url={videoUrl} className={styles.media} objectFit="contain" controls={false} autoPlay muted loop />
+          <Video url={videoUrl} className={styles.discoverMedia} objectFit="contain" controls={false} autoPlay muted loop />
         </>
       );
     }
@@ -251,7 +251,7 @@ const DiscoverMoreItem: React.FC<{ item: ExtendedProduct; index: number }> = ({ 
         alt={imageAlt}
         width={dimensions.width}
         height={dimensions.height}
-        className={styles.media}
+        className={styles.discoverMedia}
         sizes="(max-width: 768px) 50vw, 33vw"
         quality={90}
       />
