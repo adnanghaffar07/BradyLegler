@@ -209,7 +209,8 @@
 
   &:hover {
     .img {
-      transform: scale(1.02);
+      // Base zoom (1.10) plus a touch extra on hover.
+      transform: scale(1.12);
     }
   }
 }
@@ -224,7 +225,7 @@
 .img {
   width: 90%;
   height: auto;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
   transition: transform 0.3s ease;
   aspect-ratio: 1 / 1.5;
@@ -233,6 +234,11 @@
   left: 0;
   width: 100%;
   height: 100%;
+  // Crop into the whitespace the source photos are shot with. This carousel's container is
+  // 1:1.5 (narrower than ProductCard's 1:1), so wide items like earring-pair photos have less
+  // margin before the crop reaches real content - measured ceiling here is ~1.17x, so 1.10
+  // is used instead of the 1.15 used elsewhere on the site.
+  transform: scale(1.1);
 }
 
 /* Simple grey arrows - no background, no border */
@@ -394,12 +400,13 @@
   .img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
     position: absolute;
     top: 0;
     left: 0;
+    transform: scale(1.1);
   }
 
   .imageContainer {
