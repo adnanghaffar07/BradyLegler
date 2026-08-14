@@ -67,14 +67,9 @@
     display: block;
     margin: 0;
     padding: 0;
-    object-fit: cover; // Crop the whitespace Shopify product photos are shot with, so the
-    // product itself reads larger in the grid instead of floating in a mostly-empty square.
+    object-fit: contain; // Changed from cover to contain to show full product
     width: 100%;
     height: 100%;
-    // Zoom in past the cover-crop to further shrink the remaining margin. 1.15 is measured
-    // against every product photo in the necklaces/rings/earrings catalog (the tightest case,
-    // the long pearl necklaces, tops out safely around 1.24x before the chain starts clipping).
-    transform: scale(1.15);
     transition: opacity 0.3s ease;
   }
 }
