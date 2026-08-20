@@ -20,9 +20,27 @@ declare global {
         properties?: KlaviyoProperties,
         callback?: (result: unknown) => void
       ) => Promise<unknown> | void;
+      trackViewedItem: (item: KlaviyoViewedItem, callback?: (result: unknown) => void) => Promise<unknown> | void;
     };
   }
 }
+
+// Shape expected by Klaviyo's dedicated trackViewedItem API, which (separately from a plain
+// track() call) populates the profile's "recently viewed" product feed used by Browse
+// Abandonment emails and product-recommendation blocks. See
+// developers.klaviyo.com "Integrate a platform without a pre-built Klaviyo integration".
+export type KlaviyoViewedItem = {
+  Title: string;
+  ItemId: string;
+  Categories?: string[];
+  ImageUrl?: string;
+  Url?: string;
+  Metadata?: {
+    Brand?: string;
+    Price?: number;
+    CompareAtPrice?: number;
+  };
+};
 
 // Official Klaviyo async-loading proxy stub, reproduced verbatim in behaviour from
 // developers.klaviyo.com/en/docs/introduction_to_the_klaviyo_object.
@@ -133,4 +151,16 @@ export const track = (eventName: string, properties?: KlaviyoProperties) => {
   const sanitisedProperties = sanitiseProperties(properties);
   debugLog('custom event queued', { eventName, properties: sanitisedProperties });
   window.klaviyo.track(eventName, sanitisedProperties);
+};
+
+export const trackViewedItem = (item: KlaviyoViewedItem) => {
+  installKlaviyoProxyStub();
+
+  if (typeof window === 'undefined' || !window.klaviyo || !item?.Title || !item?.ItemId) {
+    debugLog('viewed item skipped', { item });
+    return;
+  }
+
+  debugLog('viewed item queued', { item });
+  window.klaviyo.trackViewedItem(item);
 };

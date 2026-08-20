@@ -11,6 +11,7 @@ import { Analytics } from '@/tools/analytics';
 import { groq } from 'next-sanity';
 import Recommendations from './components/Recommendations';
 import { ViewContentTracker } from './components/ViewContentTracker';
+import { ViewedProductTracker } from './components/ViewedProductTracker';
 
 interface WebPageProps extends PageProps {
   data: IProductDocument;
@@ -209,6 +210,9 @@ const ProductTemplate = async (props: WebPageProps) => {
 
       {/* Track ViewContent event for Meta Pixel */}
       <ViewContentTracker product={sanityProductData} shopifyProduct={shopifyProductData} />
+
+      {/* Track Viewed Product event for Klaviyo (Browse Abandonment flow trigger) */}
+      <ViewedProductTracker product={sanityProductData} shopifyProduct={shopifyProductData} />
 
       <SplashScreen title={sanityProductData.store.title} />
 

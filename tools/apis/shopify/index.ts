@@ -344,6 +344,7 @@ export type ShopifyProduct = {
       node?: {
         id?: string;
         title?: string;
+        sku?: string;
         priceV2?: {
           amount?: number;
           currencyCode?: string;
@@ -356,6 +357,7 @@ export type ShopifyProduct = {
     }[];
   };
   tags?: string;
+  vendor?: string;
   metafieldListSwatchProducts?: {
     value?: string;
     key?: string;
@@ -424,6 +426,7 @@ export const getProductByHandle = async (handle: string): Promise<GetProductByHa
             node {
               id
               title
+              sku
               priceV2 {
                 amount
                 currencyCode
@@ -436,6 +439,7 @@ export const getProductByHandle = async (handle: string): Promise<GetProductByHa
           }
         }
         tags
+        vendor
         metafieldListSwatchProducts: metafield(key: "list_swatch_products", namespace: "custom") {
           value
           key
