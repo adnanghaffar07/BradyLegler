@@ -12,6 +12,8 @@ import styles from './ContactSidebar.module.scss';
 interface ContactSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  prefill?: string;
+  startOnForm?: boolean;
 }
 
 interface FormData {
@@ -23,7 +25,7 @@ interface FormData {
   contactMethod: string;
 }
 
-const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
+const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose, prefill = '', startOnForm = false }) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -159,10 +161,15 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
 
     lockBodyScroll();
 
+    if (startOnForm) {
+      setShowForm(true);
+      setFormData(prev => ({ ...prev, inquiry: prefill }));
+    }
+
     return () => {
       unlockBodyScroll();
     };
-  }, [isOpen]);
+  }, [isOpen, startOnForm, prefill]);
 
   return (
     <>

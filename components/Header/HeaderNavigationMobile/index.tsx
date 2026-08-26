@@ -25,7 +25,13 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   const [navItems] = useState<any[]>(propNavItems || []);
   const [subMenuStack, setSubMenuStack] = useState<any[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { isOpen: contactSidebarOpen, openContactSidebar, closeContactSidebar } = useContactSidebar();
+  const {
+    isOpen: contactSidebarOpen,
+    prefill: contactSidebarPrefill,
+    startOnForm: contactSidebarStartOnForm,
+    openContactSidebar,
+    closeContactSidebar
+  } = useContactSidebar();
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
   const [currentPasscodeItem, setCurrentPasscodeItem] = useState<any | null>(null);
   const [onPasscodeSuccess, setOnPasscodeSuccess] = useState<(() => void) | null>(null);
@@ -439,6 +445,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
       {/* Contact Sidebar - Using the same component as desktop */}
       <ContactSidebar
         isOpen={contactSidebarOpen}
+        prefill={contactSidebarPrefill}
+        startOnForm={contactSidebarStartOnForm}
         onClose={() => {
           closeContactSidebar();
           setMobileNavOpen(false);

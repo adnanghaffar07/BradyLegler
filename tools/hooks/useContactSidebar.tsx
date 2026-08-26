@@ -2,9 +2,16 @@
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
+type OpenContactSidebarOptions = {
+  prefill?: string;
+  startOnForm?: boolean;
+};
+
 interface ContactSidebarContextType {
   isOpen: boolean;
-  openContactSidebar: () => void;
+  prefill: string;
+  startOnForm: boolean;
+  openContactSidebar: (options?: OpenContactSidebarOptions) => void;
   closeContactSidebar: () => void;
 }
 
@@ -12,12 +19,20 @@ const ContactSidebarContext = createContext<ContactSidebarContextType | undefine
 
 export const ContactSidebarProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [prefill, setPrefill] = useState('');
+  const [startOnForm, setStartOnForm] = useState(false);
 
-  const openContactSidebar = () => setIsOpen(true);
+  const openContactSidebar = (options?: OpenContactSidebarOptions) => {
+    setPrefill(options?.prefill ?? '');
+    setStartOnForm(options?.startOnForm ?? false);
+    setIsOpen(true);
+  };
   const closeContactSidebar = () => setIsOpen(false);
 
   return (
-    <ContactSidebarContext.Provider value={{ isOpen, openContactSidebar, closeContactSidebar }}>
+    <ContactSidebarContext.Provider
+      value={{ isOpen, prefill, startOnForm, openContactSidebar, closeContactSidebar }}
+    >
       {children}
     </ContactSidebarContext.Provider>
   );

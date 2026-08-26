@@ -13,7 +13,14 @@ import { IProductDocument } from '@/tools/sanity/schema/documents/product';
 import { ISizeGuideDocument } from '@/tools/sanity/schema/documents/sizeGuideDocument';
 import { getFilteredSizeGuideTables } from '../SizeGuide/utils';
 import { isRingProduct } from '@/lib/ringSizes';
+import SubwayRingImage from '../SubwayRingCustomizer/SubwayRingImage';
+import SubwayRingControls from '../SubwayRingCustomizer/SubwayRingControls';
+import { Metal, Stone } from '../SubwayRingCustomizer/constants';
 import styles from './styles.module.scss';
+
+// Pilot: the customizable-image flow only applies to this one product for now, per the
+// client's request - not the full catalog. Match by handle so nothing else is affected.
+const CUSTOMIZABLE_PRODUCT_HANDLES = ['subway-double-band-ring-yellow-gold'];
 
 interface CollectionData {
   store?: {
@@ -39,6 +46,11 @@ const Details: React.FC<DetailsProps> = ({
   primaryCollection
 }) => {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [customizerMetal, setCustomizerMetal] = useState<Metal>('Yellow Gold');
+  const [customizerTopStone, setCustomizerTopStone] = useState<Stone>('Diamond');
+  const [customizerBottomStone, setCustomizerBottomStone] = useState<Stone>('Ruby');
+
+  const isCustomizable = CUSTOMIZABLE_PRODUCT_HANDLES.includes(sanityProductData?.store?.slug?.current || '');
 
   const productCollectionIds = shopifyProductData?.collections?.edges?.map(edge => edge.node.id) || [];
   const ringCollections =
@@ -99,11 +111,15 @@ const Details: React.FC<DetailsProps> = ({
 
         {/* Center Column - Gallery */}
         <div className={styles.gallery}>
-          <Gallery
-            featureMedia={sanityProductData?.featureMedia}
-            gallery={sanityProductData?.gallery}
-            images={shopifyProductData?.images?.edges?.map(({ node }) => node)}
-          />
+          {isCustomizable ? (
+            <SubwayRingImage metal={customizerMetal} topStone={customizerTopStone} bottomStone={customizerBottomStone} />
+          ) : (
+            <Gallery
+              featureMedia={sanityProductData?.featureMedia}
+              gallery={sanityProductData?.gallery}
+              images={shopifyProductData?.images?.edges?.map(({ node }) => node)}
+            />
+          )}
         </div>
 
         {/* Right Column - Product Details */}
@@ -123,6 +139,19 @@ const Details: React.FC<DetailsProps> = ({
                   onSizeGuideOpenChange={setSizeGuideOpen}
                 />
               </div>
+
+              {isCustomizable && (
+                <SubwayRingControls
+                  productTitle={sanityProductData.store.title}
+                  currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
+                  metal={customizerMetal}
+                  topStone={customizerTopStone}
+                  bottomStone={customizerBottomStone}
+                  onMetalChange={setCustomizerMetal}
+                  onTopStoneChange={setCustomizerTopStone}
+                  onBottomStoneChange={setCustomizerBottomStone}
+                />
+              )}
 
               <Form
                 currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}

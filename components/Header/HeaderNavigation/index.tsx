@@ -35,7 +35,13 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
   const [subMenuStack, setSubMenuStack] = useState<SubMenuState[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { isOpen: contactSidebarOpen, openContactSidebar, closeContactSidebar } = useContactSidebar();
+  const {
+    isOpen: contactSidebarOpen,
+    prefill: contactSidebarPrefill,
+    startOnForm: contactSidebarStartOnForm,
+    openContactSidebar,
+    closeContactSidebar
+  } = useContactSidebar();
   // In your component
   const [menuOffsets, setMenuOffsets] = useState([0, 70, 140, 210]);
   const [passcodeModal, setPasscodeModal] = useState<{
@@ -466,7 +472,12 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
       </div>
 
       {/* Contact Sidebar */}
-      <ContactSidebar isOpen={contactSidebarOpen} onClose={closeContactSidebar} />
+      <ContactSidebar
+        isOpen={contactSidebarOpen}
+        onClose={closeContactSidebar}
+        prefill={contactSidebarPrefill}
+        startOnForm={contactSidebarStartOnForm}
+      />
 
       {/* Passcode Modal */}
       {passcodeModal && (
