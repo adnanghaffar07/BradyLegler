@@ -142,7 +142,6 @@ const Details: React.FC<DetailsProps> = ({
 
               {isCustomizable && (
                 <SubwayRingControls
-                  productTitle={sanityProductData.store.title}
                   currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
                   metal={customizerMetal}
                   topStone={customizerTopStone}
