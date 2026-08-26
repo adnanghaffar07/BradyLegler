@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import fonts from '@/config/fonts';
 import Scripts from '@/components/Scripts';
@@ -10,6 +10,14 @@ type RootLayoutProps = {
   children: React.ReactNode;
 };
 
+// Staging must never be indexed by search engines.
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
+
 const RootLayout: React.FC<RootLayoutProps> = async props => {
   const { children } = props;
   const rawGtmId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
@@ -18,6 +26,7 @@ const RootLayout: React.FC<RootLayoutProps> = async props => {
   return (
     <html lang="en-US">
       <head>
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <link rel="icon" type="image/png" sizes="180x180" href="/apple-icon.png" />
