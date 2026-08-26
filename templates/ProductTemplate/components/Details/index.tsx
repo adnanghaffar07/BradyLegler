@@ -159,6 +159,7 @@ const Details: React.FC<DetailsProps> = ({
                 onOpenSizeGuide={() => setSizeGuideOpen(true)}
                 showSizeChartLink={hasSizeGuide}
                 isRing={isRing}
+                hidePrice={isCustomizable}
               />
             </div>
           </div>

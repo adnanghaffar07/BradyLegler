@@ -33,6 +33,7 @@ type FormProps = {
   onOpenSizeGuide?: () => void;
   showSizeChartLink?: boolean;
   isRing?: boolean;
+  hidePrice?: boolean;
 };
 
 const Form: React.FC<FormProps> = ({
@@ -41,7 +42,8 @@ const Form: React.FC<FormProps> = ({
   currencyCode,
   onOpenSizeGuide,
   showSizeChartLink = false,
-  isRing = false
+  isRing = false,
+  hidePrice = false
 }) => {
   const product = sanityProductData?.store;
   const variants = useMemo(
@@ -302,14 +304,16 @@ const Form: React.FC<FormProps> = ({
             </div>
           ))}
 
-        <div className={styles.price}>
-          <Price
-            price={displayPrice || '0'}
-            compareAtPrice={displayCompareAtPrice}
-            inquiryEnabled={sanityProductData?.inquireButtonEnabled}
-            inquirePriceText={sanityProductData?.inquirePriceText}
-          />
-        </div>
+        {!hidePrice && (
+          <div className={styles.price}>
+            <Price
+              price={displayPrice || '0'}
+              compareAtPrice={displayCompareAtPrice}
+              inquiryEnabled={sanityProductData?.inquireButtonEnabled}
+              inquirePriceText={sanityProductData?.inquirePriceText}
+            />
+          </div>
+        )}
 
         <div className={styles.action}>
           {!sanityProductData?.inquireButtonEnabled && (
