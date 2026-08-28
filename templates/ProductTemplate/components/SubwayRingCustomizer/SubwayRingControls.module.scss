@@ -1,13 +1,14 @@
 .controls {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-7);
   max-width: 330px;
   margin: 0 auto var(--spacing-9) auto;
   padding-bottom: var(--spacing-9);
   border-bottom: 1px solid var(--brand-black-40);
-  text-align: center;
+  text-align: left;
+  width: 100%;
 }
 
 .heading {
@@ -19,7 +20,7 @@
 .priceRow {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-2);
 }
 
@@ -31,42 +32,90 @@
   color: var(--brand-black-40) !important;
 }
 
-.selectGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-4);
+.rows {
   width: 100%;
+  border-top: 1px solid var(--brand-black-40);
 }
 
-.selectLabel {
+.row {
+  border-bottom: 1px solid var(--brand-black-40);
+}
+
+.rowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-6) 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
   font-family: var(--primary-font), sans-serif;
-  font-size: 12px;
+}
+
+.rowLabel {
+  font-size: 11px;
   font-weight: 300;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--brand-black-70);
 }
 
-.select {
-  width: 100%;
-  height: 48px;
-  padding: 0 var(--spacing-6);
-  border: 1px solid var(--brand-black-40);
-  border-radius: var(--radius-1);
-  background: var(--brand-white);
-  font-family: var(--primary-font), sans-serif;
+.rowValueGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-5);
+}
+
+.rowValue {
   font-size: 14px;
   color: var(--brand-black);
-  cursor: pointer;
+}
 
-  &:focus {
-    outline: none;
-    border-color: var(--brand-black);
+.rowIcon {
+  color: var(--brand-black);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+
+.rowIconExpanded {
+  transform: rotate(45deg);
+}
+
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  padding: 0 0 var(--spacing-6) 0;
+}
+
+.optionButton {
+  border: none;
+  background: transparent;
+  padding: var(--spacing-2) 0;
+  cursor: pointer;
+  font-family: var(--primary-font), sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--brand-black);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--brand-black-70);
   }
+}
+
+.optionSelected {
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .disclaimer {
   color: var(--brand-black-40) !important;
   line-height: var(--line-height-4);
+  text-align: left;
 }
