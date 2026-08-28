@@ -7,14 +7,24 @@ import styles from './SubwayRingImage.module.scss';
 
 type SubwayRingImageProps = {
   metal: Metal;
-  topStone: Stone;
-  bottomStone: Stone;
+  sideOneTopStone: Stone;
+  sideTwoTopStone: Stone;
+  sideOneBottomStone: Stone;
+  sideTwoBottomStone: Stone;
 };
 
-const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ metal, topStone, bottomStone }) => {
+const SubwayRingImage: React.FC<SubwayRingImageProps> = ({
+  metal,
+  sideOneTopStone,
+  sideTwoTopStone,
+  sideOneBottomStone,
+  sideTwoBottomStone
+}) => {
   const band = METAL_GRADIENT[metal];
-  const top = STONE_GRADIENT[topStone];
-  const bottom = STONE_GRADIENT[bottomStone];
+  const sideOneTop = STONE_GRADIENT[sideOneTopStone];
+  const sideTwoTop = STONE_GRADIENT[sideTwoTopStone];
+  const sideOneBottom = STONE_GRADIENT[sideOneBottomStone];
+  const sideTwoBottom = STONE_GRADIENT[sideTwoBottomStone];
 
   return (
     <div className={styles.imagePanel}>
@@ -25,15 +35,25 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ metal, topStone, bott
             <stop offset="45%" stopColor={band.mid} />
             <stop offset="100%" stopColor={band.to} />
           </linearGradient>
-          <radialGradient id="customizerTopGem" cx="35%" cy="30%" r="75%">
-            <stop offset="0%" stopColor={top.from} />
-            <stop offset="55%" stopColor={top.mid} />
-            <stop offset="100%" stopColor={top.to} />
+          <radialGradient id="customizerSideOneTop" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor={sideOneTop.from} />
+            <stop offset="55%" stopColor={sideOneTop.mid} />
+            <stop offset="100%" stopColor={sideOneTop.to} />
           </radialGradient>
-          <radialGradient id="customizerBottomGem" cx="35%" cy="30%" r="75%">
-            <stop offset="0%" stopColor={bottom.from} />
-            <stop offset="55%" stopColor={bottom.mid} />
-            <stop offset="100%" stopColor={bottom.to} />
+          <radialGradient id="customizerSideTwoTop" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor={sideTwoTop.from} />
+            <stop offset="55%" stopColor={sideTwoTop.mid} />
+            <stop offset="100%" stopColor={sideTwoTop.to} />
+          </radialGradient>
+          <radialGradient id="customizerSideOneBottom" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor={sideOneBottom.from} />
+            <stop offset="55%" stopColor={sideOneBottom.mid} />
+            <stop offset="100%" stopColor={sideOneBottom.to} />
+          </radialGradient>
+          <radialGradient id="customizerSideTwoBottom" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor={sideTwoBottom.from} />
+            <stop offset="55%" stopColor={sideTwoBottom.mid} />
+            <stop offset="100%" stopColor={sideTwoBottom.to} />
           </radialGradient>
           <filter id="customizerShadow" x="-40%" y="-40%" width="180%" height="180%">
             <feDropShadow dx="0" dy="10" stdDeviation="14" floodColor="#000000" floodOpacity="0.16" />
@@ -51,17 +71,35 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ metal, topStone, bott
           <line x1="202" y1="212" x2="218" y2="212" stroke={band.stroke} strokeWidth="1" opacity="0.5" />
         </g>
 
-        {[94, 140, 186].map(cx => (
-          <g key={`top-${cx}`}>
-            <circle cx={cx} cy="126" r="15" fill="url(#customizerTopGem)" />
+        {/* Top band: side one (left) / side two (right), split by a dashed divider */}
+        <line x1="210" y1="104" x2="210" y2="148" stroke={band.stroke} strokeWidth="1" strokeDasharray="2 4" opacity="0.4" />
+        {[80, 126].map(cx => (
+          <g key={`top-one-${cx}`}>
+            <circle cx={cx} cy="126" r="15" fill="url(#customizerSideOneTop)" />
+            <circle cx={cx} cy="126" r="15" fill="none" stroke={band.stroke} strokeWidth="1" opacity="0.3" />
+            <circle cx={cx - 8} cy="119" r="3.4" fill="#FFFFFF" opacity="0.9" />
+          </g>
+        ))}
+        {[294, 340].map(cx => (
+          <g key={`top-two-${cx}`}>
+            <circle cx={cx} cy="126" r="15" fill="url(#customizerSideTwoTop)" />
             <circle cx={cx} cy="126" r="15" fill="none" stroke={band.stroke} strokeWidth="1" opacity="0.3" />
             <circle cx={cx - 8} cy="119" r="3.4" fill="#FFFFFF" opacity="0.9" />
           </g>
         ))}
 
-        {[234, 280, 326].map(cx => (
-          <g key={`bottom-${cx}`}>
-            <circle cx={cx} cy="254" r="15" fill="url(#customizerBottomGem)" />
+        {/* Bottom band: side one (left) / side two (right), split by a dashed divider */}
+        <line x1="210" y1="232" x2="210" y2="276" stroke={band.stroke} strokeWidth="1" strokeDasharray="2 4" opacity="0.4" />
+        {[80, 126].map(cx => (
+          <g key={`bottom-one-${cx}`}>
+            <circle cx={cx} cy="254" r="15" fill="url(#customizerSideOneBottom)" />
+            <circle cx={cx} cy="254" r="15" fill="none" stroke={band.stroke} strokeWidth="1" opacity="0.3" />
+            <circle cx={cx - 8} cy="247" r="3.4" fill="#FFFFFF" opacity="0.75" />
+          </g>
+        ))}
+        {[294, 340].map(cx => (
+          <g key={`bottom-two-${cx}`}>
+            <circle cx={cx} cy="254" r="15" fill="url(#customizerSideTwoBottom)" />
             <circle cx={cx} cy="254" r="15" fill="none" stroke={band.stroke} strokeWidth="1" opacity="0.3" />
             <circle cx={cx - 8} cy="247" r="3.4" fill="#FFFFFF" opacity="0.75" />
           </g>
@@ -69,8 +107,8 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ metal, topStone, bott
       </svg>
 
       <div className={styles.zoneCaptions}>
-        <Text as="span" size="b3" className={styles.zoneCaption} text={`Side One · ${topStone}`} />
-        <Text as="span" size="b3" className={styles.zoneCaption} text={`Side Two · ${bottomStone}`} />
+        <Text as="span" size="b3" className={styles.zoneCaption} text={`Side One — Top ${sideOneTopStone} · Bottom ${sideOneBottomStone}`} />
+        <Text as="span" size="b3" className={styles.zoneCaption} text={`Side Two — Top ${sideTwoTopStone} · Bottom ${sideTwoBottomStone}`} />
       </div>
     </div>
   );

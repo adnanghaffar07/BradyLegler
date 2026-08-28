@@ -47,8 +47,10 @@ const Details: React.FC<DetailsProps> = ({
 }) => {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [customizerMetal, setCustomizerMetal] = useState<Metal>('Yellow Gold');
-  const [customizerTopStone, setCustomizerTopStone] = useState<Stone>('Diamond');
-  const [customizerBottomStone, setCustomizerBottomStone] = useState<Stone>('Ruby');
+  const [sideOneTopStone, setSideOneTopStone] = useState<Stone>('Diamond');
+  const [sideTwoTopStone, setSideTwoTopStone] = useState<Stone>('Diamond');
+  const [sideOneBottomStone, setSideOneBottomStone] = useState<Stone>('Ruby');
+  const [sideTwoBottomStone, setSideTwoBottomStone] = useState<Stone>('Ruby');
 
   const isCustomizable = CUSTOMIZABLE_PRODUCT_HANDLES.includes(sanityProductData?.store?.slug?.current || '');
 
@@ -112,7 +114,13 @@ const Details: React.FC<DetailsProps> = ({
         {/* Center Column - Gallery */}
         <div className={styles.gallery}>
           {isCustomizable ? (
-            <SubwayRingImage metal={customizerMetal} topStone={customizerTopStone} bottomStone={customizerBottomStone} />
+            <SubwayRingImage
+              metal={customizerMetal}
+              sideOneTopStone={sideOneTopStone}
+              sideTwoTopStone={sideTwoTopStone}
+              sideOneBottomStone={sideOneBottomStone}
+              sideTwoBottomStone={sideTwoBottomStone}
+            />
           ) : (
             <Gallery
               featureMedia={sanityProductData?.featureMedia}
@@ -144,11 +152,15 @@ const Details: React.FC<DetailsProps> = ({
                 <SubwayRingControls
                   currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
                   metal={customizerMetal}
-                  topStone={customizerTopStone}
-                  bottomStone={customizerBottomStone}
+                  sideOneTopStone={sideOneTopStone}
+                  sideTwoTopStone={sideTwoTopStone}
+                  sideOneBottomStone={sideOneBottomStone}
+                  sideTwoBottomStone={sideTwoBottomStone}
                   onMetalChange={setCustomizerMetal}
-                  onTopStoneChange={setCustomizerTopStone}
-                  onBottomStoneChange={setCustomizerBottomStone}
+                  onSideOneTopChange={setSideOneTopStone}
+                  onSideTwoTopChange={setSideTwoTopStone}
+                  onSideOneBottomChange={setSideOneBottomStone}
+                  onSideTwoBottomChange={setSideTwoBottomStone}
                 />
               )}
 

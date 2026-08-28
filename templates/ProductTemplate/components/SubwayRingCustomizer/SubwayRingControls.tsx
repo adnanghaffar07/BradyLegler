@@ -7,32 +7,46 @@ import classNames from '@/helpers/classNames';
 import { Metal, Stone, METALS, STONES, BASE_PRICE, METAL_PRICE_MODIFIER, STONE_PRICE_MODIFIER } from './constants';
 import styles from './SubwayRingControls.module.scss';
 
-type RowKey = 'metal' | 'topStone' | 'bottomStone';
+type RowKey = 'metal' | 'sideOneTop' | 'sideOneBottom' | 'sideTwoTop' | 'sideTwoBottom';
 
 type SubwayRingControlsProps = {
   currencyCode?: string;
   metal: Metal;
-  topStone: Stone;
-  bottomStone: Stone;
+  sideOneTopStone: Stone;
+  sideTwoTopStone: Stone;
+  sideOneBottomStone: Stone;
+  sideTwoBottomStone: Stone;
   onMetalChange: (metal: Metal) => void;
-  onTopStoneChange: (stone: Stone) => void;
-  onBottomStoneChange: (stone: Stone) => void;
+  onSideOneTopChange: (stone: Stone) => void;
+  onSideTwoTopChange: (stone: Stone) => void;
+  onSideOneBottomChange: (stone: Stone) => void;
+  onSideTwoBottomChange: (stone: Stone) => void;
 };
 
 const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
   currencyCode = 'USD',
   metal,
-  topStone,
-  bottomStone,
+  sideOneTopStone,
+  sideTwoTopStone,
+  sideOneBottomStone,
+  sideTwoBottomStone,
   onMetalChange,
-  onTopStoneChange,
-  onBottomStoneChange
+  onSideOneTopChange,
+  onSideTwoTopChange,
+  onSideOneBottomChange,
+  onSideTwoBottomChange
 }) => {
   const [expandedRow, setExpandedRow] = useState<RowKey | null>(null);
 
   const price = useMemo(
-    () => BASE_PRICE + METAL_PRICE_MODIFIER[metal] + STONE_PRICE_MODIFIER[topStone] + STONE_PRICE_MODIFIER[bottomStone],
-    [metal, topStone, bottomStone]
+    () =>
+      BASE_PRICE +
+      METAL_PRICE_MODIFIER[metal] +
+      STONE_PRICE_MODIFIER[sideOneTopStone] +
+      STONE_PRICE_MODIFIER[sideTwoTopStone] +
+      STONE_PRICE_MODIFIER[sideOneBottomStone] +
+      STONE_PRICE_MODIFIER[sideTwoBottomStone],
+    [metal, sideOneTopStone, sideTwoTopStone, sideOneBottomStone, sideTwoBottomStone]
   );
 
   const toggleRow = (key: RowKey) => {
@@ -48,18 +62,32 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
   }[] = [
     { key: 'metal', label: 'Metal', value: metal, options: METALS, onSelect: v => onMetalChange(v as Metal) },
     {
-      key: 'topStone',
-      label: 'Side One stone',
-      value: topStone,
+      key: 'sideOneTop',
+      label: 'Side One – Top stone',
+      value: sideOneTopStone,
       options: STONES,
-      onSelect: v => onTopStoneChange(v as Stone)
+      onSelect: v => onSideOneTopChange(v as Stone)
     },
     {
-      key: 'bottomStone',
-      label: 'Side Two stone',
-      value: bottomStone,
+      key: 'sideOneBottom',
+      label: 'Side One – Bottom stone',
+      value: sideOneBottomStone,
       options: STONES,
-      onSelect: v => onBottomStoneChange(v as Stone)
+      onSelect: v => onSideOneBottomChange(v as Stone)
+    },
+    {
+      key: 'sideTwoTop',
+      label: 'Side Two – Top stone',
+      value: sideTwoTopStone,
+      options: STONES,
+      onSelect: v => onSideTwoTopChange(v as Stone)
+    },
+    {
+      key: 'sideTwoBottom',
+      label: 'Side Two – Bottom stone',
+      value: sideTwoBottomStone,
+      options: STONES,
+      onSelect: v => onSideTwoBottomChange(v as Stone)
     }
   ];
 
