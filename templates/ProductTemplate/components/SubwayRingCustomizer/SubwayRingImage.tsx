@@ -69,8 +69,8 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ metal, topStone, bott
       </svg>
 
       <div className={styles.zoneCaptions}>
-        <Text as="span" size="b3" className={styles.zoneCaption} text={`Top band · ${topStone}`} />
-        <Text as="span" size="b3" className={styles.zoneCaption} text={`Bottom band · ${bottomStone}`} />
+        <Text as="span" size="b3" className={styles.zoneCaption} text={`Side One · ${topStone}`} />
+        <Text as="span" size="b3" className={styles.zoneCaption} text={`Side Two · ${bottomStone}`} />
       </div>
     </div>
   );

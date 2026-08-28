@@ -49,14 +49,14 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
     { key: 'metal', label: 'Metal', value: metal, options: METALS, onSelect: v => onMetalChange(v as Metal) },
     {
       key: 'topStone',
-      label: 'Top band stone',
+      label: 'Side One stone',
       value: topStone,
       options: STONES,
       onSelect: v => onTopStoneChange(v as Stone)
     },
     {
       key: 'bottomStone',
-      label: 'Bottom band stone',
+      label: 'Side Two stone',
       value: bottomStone,
       options: STONES,
       onSelect: v => onBottomStoneChange(v as Stone)
