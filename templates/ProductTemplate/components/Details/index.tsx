@@ -15,7 +15,13 @@ import { getFilteredSizeGuideTables } from '../SizeGuide/utils';
 import { isRingProduct } from '@/lib/ringSizes';
 import SubwayRingImage from '../SubwayRingCustomizer/SubwayRingImage';
 import SubwayRingControls from '../SubwayRingCustomizer/SubwayRingControls';
-import { Metal, Stone } from '../SubwayRingCustomizer/constants';
+import {
+  SideKey,
+  SideConfiguration,
+  DEFAULT_METAL,
+  DEFAULT_SIDE_ONE_FINISH,
+  DEFAULT_SIDE_TWO_FINISH
+} from '../SubwayRingCustomizer/constants';
 import styles from './styles.module.scss';
 
 // Pilot: the customizable-image flow only applies to this one product for now, per the
@@ -46,11 +52,22 @@ const Details: React.FC<DetailsProps> = ({
   primaryCollection
 }) => {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-  const [customizerMetal, setCustomizerMetal] = useState<Metal>('Yellow Gold');
-  const [sideOneTopStone, setSideOneTopStone] = useState<Stone>('Diamond');
-  const [sideTwoTopStone, setSideTwoTopStone] = useState<Stone>('Diamond');
-  const [sideOneBottomStone, setSideOneBottomStone] = useState<Stone>('Ruby');
-  const [sideTwoBottomStone, setSideTwoBottomStone] = useState<Stone>('Ruby');
+  const [activeSide, setActiveSide] = useState<SideKey>('sideOne');
+  const [sideOneConfig, setSideOneConfig] = useState<SideConfiguration>({
+    metal: DEFAULT_METAL,
+    top: DEFAULT_SIDE_ONE_FINISH,
+    bottom: DEFAULT_SIDE_ONE_FINISH
+  });
+  const [sideTwoConfig, setSideTwoConfig] = useState<SideConfiguration>({
+    metal: DEFAULT_METAL,
+    top: DEFAULT_SIDE_TWO_FINISH,
+    bottom: DEFAULT_SIDE_TWO_FINISH
+  });
+
+  const handleSideChange = (side: SideKey, configuration: SideConfiguration) => {
+    if (side === 'sideOne') setSideOneConfig(configuration);
+    else setSideTwoConfig(configuration);
+  };
 
   const isCustomizable = CUSTOMIZABLE_PRODUCT_HANDLES.includes(sanityProductData?.store?.slug?.current || '');
 
@@ -114,13 +131,7 @@ const Details: React.FC<DetailsProps> = ({
         {/* Center Column - Gallery */}
         <div className={styles.gallery}>
           {isCustomizable ? (
-            <SubwayRingImage
-              metal={customizerMetal}
-              sideOneTopStone={sideOneTopStone}
-              sideTwoTopStone={sideTwoTopStone}
-              sideOneBottomStone={sideOneBottomStone}
-              sideTwoBottomStone={sideTwoBottomStone}
-            />
+            <SubwayRingImage activeSide={activeSide} sideOne={sideOneConfig} sideTwo={sideTwoConfig} />
           ) : (
             <Gallery
               featureMedia={sanityProductData?.featureMedia}
@@ -151,16 +162,11 @@ const Details: React.FC<DetailsProps> = ({
               {isCustomizable && (
                 <SubwayRingControls
                   currencyCode={shopifyProductData?.priceRange?.minVariantPrice?.currencyCode || 'USD'}
-                  metal={customizerMetal}
-                  sideOneTopStone={sideOneTopStone}
-                  sideTwoTopStone={sideTwoTopStone}
-                  sideOneBottomStone={sideOneBottomStone}
-                  sideTwoBottomStone={sideTwoBottomStone}
-                  onMetalChange={setCustomizerMetal}
-                  onSideOneTopChange={setSideOneTopStone}
-                  onSideTwoTopChange={setSideTwoTopStone}
-                  onSideOneBottomChange={setSideOneBottomStone}
-                  onSideTwoBottomChange={setSideTwoBottomStone}
+                  activeSide={activeSide}
+                  sideOne={sideOneConfig}
+                  sideTwo={sideTwoConfig}
+                  onActiveSideChange={setActiveSide}
+                  onSideChange={handleSideChange}
                 />
               )}
 

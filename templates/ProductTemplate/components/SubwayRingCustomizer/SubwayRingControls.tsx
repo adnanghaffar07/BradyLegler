@@ -4,153 +4,210 @@ import React, { useMemo, useState } from 'react';
 import Text from '@/components/Text';
 import formatCurrency from '@/helpers/formatCurrency';
 import classNames from '@/helpers/classNames';
-import { Metal, Stone, METALS, STONES, BASE_PRICE, METAL_PRICE_MODIFIER, STONE_PRICE_MODIFIER } from './constants';
+import {
+  SideKey,
+  Metal,
+  Finish,
+  BandKey,
+  SideConfiguration,
+  SIDES,
+  BANDS,
+  METALS,
+  FINISHES,
+  FINISH_SWATCH,
+  METAL_GRADIENT,
+  BASE_PRICE,
+  METAL_PRICE_MODIFIER,
+  FINISH_PRICE_MODIFIER,
+  describeFinish
+} from './constants';
 import styles from './SubwayRingControls.module.scss';
-
-type RowKey = 'metal' | 'sideOneTop' | 'sideOneBottom' | 'sideTwoTop' | 'sideTwoBottom';
 
 type SubwayRingControlsProps = {
   currencyCode?: string;
-  metal: Metal;
-  sideOneTopStone: Stone;
-  sideTwoTopStone: Stone;
-  sideOneBottomStone: Stone;
-  sideTwoBottomStone: Stone;
-  onMetalChange: (metal: Metal) => void;
-  onSideOneTopChange: (stone: Stone) => void;
-  onSideTwoTopChange: (stone: Stone) => void;
-  onSideOneBottomChange: (stone: Stone) => void;
-  onSideTwoBottomChange: (stone: Stone) => void;
+  activeSide: SideKey;
+  sideOne: SideConfiguration;
+  sideTwo: SideConfiguration;
+  onActiveSideChange: (side: SideKey) => void;
+  onSideChange: (side: SideKey, configuration: SideConfiguration) => void;
+};
+
+// The metal chips carry the real metal gradient, so metal reads visually the same
+// way the stone and enamel swatches do.
+const metalSwatchStyle = (metal: Metal) => {
+  const { from, mid, to } = METAL_GRADIENT[metal];
+  return { backgroundImage: `linear-gradient(135deg, ${from} 0%, ${mid} 55%, ${to} 100%)` };
 };
 
 const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
   currencyCode = 'USD',
-  metal,
-  sideOneTopStone,
-  sideTwoTopStone,
-  sideOneBottomStone,
-  sideTwoBottomStone,
-  onMetalChange,
-  onSideOneTopChange,
-  onSideTwoTopChange,
-  onSideOneBottomChange,
-  onSideTwoBottomChange
+  activeSide,
+  sideOne,
+  sideTwo,
+  onActiveSideChange,
+  onSideChange
 }) => {
-  const [expandedRow, setExpandedRow] = useState<RowKey | null>(null);
+  const current = activeSide === 'sideOne' ? sideOne : sideTwo;
+  const [expandedBand, setExpandedBand] = useState<BandKey | null>(null);
+
+  const toggleBand = (band: BandKey) => setExpandedBand(prev => (prev === band ? null : band));
 
   const price = useMemo(
     () =>
       BASE_PRICE +
-      METAL_PRICE_MODIFIER[metal] +
-      STONE_PRICE_MODIFIER[sideOneTopStone] +
-      STONE_PRICE_MODIFIER[sideTwoTopStone] +
-      STONE_PRICE_MODIFIER[sideOneBottomStone] +
-      STONE_PRICE_MODIFIER[sideTwoBottomStone],
-    [metal, sideOneTopStone, sideTwoTopStone, sideOneBottomStone, sideTwoBottomStone]
+      METAL_PRICE_MODIFIER[sideOne.metal] +
+      METAL_PRICE_MODIFIER[sideTwo.metal] +
+      FINISH_PRICE_MODIFIER[sideOne.top] +
+      FINISH_PRICE_MODIFIER[sideOne.bottom] +
+      FINISH_PRICE_MODIFIER[sideTwo.top] +
+      FINISH_PRICE_MODIFIER[sideTwo.bottom],
+    [sideOne, sideTwo]
   );
 
-  const toggleRow = (key: RowKey) => {
-    setExpandedRow(prev => (prev === key ? null : key));
-  };
+  const setMetal = (metal: Metal) => onSideChange(activeSide, { ...current, metal });
+  const setBandFinish = (band: BandKey, finish: Finish) =>
+    onSideChange(activeSide, { ...current, [band]: finish });
 
-  const rows: {
-    key: RowKey;
-    label: string;
-    value: string;
-    options: string[];
-    onSelect: (value: string) => void;
-  }[] = [
-    { key: 'metal', label: 'Metal', value: metal, options: METALS, onSelect: v => onMetalChange(v as Metal) },
-    {
-      key: 'sideOneTop',
-      label: 'Side One – Top stone',
-      value: sideOneTopStone,
-      options: STONES,
-      onSelect: v => onSideOneTopChange(v as Stone)
-    },
-    {
-      key: 'sideOneBottom',
-      label: 'Side One – Bottom stone',
-      value: sideOneBottomStone,
-      options: STONES,
-      onSelect: v => onSideOneBottomChange(v as Stone)
-    },
-    {
-      key: 'sideTwoTop',
-      label: 'Side Two – Top stone',
-      value: sideTwoTopStone,
-      options: STONES,
-      onSelect: v => onSideTwoTopChange(v as Stone)
-    },
-    {
-      key: 'sideTwoBottom',
-      label: 'Side Two – Bottom stone',
-      value: sideTwoBottomStone,
-      options: STONES,
-      onSelect: v => onSideTwoBottomChange(v as Stone)
-    }
+  const summary: { key: SideKey; label: string; side: SideConfiguration }[] = [
+    { key: 'sideOne', label: 'Side One', side: sideOne },
+    { key: 'sideTwo', label: 'Side Two', side: sideTwo }
   ];
 
   return (
     <div className={styles.controls}>
-      <Text as="span" size="b3" className={styles.heading} text="Customize this piece" />
+      <header className={styles.header}>
+        <Text as="span" className={styles.eyebrow} text="Customize this piece" />
+        <Text as="p" className={styles.intro} text="Two rings in one — flip the ring for a different look." />
+      </header>
 
       <div className={styles.priceRow}>
-        <Text as="span" size="h2" className={styles.price} text={formatCurrency({ amount: price, currencyCode })} />
-        <Text as="span" size="b3" className={styles.priceNote} text="Price updates with your selections" />
+        <Text as="span" className={styles.price} text={formatCurrency({ amount: price, currencyCode })} />
+        <Text as="span" className={styles.caption} text="Price updates with your selections" />
       </div>
 
-      <div className={styles.rows}>
-        {rows.map(row => {
-          const isExpanded = expandedRow === row.key;
-          return (
-            <div key={row.key} className={styles.row}>
+      {/* Side One / Side Two tabs - each side is configured independently. */}
+      <div className={styles.tabs} role="tablist" aria-label="Ring side">
+        {SIDES.map(side => (
+          <button
+            key={side.key}
+            type="button"
+            role="tab"
+            id={`subway-tab-${side.key}`}
+            aria-selected={activeSide === side.key}
+            aria-controls="subway-side-panel"
+            className={classNames(styles.tab, { [styles.tabActive]: activeSide === side.key })}
+            onClick={() => onActiveSideChange(side.key)}
+          >
+            {side.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        className={styles.panel}
+        role="tabpanel"
+        id="subway-side-panel"
+        aria-labelledby={`subway-tab-${activeSide}`}
+      >
+        <div className={styles.metalGroup}>
+          <Text as="span" className={styles.sectionLabel} text="Metal" />
+          <div className={styles.metalOptions}>
+            {METALS.map(option => (
               <button
+                key={option}
                 type="button"
-                className={styles.rowHeader}
-                onClick={() => toggleRow(row.key)}
-                aria-expanded={isExpanded}
+                aria-pressed={option === current.metal}
+                className={classNames(styles.metalChip, { [styles.metalChipSelected]: option === current.metal })}
+                onClick={() => setMetal(option)}
               >
-                <span className={styles.rowLabel}>{row.label}</span>
-                <span className={styles.rowValueGroup}>
-                  <span className={styles.rowValue}>{row.value}</span>
+                <span className={styles.metalDot} style={metalSwatchStyle(option)} />
+                <span className={styles.metalLabel}>{option}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Each band is configured independently, revealed on tap. */}
+        <div className={styles.bands}>
+          {BANDS.map(band => {
+            const isExpanded = expandedBand === band.key;
+            const selected = current[band.key];
+            return (
+              <div key={band.key} className={classNames(styles.bandGroup, { [styles.bandGroupOpen]: isExpanded })}>
+                <button
+                  type="button"
+                  className={styles.bandHeader}
+                  onClick={() => toggleBand(band.key)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`subway-band-${activeSide}-${band.key}`}
+                >
+                  <span className={styles.bandLabel}>{band.label}</span>
+                  <span className={styles.bandCurrent}>
+                    <span
+                      className={classNames(styles.dot, {
+                        [styles.dotEmpty]: selected === 'No Enamel or Stone'
+                      })}
+                      style={{ backgroundColor: FINISH_SWATCH[selected] }}
+                    />
+                    <span className={styles.bandValue}>{describeFinish(selected)}</span>
+                  </span>
                   <svg
-                    width="12"
-                    height="12"
+                    width="11"
+                    height="11"
                     viewBox="0 0 12 12"
-                    className={classNames(styles.rowIcon, { [styles.rowIconExpanded]: isExpanded })}
+                    className={classNames(styles.bandIcon, { [styles.bandIconExpanded]: isExpanded })}
+                    aria-hidden="true"
                   >
                     <line x1="6" y1="0.5" x2="6" y2="11.5" stroke="currentColor" strokeWidth="1.1" />
                     <line x1="0.5" y1="6" x2="11.5" y2="6" stroke="currentColor" strokeWidth="1.1" />
                   </svg>
-                </span>
-              </button>
+                </button>
 
-              {isExpanded && (
-                <div className={styles.optionsRow}>
-                  {row.options.map(option => (
-                    <button
-                      key={option}
-                      type="button"
-                      className={classNames(styles.optionButton, { [styles.optionSelected]: option === row.value })}
-                      onClick={() => row.onSelect(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                {isExpanded && (
+                  <div className={styles.finishGrid} id={`subway-band-${activeSide}-${band.key}`}>
+                    {FINISHES.map(option => (
+                      <button
+                        key={option}
+                        type="button"
+                        aria-pressed={option === selected}
+                        className={classNames(styles.finishButton, { [styles.finishSelected]: option === selected })}
+                        onClick={() => setBandFinish(band.key, option)}
+                      >
+                        <span
+                          className={classNames(styles.dot, {
+                            [styles.dotEmpty]: option === 'No Enamel or Stone'
+                          })}
+                          style={{ backgroundColor: FINISH_SWATCH[option] }}
+                        />
+                        <span className={styles.finishLabel}>{option}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <Text
-        as="span"
-        size="b3"
-        className={styles.disclaimer}
-        text="Pricing and imagery shown are illustrative."
-      />
+      {/* Final product display - the customer's exact configuration. */}
+      <div className={styles.summary}>
+        <Text as="span" className={styles.sectionLabel} text="Your Configuration" />
+        {summary.map(entry => (
+          <div key={entry.key} className={styles.summaryRow}>
+            <Text as="span" className={styles.summarySide} text={entry.label} />
+            <Text
+              as="span"
+              className={styles.summaryDetail}
+              text={`${entry.side.metal} · Top ${describeFinish(entry.side.top)} · Bottom ${describeFinish(
+                entry.side.bottom
+              )}`}
+            />
+          </div>
+        ))}
+      </div>
+
+      <Text as="span" className={styles.caption} text="Pricing and imagery shown are illustrative." />
     </div>
   );
 };
