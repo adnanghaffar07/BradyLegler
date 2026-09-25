@@ -17,6 +17,7 @@ import SubwayRingImage from '../SubwayRingCustomizer/SubwayRingImage';
 import SubwayRingControls from '../SubwayRingCustomizer/SubwayRingControls';
 import {
   SideKey,
+  Metal,
   SideConfiguration,
   DEFAULT_METAL,
   DEFAULT_SIDE_ONE_FINISH,
@@ -55,18 +56,22 @@ const Details: React.FC<DetailsProps> = ({
   const [activeSide, setActiveSide] = useState<SideKey>('sideOne');
   const [sideOneConfig, setSideOneConfig] = useState<SideConfiguration>({
     metal: DEFAULT_METAL,
-    top: DEFAULT_SIDE_ONE_FINISH,
-    bottom: DEFAULT_SIDE_ONE_FINISH
+    finish: DEFAULT_SIDE_ONE_FINISH
   });
   const [sideTwoConfig, setSideTwoConfig] = useState<SideConfiguration>({
     metal: DEFAULT_METAL,
-    top: DEFAULT_SIDE_TWO_FINISH,
-    bottom: DEFAULT_SIDE_TWO_FINISH
+    finish: DEFAULT_SIDE_TWO_FINISH
   });
 
   const handleSideChange = (side: SideKey, configuration: SideConfiguration) => {
     if (side === 'sideOne') setSideOneConfig(configuration);
     else setSideTwoConfig(configuration);
+  };
+
+  // It is one piece of metal, so the metal choice applies to both faces at once.
+  const handleMetalChange = (metal: Metal) => {
+    setSideOneConfig(previous => ({ ...previous, metal }));
+    setSideTwoConfig(previous => ({ ...previous, metal }));
   };
 
   const isCustomizable = CUSTOMIZABLE_PRODUCT_HANDLES.includes(sanityProductData?.store?.slug?.current || '');
@@ -167,6 +172,7 @@ const Details: React.FC<DetailsProps> = ({
                   sideTwo={sideTwoConfig}
                   onActiveSideChange={setActiveSide}
                   onSideChange={handleSideChange}
+                  onMetalChange={handleMetalChange}
                 />
               )}
 

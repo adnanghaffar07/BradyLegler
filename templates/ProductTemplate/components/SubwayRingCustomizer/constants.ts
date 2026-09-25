@@ -1,7 +1,8 @@
 // Reversible Subway Double Band Ring: one ring the wearer can flip for a different
 // look ("two rings in one"). Side One and Side Two are the two faces of the ring -
-// Side Two is the reverse, not the inside. Each side is a double band: the top and
-// bottom bands take their own stone/enamel, while the metal is chosen once per side.
+// Side Two is the reverse, not the inside. Each side is a double band carrying one
+// stone/enamel across both of its bands, and the metal is one choice for the whole
+// ring - changing it changes both sides.
 
 export type SideKey = 'sideOne' | 'sideTwo';
 
@@ -46,14 +47,6 @@ export const FINISHES: Finish[] = [
 export const DEFAULT_METAL: Metal = 'White Gold';
 export const DEFAULT_SIDE_ONE_FINISH: Finish = 'Diamond';
 export const DEFAULT_SIDE_TWO_FINISH: Finish = 'Black Enamel';
-
-// The two bands on a side, each independently configurable.
-export type BandKey = 'top' | 'bottom';
-
-export const BANDS: { key: BandKey; label: string }[] = [
-  { key: 'top', label: 'Top Band' },
-  { key: 'bottom', label: 'Bottom Band' }
-];
 
 export const FINISH_KIND: Record<Finish, FinishKind> = {
   'No Enamel or Stone': 'none',
@@ -128,8 +121,7 @@ export const FINISH_SWATCH: Record<Finish, string> = {
 
 export type SideConfiguration = {
   metal: Metal;
-  top: Finish;
-  bottom: Finish;
+  finish: Finish;
 };
 
 export type RingConfiguration = {
@@ -144,8 +136,7 @@ const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
  * "white-gold-diamond__yellow-gold-black-enamel". Used to look up client-supplied
  * photography once it lands.
  */
-const slugSide = ({ metal, top, bottom }: SideConfiguration) =>
-  `${slug(metal)}-${slug(top)}-${slug(bottom)}`;
+const slugSide = ({ metal, finish }: SideConfiguration) => `${slug(metal)}-${slug(finish)}`;
 
 export const buildConfigKey = ({ sideOne, sideTwo }: RingConfiguration): string =>
   `${slugSide(sideOne)}__${slugSide(sideTwo)}`;
@@ -164,7 +155,5 @@ export const describeFinish = (finish: Finish): string =>
   finish === 'No Enamel or Stone' ? 'No stone or enamel' : finish;
 
 /** Human-readable description of one side, for the final product display. */
-export const describeSide = ({ metal, top, bottom }: SideConfiguration): string =>
-  top === bottom
-    ? `${metal}, ${describeFinish(top)}`
-    : `${metal} - top ${describeFinish(top)}, bottom ${describeFinish(bottom)}`;
+export const describeSide = ({ metal, finish }: SideConfiguration): string =>
+  `${metal}, ${describeFinish(finish)}`;

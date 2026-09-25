@@ -5,7 +5,6 @@ import Text from '@/components/Text';
 import classNames from '@/helpers/classNames';
 import {
   SideKey,
-  Finish,
   SideConfiguration,
   RingConfiguration,
   METAL_GRADIENT,
@@ -42,12 +41,10 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
 
   const bandId = `${idPrefix}-band`;
   const shadowId = `${idPrefix}-shadow`;
-  const finishIdFor = (keyPrefix: string) => `${idPrefix}-${keyPrefix}-finish`;
+  const finishId = `${idPrefix}-finish`;
+  const kind = FINISH_KIND[side.finish];
 
-  const renderBand = (y: number, keyPrefix: string, bandFinish: Finish) => {
-    const kind = FINISH_KIND[bandFinish];
-    const finishId = finishIdFor(keyPrefix);
-
+  const renderBand = (y: number, keyPrefix: string) => {
     return (
     <g key={keyPrefix}>
       <rect x={BAND_X} y={y} width={BAND_WIDTH} height={BAND_HEIGHT} rx={BAND_HEIGHT / 2} fill={`url(#${bandId})`} />
@@ -127,16 +124,11 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
           <stop offset="45%" stopColor={band.mid} />
           <stop offset="100%" stopColor={band.to} />
         </linearGradient>
-        {(['top', 'bottom'] as const).map(bandKey => {
-          const finish = FINISH_GRADIENT[side[bandKey]];
-          return (
-            <radialGradient key={bandKey} id={finishIdFor(bandKey)} cx="35%" cy="30%" r="75%">
-              <stop offset="0%" stopColor={finish.from} />
-              <stop offset="55%" stopColor={finish.mid} />
-              <stop offset="100%" stopColor={finish.to} />
-            </radialGradient>
-          );
-        })}
+        <radialGradient id={finishId} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={FINISH_GRADIENT[side.finish].from} />
+          <stop offset="55%" stopColor={FINISH_GRADIENT[side.finish].mid} />
+          <stop offset="100%" stopColor={FINISH_GRADIENT[side.finish].to} />
+        </radialGradient>
         <filter id={shadowId} x="-40%" y="-40%" width="180%" height="180%">
           <feDropShadow dx="0" dy="8" stdDeviation="11" floodColor="#000000" floodOpacity="0.15" />
         </filter>
@@ -156,8 +148,8 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
           strokeWidth="1"
           opacity="0.4"
         />
-        {renderBand(TOP_BAND_Y, 'top', side.top)}
-        {renderBand(BOTTOM_BAND_Y, 'bottom', side.bottom)}
+        {renderBand(TOP_BAND_Y, 'top')}
+        {renderBand(BOTTOM_BAND_Y, 'bottom')}
       </g>
     </svg>
   );

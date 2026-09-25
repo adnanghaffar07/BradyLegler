@@ -1,5 +1,7 @@
 .imagePanel {
-  --customizer-font-size: 13px;
+  // Matches the controls panel and the page chrome.
+  --customizer-font-size: 12px;
+  --customizer-label-tracking: 0.08em;
 
   display: flex;
   flex-direction: column;
@@ -51,7 +53,7 @@
   text-align: center;
   color: var(--brand-black-70) !important;
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-1);
+  letter-spacing: var(--customizer-label-tracking);
   transition: color 0.2s ease;
 }
 

@@ -8,10 +8,8 @@ import {
   SideKey,
   Metal,
   Finish,
-  BandKey,
   SideConfiguration,
   SIDES,
-  BANDS,
   METALS,
   FINISHES,
   FINISH_SWATCH,
@@ -30,6 +28,8 @@ type SubwayRingControlsProps = {
   sideTwo: SideConfiguration;
   onActiveSideChange: (side: SideKey) => void;
   onSideChange: (side: SideKey, configuration: SideConfiguration) => void;
+  /** Metal is one choice for the whole ring, so it applies to both sides at once. */
+  onMetalChange: (metal: Metal) => void;
 };
 
 // The metal chips carry the real metal gradient, so metal reads visually the same
@@ -45,28 +45,22 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
   sideOne,
   sideTwo,
   onActiveSideChange,
-  onSideChange
+  onSideChange,
+  onMetalChange
 }) => {
   const current = activeSide === 'sideOne' ? sideOne : sideTwo;
-  const [expandedBand, setExpandedBand] = useState<BandKey | null>(null);
-
-  const toggleBand = (band: BandKey) => setExpandedBand(prev => (prev === band ? null : band));
+  const [finishOpen, setFinishOpen] = useState(false);
 
   const price = useMemo(
     () =>
       BASE_PRICE +
+      // One metal for the whole ring, so the metal uplift is charged once - not per side.
       METAL_PRICE_MODIFIER[sideOne.metal] +
-      METAL_PRICE_MODIFIER[sideTwo.metal] +
-      FINISH_PRICE_MODIFIER[sideOne.top] +
-      FINISH_PRICE_MODIFIER[sideOne.bottom] +
-      FINISH_PRICE_MODIFIER[sideTwo.top] +
-      FINISH_PRICE_MODIFIER[sideTwo.bottom],
+      FINISH_PRICE_MODIFIER[sideOne.finish] +
+      FINISH_PRICE_MODIFIER[sideTwo.finish],
     [sideOne, sideTwo]
   );
-
-  const setMetal = (metal: Metal) => onSideChange(activeSide, { ...current, metal });
-  const setBandFinish = (band: BandKey, finish: Finish) =>
-    onSideChange(activeSide, { ...current, [band]: finish });
+  const setFinish = (finish: Finish) => onSideChange(activeSide, { ...current, finish });
 
   const summary: { key: SideKey; label: string; side: SideConfiguration }[] = [
     { key: 'sideOne', label: 'Side One', side: sideOne },
@@ -75,16 +69,6 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
 
   return (
     <div className={styles.controls}>
-      <header className={styles.header}>
-        <Text as="span" className={styles.eyebrow} text="Customize this piece" />
-        <Text as="p" className={styles.intro} text="Two rings in one — flip the ring for a different look." />
-      </header>
-
-      <div className={styles.priceRow}>
-        <Text as="span" className={styles.price} text={formatCurrency({ amount: price, currencyCode })} />
-        <Text as="span" className={styles.caption} text="Price updates with your selections" />
-      </div>
-
       {/* Side One / Side Two tabs - each side is configured independently. */}
       <div className={styles.tabs} role="tablist" aria-label="Ring side">
         {SIDES.map(side => (
@@ -118,7 +102,7 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
                 type="button"
                 aria-pressed={option === current.metal}
                 className={classNames(styles.metalChip, { [styles.metalChipSelected]: option === current.metal })}
-                onClick={() => setMetal(option)}
+                onClick={() => onMetalChange(option)}
               >
                 <span className={styles.metalDot} style={metalSwatchStyle(option)} />
                 <span className={styles.metalLabel}>{option}</span>
@@ -127,66 +111,62 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
           </div>
         </div>
 
-        {/* Each band is configured independently, revealed on tap. */}
+        {/* One stone or enamel per side - it runs across both of that side's bands. */}
         <div className={styles.bands}>
-          {BANDS.map(band => {
-            const isExpanded = expandedBand === band.key;
-            const selected = current[band.key];
-            return (
-              <div key={band.key} className={classNames(styles.bandGroup, { [styles.bandGroupOpen]: isExpanded })}>
-                <button
-                  type="button"
-                  className={styles.bandHeader}
-                  onClick={() => toggleBand(band.key)}
-                  aria-expanded={isExpanded}
-                  aria-controls={`subway-band-${activeSide}-${band.key}`}
-                >
-                  <span className={styles.bandLabel}>{band.label}</span>
-                  <span className={styles.bandCurrent}>
+          <div className={classNames(styles.bandGroup, { [styles.bandGroupOpen]: finishOpen })}>
+            <button
+              type="button"
+              className={styles.bandHeader}
+              onClick={() => setFinishOpen(open => !open)}
+              aria-expanded={finishOpen}
+              aria-controls={`subway-finish-${activeSide}`}
+            >
+              <span className={styles.bandLabel}>Stone or Enamel</span>
+              <span className={styles.bandCurrent}>
+                <span
+                  className={classNames(styles.dot, {
+                    [styles.dotEmpty]: current.finish === 'No Enamel or Stone'
+                  })}
+                  style={{ backgroundColor: FINISH_SWATCH[current.finish] }}
+                />
+                <span className={styles.bandValue}>{describeFinish(current.finish)}</span>
+              </span>
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 12 12"
+                className={classNames(styles.bandIcon, { [styles.bandIconExpanded]: finishOpen })}
+                aria-hidden="true"
+              >
+                <line x1="6" y1="0.5" x2="6" y2="11.5" stroke="currentColor" strokeWidth="1.1" />
+                <line x1="0.5" y1="6" x2="11.5" y2="6" stroke="currentColor" strokeWidth="1.1" />
+              </svg>
+            </button>
+
+            {finishOpen && (
+              <div className={styles.finishGrid} id={`subway-finish-${activeSide}`}>
+                {FINISHES.map(option => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={option === current.finish}
+                    className={classNames(styles.finishButton, {
+                      [styles.finishSelected]: option === current.finish
+                    })}
+                    onClick={() => setFinish(option)}
+                  >
                     <span
                       className={classNames(styles.dot, {
-                        [styles.dotEmpty]: selected === 'No Enamel or Stone'
+                        [styles.dotEmpty]: option === 'No Enamel or Stone'
                       })}
-                      style={{ backgroundColor: FINISH_SWATCH[selected] }}
+                      style={{ backgroundColor: FINISH_SWATCH[option] }}
                     />
-                    <span className={styles.bandValue}>{describeFinish(selected)}</span>
-                  </span>
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 12 12"
-                    className={classNames(styles.bandIcon, { [styles.bandIconExpanded]: isExpanded })}
-                    aria-hidden="true"
-                  >
-                    <line x1="6" y1="0.5" x2="6" y2="11.5" stroke="currentColor" strokeWidth="1.1" />
-                    <line x1="0.5" y1="6" x2="11.5" y2="6" stroke="currentColor" strokeWidth="1.1" />
-                  </svg>
-                </button>
-
-                {isExpanded && (
-                  <div className={styles.finishGrid} id={`subway-band-${activeSide}-${band.key}`}>
-                    {FINISHES.map(option => (
-                      <button
-                        key={option}
-                        type="button"
-                        aria-pressed={option === selected}
-                        className={classNames(styles.finishButton, { [styles.finishSelected]: option === selected })}
-                        onClick={() => setBandFinish(band.key, option)}
-                      >
-                        <span
-                          className={classNames(styles.dot, {
-                            [styles.dotEmpty]: option === 'No Enamel or Stone'
-                          })}
-                          style={{ backgroundColor: FINISH_SWATCH[option] }}
-                        />
-                        <span className={styles.finishLabel}>{option}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                    <span className={styles.finishLabel}>{option}</span>
+                  </button>
+                ))}
               </div>
-            );
-          })}
+            )}
+          </div>
         </div>
       </div>
 
@@ -199,15 +179,19 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
             <Text
               as="span"
               className={styles.summaryDetail}
-              text={`${entry.side.metal} · Top ${describeFinish(entry.side.top)} · Bottom ${describeFinish(
-                entry.side.bottom
-              )}`}
+              text={`${entry.side.metal} · ${describeFinish(entry.side.finish)}`}
             />
           </div>
         ))}
       </div>
 
       <Text as="span" className={styles.caption} text="Pricing and imagery shown are illustrative." />
+
+      {/* Price sits last, directly above the size selector and purchase button. */}
+      <div className={styles.priceRow}>
+        <Text as="span" className={styles.price} text={formatCurrency({ amount: price, currencyCode })} />
+        <Text as="span" className={styles.caption} text="Price updates with your selections" />
+      </div>
     </div>
   );
 };

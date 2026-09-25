@@ -6,9 +6,10 @@
 // deliberate exception is the price - a luxury PDP has to lead with it - which is
 // isolated in --customizer-price-size so it can be reverted in one line.
 .controls {
-  --customizer-font-size: 13px;
-  --customizer-price-size: 22px;
+  --customizer-font-size: 12px;
   --customizer-line-height: 1.65;
+  // Uppercase labels share one tracking value so they read as a single family.
+  --customizer-label-tracking: 0.08em;
   --customizer-rule: var(--brand-black-40);
 
   display: flex;
@@ -26,30 +27,6 @@
   font-family: var(--primary-font), sans-serif;
 }
 
-// ---------------------------------------------------------------- header
-
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-3);
-  width: 100%;
-}
-
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-weight: 400;
-  color: var(--brand-black) !important;
-}
-
-.intro {
-  margin: 0;
-  font-weight: 300;
-  color: var(--brand-black-70) !important;
-  text-wrap: balance;
-}
-
 .caption {
   font-weight: 300;
   color: var(--brand-black-40) !important;
@@ -57,19 +34,21 @@
 
 // ---------------------------------------------------------------- price
 
+// Sits last in the panel, directly above the size selector and purchase button, so
+// it reads as the running total for the configuration above it.
 .priceRow {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-2);
   width: 100%;
+  padding-top: var(--spacing-7);
+  border-top: 1px solid var(--customizer-rule);
 }
 
+// Same size as everything else; emphasis comes from weight, not scale.
 .price {
-  font-size: var(--customizer-price-size);
-  line-height: 1.2;
-  font-weight: 300;
-  letter-spacing: 0.02em;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--brand-black) !important;
 }
@@ -92,7 +71,7 @@
   cursor: pointer;
   font: inherit;
   font-weight: 300;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--customizer-label-tracking);
   text-transform: uppercase;
   color: var(--brand-black-40);
   transition: color 0.2s ease;
@@ -117,7 +96,7 @@
 
 .tabActive {
   color: var(--brand-black);
-  font-weight: 400;
+  font-weight: 500;
 
   &::after {
     opacity: 1;
@@ -136,7 +115,7 @@
 
 .sectionLabel {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--customizer-label-tracking);
   font-weight: 300;
   color: var(--brand-black-40) !important;
 }
@@ -234,7 +213,7 @@
 
 .bandLabel {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--customizer-label-tracking);
   font-weight: 300;
   color: var(--brand-black-40);
 }
@@ -248,7 +227,7 @@
 }
 
 .bandValue {
-  font-weight: 400;
+  font-weight: 500;
   color: var(--brand-black);
   white-space: nowrap;
 }
@@ -357,7 +336,7 @@
 
 .summarySide {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--customizer-label-tracking);
   font-weight: 500;
   color: var(--brand-black) !important;
 }
