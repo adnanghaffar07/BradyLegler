@@ -7,6 +7,7 @@ import styles from './styles.module.scss';
 import FormThankYou from '@/components/Form/FormThankYou';
 import { setMetaUserData, trackLead } from '@/lib/meta';
 import { identify } from '@/tools/klaviyo/client';
+import { subscribeFromBrowser, canSubscribeFromBrowser } from '@/tools/klaviyo/subscribeClient';
 import { useAnalytics } from '@/tools/analytics';
 
 const LOADING_DURATION = 3000;
@@ -29,24 +30,39 @@ const FormNewsletter = ({
       setStatus('loading');
       onStatusChange?.('loading');
 
-      const [response] = await Promise.all([
-        fetch('/api/form', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'newsletter',
-            ...values
-          })
-        }),
+      // Subscribe from the browser so Klaviyo sees the subscriber's real session
+      // rather than a datacentre IP - server-side signups get flagged as bots and
+      // auto-suppressed. Falls back to the server route when the browser path is
+      // unconfigured or blocked (ad-blocker, offline, Klaviyo unreachable).
+      const [outcome] = await Promise.all([
+        (async () => {
+          if (canSubscribeFromBrowser()) {
+            const result = await subscribeFromBrowser(values?.email);
+            if (result.status === 'success') return { ok: true, message: '' };
+          }
+
+          const response = await fetch('/api/form', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              type: 'newsletter',
+              ...values
+            })
+          });
+
+          const data = await response.json();
+          return {
+            ok: response.ok && data.status === 'success',
+            message: data.message || 'Form submission failed'
+          };
+        })(),
         new Promise(resolve => setTimeout(resolve, LOADING_DURATION))
       ]);
 
-      const data = await response.json();
-
-      if (!response.ok || data.status !== 'success') {
-        throw new Error(data.message || 'Form submission failed');
+      if (!outcome.ok) {
+        throw new Error(outcome.message || 'Form submission failed');
       }
 
       if (values?.email) {
