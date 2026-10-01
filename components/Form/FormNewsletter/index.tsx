@@ -8,6 +8,7 @@ import FormThankYou from '@/components/Form/FormThankYou';
 import { setMetaUserData, trackLead } from '@/lib/meta';
 import { identify } from '@/tools/klaviyo/client';
 import { subscribeFromBrowser, canSubscribeFromBrowser } from '@/tools/klaviyo/subscribeClient';
+import { detectAutomation } from '@/tools/helpers/botProtection';
 import { useAnalytics } from '@/tools/analytics';
 
 const LOADING_DURATION = 3000;
@@ -36,6 +37,13 @@ const FormNewsletter = ({
       // unconfigured or blocked (ad-blocker, offline, Klaviyo unreachable).
       const [outcome] = await Promise.all([
         (async () => {
+          // The browser path talks to Klaviyo directly, so /api/form's checks never
+          // run for it. Re-run them here, before any profile is created.
+          if (detectAutomation({ gotcha: values?._gotcha, elapsedMs: values?._elapsedMs })) {
+            // Report success so a bot learns nothing about what caught it.
+            return { ok: true, message: '' };
+          }
+
           if (canSubscribeFromBrowser()) {
             const result = await subscribeFromBrowser(values?.email);
             if (result.status === 'success') return { ok: true, message: '' };

@@ -1,5 +1,4 @@
 type KlaviyoProperties = Record<string, string | number | boolean | undefined | null>;
-type KlaviyoOnsiteQueueEntry = unknown[];
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -11,7 +10,7 @@ const debugLog = (...args: unknown[]) => {
 
 declare global {
   interface Window {
-    _klOnsite?: KlaviyoOnsiteQueueEntry[];
+    _klOnsite?: unknown[];
     klaviyo?: {
       push: (...args: unknown[]) => void;
       identify: (properties: KlaviyoProperties, callback?: (result: unknown) => void) => Promise<unknown> | void;
@@ -21,6 +20,8 @@ declare global {
         callback?: (result: unknown) => void
       ) => Promise<unknown> | void;
       trackViewedItem: (item: KlaviyoViewedItem, callback?: (result: unknown) => void) => Promise<unknown> | void;
+      // Present only on the fully-loaded library, never on a placeholder.
+      isIdentified?: () => boolean;
     };
   }
 }
@@ -42,55 +43,87 @@ export type KlaviyoViewedItem = {
   };
 };
 
-// Official Klaviyo async-loading proxy stub, reproduced verbatim in behaviour from
-// developers.klaviyo.com/en/docs/introduction_to_the_klaviyo_object.
-// Queues identify()/track() calls into window._klOnsite until the real klaviyo.js
-// (loaded by KlaviyoTracker) finishes loading and replaces this Proxy, so calls made
-// before the async script resolves are never lost.
-const installKlaviyoProxyStub = () => {
-  if (typeof window === 'undefined' || window.klaviyo) {
-    return;
-  }
+/**
+ * Deferred dispatch for Klaviyo onsite calls.
+ *
+ * klaviyo.js is loaded with next/script `afterInteractive`, so page-view and
+ * product-view effects routinely run BEFORE it exists. Anything called in that
+ * window has to be held and replayed once the library is ready.
+ *
+ * This used to be handled by a hand-rolled Proxy that pushed calls into
+ * `window._klOnsite`. That array was never drained - klaviyo.js installs the real
+ * object and leaves it untouched - so every event fired before the script finished
+ * loading was silently dropped. In practice that was most of them, which is why
+ * onsite metrics (Active on Site, Viewed Product) stayed empty and Browse
+ * Abandonment never triggered. We now keep our own queue and flush it ourselves.
+ */
+const pendingCalls: Array<() => void> = [];
+let pollTimer: ReturnType<typeof setInterval> | null = null;
+let waitedMs = 0;
 
-  window._klOnsite = window._klOnsite || [];
-  const onsiteQueue = window._klOnsite;
+const POLL_INTERVAL_MS = 200;
+const MAX_WAIT_MS = 30_000;
 
-  try {
-    window.klaviyo = new Proxy(
-      {},
-      {
-        get(_target, property: string) {
-          if (property === 'push') {
-            return (...args: unknown[]) => {
-              onsiteQueue.push(args);
-            };
-          }
+/**
+ * True only once the real library is present. `isIdentified` ships with klaviyo.js
+ * and is absent from any placeholder, which makes it a reliable marker.
+ */
+const isKlaviyoReady = (): boolean =>
+  typeof window !== 'undefined' && typeof window.klaviyo?.isIdentified === 'function';
 
-          return (...args: unknown[]) => {
-            const callback = typeof args[args.length - 1] === 'function' ? (args.pop() as (result: unknown) => void) : undefined;
-
-            return new Promise<unknown>(resolve => {
-              onsiteQueue.push([
-                property,
-                ...args,
-                (result: unknown) => {
-                  callback?.(result);
-                  resolve(result);
-                }
-              ]);
-            });
-          };
-        }
-      }
-    ) as Window['klaviyo'];
-  } catch {
-    // Environments without Proxy support (very old browsers): fall back to a plain queue array.
-    const fallback = { push: (...args: unknown[]) => onsiteQueue.push(args) };
-    window.klaviyo = fallback as unknown as Window['klaviyo'];
+const flushPending = () => {
+  while (pendingCalls.length > 0) {
+    const call = pendingCalls.shift();
+    try {
+      call?.();
+    } catch (error) {
+      debugLog('queued call failed', error);
+    }
   }
 };
 
-installKlaviyoProxyStub();
+const stopPolling = () => {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+};
+
+const startPolling = () => {
+  if (pollTimer || typeof window === 'undefined') return;
+
+  pollTimer = setInterval(() => {
+    waitedMs += POLL_INTERVAL_MS;
+
+    if (isKlaviyoReady()) {
+      stopPolling();
+      debugLog(`klaviyo.js ready after ${waitedMs}ms - flushing ${pendingCalls.length} queued call(s)`);
+      flushPending();
+      return;
+    }
+
+    if (waitedMs >= MAX_WAIT_MS) {
+      stopPolling();
+      debugLog(`klaviyo.js never became available after ${MAX_WAIT_MS}ms - dropping ${pendingCalls.length} call(s)`);
+      pendingCalls.length = 0;
+    }
+  }, POLL_INTERVAL_MS);
+};
+
+/** Run now if the library is ready, otherwise hold it and replay on load. */
+const dispatch = (description: string, call: () => void) => {
+  if (typeof window === 'undefined') return;
+
+  if (isKlaviyoReady()) {
+    debugLog(`${description} sent`);
+    call();
+    return;
+  }
+
+  debugLog(`${description} deferred until klaviyo.js loads`);
+  pendingCalls.push(call);
+  startPolling();
+};
 
 const sanitiseProperties = (properties?: KlaviyoProperties) => {
   if (!properties) {
@@ -106,10 +139,8 @@ const sanitiseProperties = (properties?: KlaviyoProperties) => {
 };
 
 export const identify = (email: string, firstName?: string, lastName?: string) => {
-  installKlaviyoProxyStub();
-
-  if (typeof window === 'undefined' || !window.klaviyo || !email) {
-    debugLog('identify skipped', { email, firstName, lastName });
+  if (!email) {
+    debugLog('identify skipped - no email');
     return;
   }
 
@@ -119,48 +150,35 @@ export const identify = (email: string, firstName?: string, lastName?: string) =
     ...(lastName ? { last_name: lastName } : {})
   };
 
-  debugLog('identify queued', { email, firstName, lastName, properties });
-  window.klaviyo.identify(properties);
+  dispatch(`identify (${email})`, () => window.klaviyo?.identify(properties));
 };
 
 export const trackPage = (path: string) => {
-  installKlaviyoProxyStub();
-
-  if (typeof window === 'undefined' || !window.klaviyo) {
-    debugLog('page view skipped because klaviyo object is unavailable');
-    return;
-  }
+  if (typeof window === 'undefined') return;
 
   const properties: KlaviyoProperties = {
     url: window.location.href,
     path
   };
 
-  debugLog('page view queued', { event: 'Viewed Page', properties });
-  window.klaviyo.track('Viewed Page', properties);
+  dispatch('page view', () => window.klaviyo?.track('Viewed Page', properties));
 };
 
 export const track = (eventName: string, properties?: KlaviyoProperties) => {
-  installKlaviyoProxyStub();
-
-  if (typeof window === 'undefined' || !window.klaviyo || !eventName) {
-    debugLog('custom event skipped', { eventName, properties });
+  if (!eventName) {
+    debugLog('custom event skipped - no event name');
     return;
   }
 
   const sanitisedProperties = sanitiseProperties(properties);
-  debugLog('custom event queued', { eventName, properties: sanitisedProperties });
-  window.klaviyo.track(eventName, sanitisedProperties);
+  dispatch(`custom event (${eventName})`, () => window.klaviyo?.track(eventName, sanitisedProperties));
 };
 
 export const trackViewedItem = (item: KlaviyoViewedItem) => {
-  installKlaviyoProxyStub();
-
-  if (typeof window === 'undefined' || !window.klaviyo || !item?.Title || !item?.ItemId) {
-    debugLog('viewed item skipped', { item });
+  if (!item?.Title || !item?.ItemId) {
+    debugLog('viewed item skipped - missing Title/ItemId', item);
     return;
   }
 
-  debugLog('viewed item queued', { item });
-  window.klaviyo.trackViewedItem(item);
+  dispatch(`viewed item (${item.Title})`, () => window.klaviyo?.trackViewedItem(item));
 };

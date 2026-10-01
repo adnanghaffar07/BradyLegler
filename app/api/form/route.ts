@@ -2,6 +2,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import klaviyo from '@/tools/klaviyo';
 import sendEmail from '@/tools/resend/sendEmail';
+import {
+  detectAutomation,
+  isValidEmailFormat,
+  isDisposableEmail,
+  rateLimit,
+  pruneRateLimitBuckets,
+  getClientIp
+} from '@/tools/helpers/botProtection';
 
 type Payload = {
   type: 'newsletter' | 'enquiry';
@@ -12,12 +20,48 @@ type Payload = {
   contactMethod?: string;
   message?: string;
   formName?: string;
+  /** Hidden honeypot rendered by <Form>. Only a bot fills it. */
+  _gotcha?: unknown;
+  /** Milliseconds the form was on screen before submission. */
+  _elapsedMs?: number;
 };
 
 export async function POST(req: NextRequest) {
   try {
     const data: Payload = await req.json();
     const { type } = data;
+
+    // --- Bot protection -----------------------------------------------------
+    // The <Form> component runs the honeypot check in the browser, but anything
+    // POSTing straight here skips it - so re-run it, plus timing and rate limits.
+    pruneRateLimitBuckets();
+
+    const ip = getClientIp(req.headers);
+    const { allowed, retryAfterSeconds } = rateLimit(`form:${ip}`, { limit: 5, windowMs: 60_000 });
+
+    if (!allowed) {
+      return NextResponse.json(
+        { status: 'error', message: 'Too many submissions. Please try again shortly.' },
+        { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+      );
+    }
+
+    const automationReason = detectAutomation({ gotcha: data._gotcha, elapsedMs: data._elapsedMs });
+
+    if (automationReason) {
+      // Answer as though it worked. Telling a bot which signal caught it just helps
+      // it tune; a real user who somehow trips this loses nothing visible.
+      console.warn(`[form] rejected automated submission (${automationReason}) from ${ip}`);
+      return NextResponse.json({ status: 'success', message: 'Submitted' });
+    }
+
+    if (data.email && (!isValidEmailFormat(data.email) || isDisposableEmail(data.email))) {
+      return NextResponse.json(
+        { status: 'error', message: 'Please enter a valid email address.' },
+        { status: 400 }
+      );
+    }
+    // ------------------------------------------------------------------------
 
     // Validate Klaviyo environment variables
     if (!process.env.KLAVIYO_PRIVATE_API_KEY) {

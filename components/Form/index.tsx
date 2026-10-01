@@ -1,4 +1,4 @@
-import { Children, cloneElement, isValidElement, useCallback, useState } from 'react';
+import { Children, cloneElement, isValidElement, useCallback, useRef, useState } from 'react';
 import { useForm, FormProvider, UseFormReturn } from 'react-hook-form';
 import classNames from '@/helpers/classNames';
 import FieldBotCheck from '../Field/FieldBotCheck';
@@ -34,11 +34,15 @@ const Form = (props: FormProps) => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // How long the form was on screen before submission. Passed through to callers so
+  // the server can reject implausibly fast (scripted) submissions.
+  const renderedAtRef = useRef(Date.now());
+
   const onSubmitHandler = useCallback(
     async (values: any) => {
       if (values._gotcha) return;
       setIsSubmitting(true);
-      if (onSubmit) await onSubmit(values, methods);
+      if (onSubmit) await onSubmit({ ...values, _elapsedMs: Date.now() - renderedAtRef.current }, methods);
       setIsSubmitting(false);
     },
     [onSubmit, methods]
