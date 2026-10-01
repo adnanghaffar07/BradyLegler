@@ -3,15 +3,28 @@ const KLAVIYO_PRIVATE_API_KEY = process.env.KLAVIYO_PRIVATE_API_KEY!;
 const KLAVIYO_LIST_ID = process.env.KLAVIYO_NEWSLETTER_LIST_ID || process.env.KLAVIYO_LIST_ID!;
 const KLAVIYO_API_REVISION = '2024-10-15';
 
+// Recorded against the consent record in Klaviyo as proof of where the opt-in came
+// from. Keep it descriptive - it is what you point at if consent is ever questioned.
+const CONSENT_SOURCE = 'Website Newsletter Form';
+
 type AddEmailToListResponse = {
   status: 'success' | 'error';
   message: string;
   data?: {
-    profileId: string;
     listId: string;
   };
 };
 
+/**
+ * Subscribes an email address to the newsletter list WITH marketing consent.
+ *
+ * Note on the endpoint choice: adding a profile through
+ * `POST /api/lists/{id}/relationships/profiles/` only creates list *membership* - it
+ * does not grant email marketing consent, so the profile stays "Never Subscribed"
+ * and every marketing send and flow message to it is skipped. Consent can only be
+ * set through the subscription endpoint used below, which also creates or updates
+ * the profile and adds it to the list in the same call.
+ */
 const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListResponse> => {
   try {
     const { email } = data || {};
@@ -20,7 +33,6 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
       throw new Error('Email is required to create a profile.');
     }
 
-    // Validate environment variables
     if (!KLAVIYO_PRIVATE_API_KEY) {
       throw new Error('KLAVIYO_PRIVATE_API_KEY is not configured');
     }
@@ -29,8 +41,7 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
       throw new Error('KLAVIYO_NEWSLETTER_LIST_ID or KLAVIYO_LIST_ID is not configured');
     }
 
-    // Step 1: Create or get profile
-    const response = await fetch(`https://a.klaviyo.com/api/profiles/`, {
+    const response = await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', {
       method: 'POST',
       headers: {
         accept: 'application/json',
@@ -40,71 +51,56 @@ const addEmailToList = async (data: { email?: string }): Promise<AddEmailToListR
       },
       body: JSON.stringify({
         data: {
-          type: 'profile',
+          type: 'profile-subscription-bulk-create-job',
           attributes: {
-            email
+            custom_source: CONSENT_SOURCE,
+            profiles: {
+              data: [
+                {
+                  type: 'profile',
+                  attributes: {
+                    email,
+                    subscriptions: {
+                      email: {
+                        marketing: {
+                          consent: 'SUBSCRIBED'
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          relationships: {
+            list: {
+              data: {
+                type: 'list',
+                id: KLAVIYO_LIST_ID
+              }
+            }
           }
         }
       })
     });
 
-    const responseData = await response.json();
-
-    let profileId;
-
-    if (!response.ok) {
-      const errors = responseData?.errors;
-      if (errors) {
-        const duplicateProfileError = errors.find((error: any) => error.code === 'duplicate_profile');
-        if (duplicateProfileError) {
-          profileId = duplicateProfileError.meta?.duplicate_profile_id;
-        } else {
-          throw new Error(errors[0]?.detail || 'Failed to create profile.');
-        }
-      }
-    } else {
-      profileId = responseData.data.id;
-    }
-
-    if (!profileId) {
-      throw new Error('Failed to get profile ID');
-    }
-
-    // Step 2: Subscribe profile to list
-    const subscribeResponse = await fetch(
-      `https://a.klaviyo.com/api/lists/${KLAVIYO_LIST_ID}/relationships/profiles/`,
-      {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
-          revision: KLAVIYO_API_REVISION,
-          Authorization: `Klaviyo-API-Key ${KLAVIYO_PRIVATE_API_KEY}`
-        },
-        body: JSON.stringify({
-          data: [{ type: 'profile', id: profileId }]
-        })
-      }
-    );
-
-    // Klaviyo returns 204 No Content on success (no response body to parse)
-    if (subscribeResponse.status === 204 || subscribeResponse.ok) {
+    // Klaviyo queues this as a job and answers 202 Accepted with no body.
+    if (response.status === 202 || response.ok) {
       return {
         status: 'success',
         message: 'Profile subscribed to list',
-        data: { profileId: profileId, listId: KLAVIYO_LIST_ID }
+        data: { listId: KLAVIYO_LIST_ID }
       };
     }
 
-    // Only try to parse JSON if there's an error response
     let errorMessage = 'Failed to subscribe profile.';
     try {
-      const subscribeData = await subscribeResponse.json();
-      errorMessage = subscribeData.errors?.[0]?.detail || errorMessage;
-    } catch (e) {
-      // No JSON body to parse
+      const errorData = await response.json();
+      errorMessage = errorData?.errors?.[0]?.detail || errorMessage;
+    } catch {
+      // No JSON body to parse.
     }
-    
+
     throw new Error(errorMessage);
   } catch (error: any) {
     return {
