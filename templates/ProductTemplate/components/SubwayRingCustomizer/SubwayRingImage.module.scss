@@ -40,13 +40,14 @@
 
 .bands {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 424 / 250;
 }
 
 .photo {
   width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
+  aspect-ratio: 424 / 250;
+  object-fit: cover;
+  object-position: center;
   background: transparent;
 }
 

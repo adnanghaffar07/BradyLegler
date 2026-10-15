@@ -44,10 +44,9 @@ const STONE_POSITIONS = [82, 133, 184, 236, 287, 338];
 type SideBandsProps = {
   side: SideConfiguration;
   idPrefix: string;
-  dimmed: boolean;
 };
 
-const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
+const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix }) => {
   const band = METAL_GRADIENT[side.metal];
 
   const bandId = `${idPrefix}-band`;
@@ -125,8 +124,8 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
       width="100%"
       height="100%"
       viewBox={`0 0 ${FRAME} ${FRAME}`}
+      preserveAspectRatio="xMidYMid slice"
       className={styles.bands}
-      style={{ opacity: dimmed ? 0.78 : 1, transition: 'opacity 0.25s ease' }}
       aria-hidden="true"
     >
       <defs>
@@ -269,10 +268,9 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
                 src={photo}
                 alt={`${view.label} - ${describeSide(view.side)}`}
                 className={styles.photo}
-                style={{ opacity: isActive ? 1 : 0.78, transition: 'opacity 0.25s ease' }}
               />
             ) : (
-              <SideBands side={view.side} idPrefix={`${uid}-${view.key}`} dimmed={!isActive} />
+              <SideBands side={view.side} idPrefix={`${uid}-${view.key}`} />
             )}
             <Text
               as="span"
