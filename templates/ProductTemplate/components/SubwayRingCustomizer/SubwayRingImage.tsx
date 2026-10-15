@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useId } from 'react';
+import React, { useEffect, useId } from 'react';
 import Text from '@/components/Text';
 import classNames from '@/helpers/classNames';
 import {
@@ -10,7 +10,7 @@ import {
   FINISH_GRADIENT,
   FINISH_KIND,
   getSideImage,
-  buildSideImageKey,
+  getAllSideImages,
   describeSide
 } from './constants';
 import styles from './SubwayRingImage.module.scss';
@@ -155,6 +155,34 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
 };
 
 const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, sideTwo }) => {
+  // Warm the browser cache with every photo once the page is idle. Without this the
+  // first selection of each finish waits on a network round trip, which reads as the
+  // configurator lagging behind the click. The full set is ~1MB and this runs after
+  // mount, so it never competes with the initial render.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let cancelled = false;
+    const preload = () => {
+      if (cancelled) return;
+      getAllSideImages().forEach(src => {
+        const img = new window.Image();
+        img.decoding = 'async';
+        img.src = src;
+      });
+    };
+
+    const idle = (window as any).requestIdleCallback as undefined | ((cb: () => void) => number);
+    const handle = idle ? idle(preload) : window.setTimeout(preload, 600);
+
+    return () => {
+      cancelled = true;
+      const cancelIdle = (window as any).cancelIdleCallback as undefined | ((id: number) => void);
+      if (idle && cancelIdle) cancelIdle(handle as number);
+      else window.clearTimeout(handle as number);
+    };
+  }, []);
+
   // SVG gradient ids are document-global, so scope them per instance.
   const uid = useId().replace(/:/g, '');
 
@@ -180,8 +208,8 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                key={buildSideImageKey(view.side)}
                 src={photo}
+                decoding="async"
                 alt={`${view.label} - ${describeSide(view.side)}`}
                 className={styles.photo}
                 style={{ opacity: isActive ? 1 : 0.78, transition: 'opacity 0.25s ease' }}

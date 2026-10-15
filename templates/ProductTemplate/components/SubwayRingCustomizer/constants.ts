@@ -242,6 +242,10 @@ const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 export const buildSideImageKey = ({ metal, finish }: SideConfiguration): string =>
   `${slug(metal)}-${slug(finish)}`;
 
+/** Every photo we hold, for preloading so finish changes swap instantly. */
+export const getAllSideImages = (): string[] =>
+  [...AVAILABLE_SIDE_IMAGES].map(key => `/subway/${key}.jpg`);
+
 /** Photo URL for one side, or undefined when we have no shot for it. */
 export const getSideImage = (side: SideConfiguration): string | undefined => {
   const key = buildSideImageKey(side);
