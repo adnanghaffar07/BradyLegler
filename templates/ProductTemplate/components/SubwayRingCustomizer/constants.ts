@@ -234,7 +234,12 @@ const AVAILABLE_SIDE_IMAGES = new Set<string>([
   'white-gold-coral-enamel',
   'white-gold-hot-pink-enamel',
   'white-gold-red-enamel',
-  'white-gold-teal-enamel'
+  'white-gold-teal-enamel',
+  // Added after the client meeting - fills the Diamond / White Enamel / Black Enamel gaps.
+  'yellow-gold-diamond',
+  'yellow-gold-white-enamel',
+  'white-gold-diamond',
+  'white-gold-black-enamel'
 ]);
 
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -246,10 +251,28 @@ export const buildSideImageKey = ({ metal, finish }: SideConfiguration): string 
 export const getAllSideImages = (): string[] =>
   [...AVAILABLE_SIDE_IMAGES].map(key => `/subway/${key}.jpg`);
 
-/** Photo URL for one side, or undefined when we have no shot for it. */
+/**
+ * Metals we can borrow photography from when a shot is missing. Platinum and white
+ * gold are near-indistinguishable in these studio shots, and there is no platinum
+ * photography at all - so platinum shows the white gold frame rather than dropping
+ * to the illustration. Only ever substitutes between visually equivalent metals.
+ */
+const PHOTO_METAL_FALLBACK: Partial<Record<Metal, Metal>> = {
+  Platinum: 'White Gold'
+};
+
+/** Photo URL for one side, or undefined when we have no usable shot for it. */
 export const getSideImage = (side: SideConfiguration): string | undefined => {
-  const key = buildSideImageKey(side);
-  return AVAILABLE_SIDE_IMAGES.has(key) ? `/subway/${key}.jpg` : undefined;
+  const direct = buildSideImageKey(side);
+  if (AVAILABLE_SIDE_IMAGES.has(direct)) return `/subway/${direct}.jpg`;
+
+  const substitute = PHOTO_METAL_FALLBACK[side.metal];
+  if (substitute) {
+    const key = buildSideImageKey({ ...side, metal: substitute });
+    if (AVAILABLE_SIDE_IMAGES.has(key)) return `/subway/${key}.jpg`;
+  }
+
+  return undefined;
 };
 
 // ---------------------------------------------------------------- pricing

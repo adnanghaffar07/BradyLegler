@@ -25,25 +25,27 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-5);
-  padding: var(--spacing-7) var(--spacing-5);
+  // No horizontal padding: the shot must span the full column so it renders at the
+  // same size as the gallery on every other product page (424px at desktop).
+  padding: var(--spacing-7) 0;
   background: #ffffff;
   border-radius: var(--radius-1);
-  border: 1px solid transparent;
-  transition: border-color 0.2s ease;
 }
 
+// Selected side is no longer outlined, per the client. Focus is carried by the
+// active tab and by the caption emphasis under each shot.
 .sideViewActive {
-  border-color: var(--customizer-active-outline);
+  /* intentionally empty */
 }
 
 .bands {
   width: 100%;
-  aspect-ratio: 420 / 190;
+  aspect-ratio: 1 / 1;
 }
 
 .photo {
   width: 100%;
-  aspect-ratio: 420 / 190;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   background: transparent;
 }

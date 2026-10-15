@@ -24,6 +24,18 @@ type SubwayRingImageProps = {
 // One side of the ring, drawn face-on as a double band (top + bottom).
 const BAND_X = 25;
 const BAND_WIDTH = 370;
+
+// The illustration is the fallback for finishes we have no photo of, so it has to
+// sit at the same scale as the photography or switching to (say) Platinum makes the
+// ring jump in size. Measured across all 24 client shots, the ring occupies 37.3%
+// of the frame width, so the drawing is placed in a square frame sized to match and
+// centred within it.
+const DRAWING_WIDTH = 420;
+const DRAWING_HEIGHT = 190;
+const RING_FRAME_RATIO = 0.373;
+const FRAME = Math.round(BAND_WIDTH / RING_FRAME_RATIO); // ~992
+const OFFSET_X = Math.round((FRAME - DRAWING_WIDTH) / 2);
+const OFFSET_Y = Math.round((FRAME - DRAWING_HEIGHT) / 2);
 const BAND_HEIGHT = 58;
 const TOP_BAND_Y = 22;
 const BOTTOM_BAND_Y = 110;
@@ -112,7 +124,7 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
     <svg
       width="100%"
       height="100%"
-      viewBox="0 0 420 190"
+      viewBox={`0 0 ${FRAME} ${FRAME}`}
       className={styles.bands}
       style={{ opacity: dimmed ? 0.78 : 1, transition: 'opacity 0.25s ease' }}
       aria-hidden="true"
@@ -133,6 +145,7 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
         </filter>
       </defs>
 
+      <g transform={`translate(${OFFSET_X}, ${OFFSET_Y})`}>
       <g filter={`url(#${shadowId})`}>
         {/* Bridge joining the two bands, drawn first so the bands sit over it. */}
         <rect x="190" y={TOP_BAND_Y + BAND_HEIGHT - 6} width="40" height={BOTTOM_BAND_Y - TOP_BAND_Y - BAND_HEIGHT + 12} rx="5" fill={band.mid} />
@@ -149,6 +162,7 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
         />
         {renderBand(TOP_BAND_Y, 'top')}
         {renderBand(BOTTOM_BAND_Y, 'bottom')}
+      </g>
       </g>
     </svg>
   );
