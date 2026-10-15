@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useId } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import Text from '@/components/Text';
 import classNames from '@/helpers/classNames';
 import {
@@ -168,6 +168,51 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
   );
 };
 
+/**
+ * Swaps the photo without the blank frame a plain `src` change produces.
+ *
+ * Setting `src` directly clears the element before the replacement paints - even
+ * when the file is already cached - which reads as a flicker on every selection.
+ * Here the on-screen image is only repointed once the incoming one has decoded, so
+ * the previous frame stays up until the new one is ready to draw.
+ */
+const SideImage: React.FC<{
+  src: string;
+  alt: string;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ src, alt, className, style }) => {
+  const [shown, setShown] = useState(src);
+
+  useEffect(() => {
+    if (src === shown) return;
+
+    let cancelled = false;
+    const swap = () => {
+      if (!cancelled) setShown(src);
+    };
+
+    const next = new window.Image();
+    next.src = src;
+
+    if (typeof next.decode === 'function') {
+      next.decode().then(swap).catch(swap);
+    } else if (next.complete) {
+      swap();
+    } else {
+      next.onload = swap;
+      next.onerror = swap;
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [src, shown]);
+
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={shown} alt={alt} className={className} style={style} />;
+};
+
 const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, sideTwo }) => {
   // Warm the browser cache with every photo once the page is idle. Without this the
   // first selection of each finish waits on a network round trip, which reads as the
@@ -220,10 +265,8 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
             className={classNames(styles.sideView, { [styles.sideViewActive]: isActive })}
           >
             {photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <SideImage
                 src={photo}
-                decoding="async"
                 alt={`${view.label} - ${describeSide(view.side)}`}
                 className={styles.photo}
                 style={{ opacity: isActive ? 1 : 0.78, transition: 'opacity 0.25s ease' }}
