@@ -180,6 +180,34 @@
 
 /* Container Styles - RIGHT COLUMN ONLY */
 .rightColumn {
+  // Slim scrollbar in brand black, held well back so it reads as a quiet affordance
+  // rather than something to look at - a saturated colour here pulls the eye away
+  // from the product. Partial opacity keeps it recessive against white; it only
+  // firms up on hover, when the shopper is actually reaching for it. Firefox honours
+  // the standard properties; WebKit needs the vendor pseudo-elements, so both are set.
+  --details-scrollbar: rgba(var(--brand-black-rgb), 0.3);
+  --details-scrollbar-hover: rgba(var(--brand-black-rgb), 0.55);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--details-scrollbar) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--details-scrollbar);
+    border-radius: 2px;
+
+    &:hover {
+      background: var(--details-scrollbar-hover);
+    }
+  }
+
   width: 100%;
   order: 2;
   /* Product details second on mobile */

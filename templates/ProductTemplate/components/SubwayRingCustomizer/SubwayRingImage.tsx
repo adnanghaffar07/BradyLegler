@@ -6,12 +6,11 @@ import classNames from '@/helpers/classNames';
 import {
   SideKey,
   SideConfiguration,
-  RingConfiguration,
   METAL_GRADIENT,
   FINISH_GRADIENT,
   FINISH_KIND,
-  getRingImageAsset,
-  buildConfigKey,
+  getSideImage,
+  buildSideImageKey,
   describeSide
 } from './constants';
 import styles from './SubwayRingImage.module.scss';
@@ -158,54 +157,46 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix, dimmed }) => {
 const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, sideTwo }) => {
   // SVG gradient ids are document-global, so scope them per instance.
   const uid = useId().replace(/:/g, '');
-  const configuration: RingConfiguration = { sideOne, sideTwo };
-  const assetUrl = getRingImageAsset(configuration);
-
-  const altText = `Subway ring - Side One ${describeSide(sideOne)}; Side Two ${describeSide(sideTwo)}`;
 
   const views: { key: SideKey; label: string; side: SideConfiguration }[] = [
     { key: 'sideOne', label: 'Side One', side: sideOne },
     { key: 'sideTwo', label: 'Side Two', side: sideTwo }
   ];
 
-  if (assetUrl) {
-    return (
-      <div className={styles.imagePanel}>
-        {/* Client-supplied photography for this exact configuration. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img key={buildConfigKey(configuration)} src={assetUrl} alt={altText} className={styles.photo} />
-        <div className={styles.zoneCaptions}>
-          {views.map(view => (
-            <Text
-              key={view.key}
-              as="span"
-              className={classNames(styles.zoneCaption, {
-                [styles.zoneCaptionActive]: activeSide === view.key
-              })}
-              text={`${view.label} - ${describeSide(view.side)}`}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.imagePanel}>
-      {/* Both faces of the ring, so the customer sees the full flip. */}
-      {views.map(view => (
-        <div
-          key={view.key}
-          className={classNames(styles.sideView, { [styles.sideViewActive]: activeSide === view.key })}
-        >
-          <SideBands side={view.side} idPrefix={`${uid}-${view.key}`} dimmed={activeSide !== view.key} />
-          <Text
-            as="span"
-            className={classNames(styles.zoneCaption, { [styles.zoneCaptionActive]: activeSide === view.key })}
-            text={`${view.label} - ${describeSide(view.side)}`}
-          />
-        </div>
-      ))}
+      {/* Both faces of the ring, so the customer sees the full flip. Each side shows
+          client photography where we have it, and the generated illustration where
+          we do not - so a part-photographed range still renders cleanly. */}
+      {views.map(view => {
+        const photo = getSideImage(view.side);
+        const isActive = activeSide === view.key;
+
+        return (
+          <div
+            key={view.key}
+            className={classNames(styles.sideView, { [styles.sideViewActive]: isActive })}
+          >
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={buildSideImageKey(view.side)}
+                src={photo}
+                alt={`${view.label} - ${describeSide(view.side)}`}
+                className={styles.photo}
+                style={{ opacity: isActive ? 1 : 0.78, transition: 'opacity 0.25s ease' }}
+              />
+            ) : (
+              <SideBands side={view.side} idPrefix={`${uid}-${view.key}`} dimmed={!isActive} />
+            )}
+            <Text
+              as="span"
+              className={classNames(styles.zoneCaption, { [styles.zoneCaptionActive]: isActive })}
+              text={`${view.label} - ${describeSide(view.side)}`}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

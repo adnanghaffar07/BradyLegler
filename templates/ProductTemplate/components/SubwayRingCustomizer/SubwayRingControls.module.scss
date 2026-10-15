@@ -42,8 +42,6 @@
   align-items: center;
   gap: var(--spacing-2);
   width: 100%;
-  padding-top: var(--spacing-7);
-  border-top: 1px solid var(--customizer-rule);
 }
 
 // Same size as everything else; emphasis comes from weight, not scale.
@@ -191,11 +189,7 @@
 .bandGroup {
   border-bottom: 1px solid var(--customizer-rule);
 
-  // The summary below draws its own top rule. Without this the last band's rule and
-  // the summary's rule sit either side of the panel gap and read as an empty row.
-  &:last-child {
-    border-bottom: none;
-  }
+
 }
 
 .bandHeader {
@@ -252,27 +246,59 @@
 
 // ---------------------------------------------------------------- finishes
 
-.finishGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-4) var(--spacing-5);
+// Finish picker. Deliberately the same centred chip pattern as Metal above - a
+// left-aligned two-column list beside centred chips made the panel read as two
+// unrelated controls. Typography inherits the panel, so nothing here sets its own
+// size: 12px from .controls, weight 300 resting / 500 selected, like every other
+// option in the customizer.
+.finishPicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
   width: 100%;
   padding: 0 0 var(--spacing-7);
 }
 
-.finishButton {
+.finishGroup {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   gap: var(--spacing-4);
+  width: 100%;
+}
+
+.groupLabel {
+  text-transform: uppercase;
+  letter-spacing: var(--customizer-label-tracking);
+  font-weight: 300;
+  color: var(--brand-black-40) !important;
+}
+
+// Every chip is the same width so the rows line up into columns - with ragged
+// widths each centred row started at a different x and the dots never aligned.
+// 88px clears the longest label ("Black Diamond") and fits three per row.
+.chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-5) var(--spacing-4);
+  padding: 0 var(--spacing-4);
+}
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2);
+  width: 88px;
   border: none;
   background: transparent;
-  padding: var(--spacing-2) 0;
   cursor: pointer;
   font: inherit;
   font-weight: 300;
   color: var(--brand-black-70);
-  text-align: left;
   transition: color 0.2s ease;
 
   &:hover {
@@ -280,36 +306,35 @@
   }
 }
 
-// Shared swatch dot - finish grid and band header both use it.
-.dot {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+// Smaller than the metal swatches: there are fifteen of them, and at the metal size
+// the colour dominated the type and read like a paint chart.
+.chipDot {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 1px solid var(--brand-black-40);
   box-shadow: 0 0 0 0 transparent;
   transition: box-shadow 0.2s ease;
 }
 
-// "No Enamel or Stone" reads as an empty setting rather than a colour.
-.dotEmpty {
+// "Plain" is an absence, not a colour.
+.chipDotEmpty {
   background: transparent !important;
   border-style: dashed;
 }
 
-.finishLabel {
-  text-align: left;
-  line-height: var(--customizer-line-height);
+.chipLabel {
+  white-space: nowrap;
 }
 
-.finishSelected {
+.chipSelected {
   color: var(--brand-black);
 
-  .dot {
+  .chipDot {
     box-shadow: 0 0 0 1.5px var(--brand-black);
   }
 
-  .finishLabel {
+  .chipLabel {
     font-weight: 500;
   }
 }
@@ -322,8 +347,6 @@
   align-items: center;
   gap: var(--spacing-5);
   width: 100%;
-  padding-top: var(--spacing-7);
-  border-top: 1px solid var(--customizer-rule);
 }
 
 .summaryRow {

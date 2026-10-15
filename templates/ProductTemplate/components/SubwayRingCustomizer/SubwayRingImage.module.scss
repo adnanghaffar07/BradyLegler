@@ -2,6 +2,12 @@
   // Matches the controls panel and the page chrome.
   --customizer-font-size: 12px;
   --customizer-label-tracking: 0.08em;
+  // Captions sit under the product shots as a quiet annotation, so they run a step
+  // below the panel size rather than matching it.
+  --customizer-caption-size: 10px;
+  // Outline for the selected side. Kept light - at 0.4 the line reads as a hard
+  // black box around the product rather than a soft indication of focus.
+  --customizer-active-outline: rgba(var(--brand-black-rgb), 0.18);
 
   display: flex;
   flex-direction: column;
@@ -10,20 +16,24 @@
   text-align: center;
 }
 
+// White to match the client's studio photography, which is shot on pure white. A
+// tinted panel puts a hard white rectangle inside a grey box; matching it lets the
+// ring sit on the page cleanly. Only the selected side is outlined - the border is
+// transparent (not absent) on the others so switching sides cannot shift layout.
 .sideView {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-5);
   padding: var(--spacing-7) var(--spacing-5);
-  background: #f6f5f2;
+  background: #ffffff;
   border-radius: var(--radius-1);
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
 }
 
 .sideViewActive {
-  border-color: var(--brand-black-40);
+  border-color: var(--customizer-active-outline);
 }
 
 .bands {
@@ -33,10 +43,9 @@
 
 .photo {
   width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  background: #f6f5f2;
-  border-radius: var(--radius-1);
+  aspect-ratio: 420 / 190;
+  object-fit: contain;
+  background: transparent;
 }
 
 .zoneCaptions {
@@ -49,7 +58,7 @@
 }
 
 .zoneCaption {
-  font-size: var(--customizer-font-size) !important;
+  font-size: var(--customizer-caption-size) !important;
   text-align: center;
   color: var(--brand-black-70) !important;
   text-transform: uppercase;

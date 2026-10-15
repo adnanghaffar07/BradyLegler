@@ -11,13 +11,15 @@ import {
   SideConfiguration,
   SIDES,
   METALS,
-  FINISHES,
+  STONE_FINISHES,
+  ENAMEL_FINISHES,
   FINISH_SWATCH,
   METAL_GRADIENT,
   BASE_PRICE,
   METAL_PRICE_MODIFIER,
   FINISH_PRICE_MODIFIER,
-  describeFinish
+  describeFinish,
+  shortFinishLabel
 } from './constants';
 import styles from './SubwayRingControls.module.scss';
 
@@ -66,6 +68,23 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
     { key: 'sideOne', label: 'Side One', side: sideOne },
     { key: 'sideTwo', label: 'Side Two', side: sideTwo }
   ];
+
+  const renderFinishChip = (option: Finish) => (
+    <button
+      key={option}
+      type="button"
+      aria-pressed={option === current.finish}
+      aria-label={describeFinish(option)}
+      className={classNames(styles.chip, { [styles.chipSelected]: option === current.finish })}
+      onClick={() => setFinish(option)}
+    >
+      <span
+        className={classNames(styles.chipDot, { [styles.chipDotEmpty]: option === 'Plain' })}
+        style={{ backgroundColor: FINISH_SWATCH[option] }}
+      />
+      <span className={styles.chipLabel}>{shortFinishLabel(option)}</span>
+    </button>
+  );
 
   return (
     <div className={styles.controls}>
@@ -125,7 +144,7 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
               <span className={styles.bandCurrent}>
                 <span
                   className={classNames(styles.dot, {
-                    [styles.dotEmpty]: current.finish === 'No Enamel or Stone'
+                    [styles.dotEmpty]: current.finish === 'Plain'
                   })}
                   style={{ backgroundColor: FINISH_SWATCH[current.finish] }}
                 />
@@ -144,26 +163,20 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
             </button>
 
             {finishOpen && (
-              <div className={styles.finishGrid} id={`subway-finish-${activeSide}`}>
-                {FINISHES.map(option => (
-                  <button
-                    key={option}
-                    type="button"
-                    aria-pressed={option === current.finish}
-                    className={classNames(styles.finishButton, {
-                      [styles.finishSelected]: option === current.finish
-                    })}
-                    onClick={() => setFinish(option)}
-                  >
-                    <span
-                      className={classNames(styles.dot, {
-                        [styles.dotEmpty]: option === 'No Enamel or Stone'
-                      })}
-                      style={{ backgroundColor: FINISH_SWATCH[option] }}
-                    />
-                    <span className={styles.finishLabel}>{option}</span>
-                  </button>
-                ))}
+              <div className={styles.finishPicker} id={`subway-finish-${activeSide}`}>
+                {/* Same centred chip pattern as Metal above, so the panel reads as
+                    one control rather than two different pickers stacked. */}
+                <div className={styles.chips}>{[renderFinishChip('Plain')]}</div>
+
+                <div className={styles.finishGroup}>
+                  <Text as="span" className={styles.groupLabel} text="Stones" />
+                  <div className={styles.chips}>{STONE_FINISHES.map(renderFinishChip)}</div>
+                </div>
+
+                <div className={styles.finishGroup}>
+                  <Text as="span" className={styles.groupLabel} text="Enamels" />
+                  <div className={styles.chips}>{ENAMEL_FINISHES.map(renderFinishChip)}</div>
+                </div>
               </div>
             )}
           </div>
