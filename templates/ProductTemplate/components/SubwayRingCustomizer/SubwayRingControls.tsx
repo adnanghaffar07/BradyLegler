@@ -149,17 +149,17 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
                   style={{ backgroundColor: FINISH_SWATCH[current.finish] }}
                 />
                 <span className={styles.bandValue}>{describeFinish(current.finish)}</span>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 12 12"
+                  className={classNames(styles.bandIcon, { [styles.bandIconExpanded]: finishOpen })}
+                  aria-hidden="true"
+                >
+                  <line x1="6" y1="0.5" x2="6" y2="11.5" stroke="currentColor" strokeWidth="1.1" />
+                  <line x1="0.5" y1="6" x2="11.5" y2="6" stroke="currentColor" strokeWidth="1.1" />
+                </svg>
               </span>
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 12 12"
-                className={classNames(styles.bandIcon, { [styles.bandIconExpanded]: finishOpen })}
-                aria-hidden="true"
-              >
-                <line x1="6" y1="0.5" x2="6" y2="11.5" stroke="currentColor" strokeWidth="1.1" />
-                <line x1="0.5" y1="6" x2="11.5" y2="6" stroke="currentColor" strokeWidth="1.1" />
-              </svg>
             </button>
 
             {finishOpen && (

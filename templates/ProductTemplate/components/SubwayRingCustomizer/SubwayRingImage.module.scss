@@ -2,9 +2,8 @@
   // Matches the controls panel and the page chrome.
   --customizer-font-size: 12px;
   --customizer-label-tracking: 0.08em;
-  // Captions sit under the product shots as a quiet annotation, so they run a step
-  // below the panel size rather than matching it.
-  --customizer-caption-size: 10px;
+  // One size across the customizer - the captions match everything else.
+  --customizer-caption-size: var(--customizer-font-size);
   // Outline for the selected side. Kept light - at 0.4 the line reads as a hard
   // black box around the product rather than a soft indication of focus.
   --customizer-active-outline: rgba(var(--brand-black-rgb), 0.18);
