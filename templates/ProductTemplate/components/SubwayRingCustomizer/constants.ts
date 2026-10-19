@@ -295,12 +295,14 @@ export const getSideImage = (side: SideConfiguration): string | undefined => {
 // the client before this is treated as settled.
 export const BASE_PRICE = 5975.5;
 
-// Not in the pricing matrix - the sheet covers stones only. Platinum carries the
-// previous placeholder uplift until the client supplies metal pricing.
+// The matrix covers stones only; metal carries no uplift. Platinum inherits white
+// gold pricing per the client, matching the photography fallback where platinum also
+// borrows the white gold shots. Metal therefore does not affect the total - price
+// moves on stones alone.
 export const METAL_PRICE_MODIFIER: Record<Metal, number> = {
   'Yellow Gold': 0,
   'White Gold': 0,
-  Platinum: 800
+  Platinum: 0
 };
 
 export const FINISH_PRICE_MODIFIER: Record<Finish, number> = {
