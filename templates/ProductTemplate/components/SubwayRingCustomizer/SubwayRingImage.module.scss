@@ -17,8 +17,8 @@
 
 // White to match the client's studio photography, which is shot on pure white. A
 // tinted panel puts a hard white rectangle inside a grey box; matching it lets the
-// ring sit on the page cleanly. Only the selected side is outlined - the border is
-// transparent (not absent) on the others so switching sides cannot shift layout.
+// ring sit on the page cleanly. The selected side is not outlined, per the client -
+// focus is carried by the active tab and by the caption emphasis under each shot.
 .sideView {
   display: flex;
   flex-direction: column;
@@ -29,12 +29,6 @@
   padding: var(--spacing-7) 0;
   background: #ffffff;
   border-radius: var(--radius-1);
-}
-
-// Selected side is no longer outlined, per the client. Focus is carried by the
-// active tab and by the caption emphasis under each shot.
-.sideViewActive {
-  /* intentionally empty */
 }
 
 .bands {

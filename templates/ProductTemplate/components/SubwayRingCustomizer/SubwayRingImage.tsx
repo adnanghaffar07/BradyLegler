@@ -56,65 +56,65 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix }) => {
 
   const renderBand = (y: number, keyPrefix: string) => {
     return (
-    <g key={keyPrefix}>
-      <rect x={BAND_X} y={y} width={BAND_WIDTH} height={BAND_HEIGHT} rx={BAND_HEIGHT / 2} fill={`url(#${bandId})`} />
-      <rect
-        x={BAND_X}
-        y={y}
-        width={BAND_WIDTH}
-        height={BAND_HEIGHT}
-        rx={BAND_HEIGHT / 2}
-        fill="none"
-        stroke={band.stroke}
-        strokeWidth="1"
-        opacity="0.4"
-      />
-
-      {kind === 'none' && (
-        <line
-          x1={BAND_X + 40}
-          y1={y + BAND_HEIGHT / 2}
-          x2={BAND_X + BAND_WIDTH - 40}
-          y2={y + BAND_HEIGHT / 2}
+      <g key={keyPrefix}>
+        <rect x={BAND_X} y={y} width={BAND_WIDTH} height={BAND_HEIGHT} rx={BAND_HEIGHT / 2} fill={`url(#${bandId})`} />
+        <rect
+          x={BAND_X}
+          y={y}
+          width={BAND_WIDTH}
+          height={BAND_HEIGHT}
+          rx={BAND_HEIGHT / 2}
+          fill="none"
           stroke={band.stroke}
           strokeWidth="1"
-          opacity="0.25"
+          opacity="0.4"
         />
-      )}
 
-      {kind === 'enamel' && (
-        <>
-          <rect x={BAND_X + 35} y={y + 15} width={BAND_WIDTH - 70} height={28} rx={14} fill={`url(#${finishId})`} />
-          <rect
-            x={BAND_X + 35}
-            y={y + 15}
-            width={BAND_WIDTH - 70}
-            height={28}
-            rx={14}
-            fill="none"
+        {kind === 'none' && (
+          <line
+            x1={BAND_X + 40}
+            y1={y + BAND_HEIGHT / 2}
+            x2={BAND_X + BAND_WIDTH - 40}
+            y2={y + BAND_HEIGHT / 2}
             stroke={band.stroke}
             strokeWidth="1"
-            opacity="0.35"
+            opacity="0.25"
           />
-        </>
-      )}
+        )}
 
-      {kind === 'stone' &&
-        STONE_POSITIONS.map(cx => (
-          <g key={`${keyPrefix}-stone-${cx}`}>
-            <circle cx={cx} cy={y + BAND_HEIGHT / 2} r="15" fill={`url(#${finishId})`} />
-            <circle
-              cx={cx}
-              cy={y + BAND_HEIGHT / 2}
-              r="15"
+        {kind === 'enamel' && (
+          <>
+            <rect x={BAND_X + 35} y={y + 15} width={BAND_WIDTH - 70} height={28} rx={14} fill={`url(#${finishId})`} />
+            <rect
+              x={BAND_X + 35}
+              y={y + 15}
+              width={BAND_WIDTH - 70}
+              height={28}
+              rx={14}
               fill="none"
               stroke={band.stroke}
               strokeWidth="1"
-              opacity="0.3"
+              opacity="0.35"
             />
-            <circle cx={cx - 8} cy={y + BAND_HEIGHT / 2 - 7} r="3.4" fill="#FFFFFF" opacity="0.85" />
-          </g>
-        ))}
+          </>
+        )}
+
+        {kind === 'stone' &&
+          STONE_POSITIONS.map(cx => (
+            <g key={`${keyPrefix}-stone-${cx}`}>
+              <circle cx={cx} cy={y + BAND_HEIGHT / 2} r="15" fill={`url(#${finishId})`} />
+              <circle
+                cx={cx}
+                cy={y + BAND_HEIGHT / 2}
+                r="15"
+                fill="none"
+                stroke={band.stroke}
+                strokeWidth="1"
+                opacity="0.3"
+              />
+              <circle cx={cx - 8} cy={y + BAND_HEIGHT / 2 - 7} r="3.4" fill="#FFFFFF" opacity="0.85" />
+            </g>
+          ))}
       </g>
     );
   };
@@ -145,23 +145,30 @@ const SideBands: React.FC<SideBandsProps> = ({ side, idPrefix }) => {
       </defs>
 
       <g transform={`translate(${OFFSET_X}, ${OFFSET_Y})`}>
-      <g filter={`url(#${shadowId})`}>
-        {/* Bridge joining the two bands, drawn first so the bands sit over it. */}
-        <rect x="190" y={TOP_BAND_Y + BAND_HEIGHT - 6} width="40" height={BOTTOM_BAND_Y - TOP_BAND_Y - BAND_HEIGHT + 12} rx="5" fill={band.mid} />
-        <rect
-          x="190"
-          y={TOP_BAND_Y + BAND_HEIGHT - 6}
-          width="40"
-          height={BOTTOM_BAND_Y - TOP_BAND_Y - BAND_HEIGHT + 12}
-          rx="5"
-          fill="none"
-          stroke={band.stroke}
-          strokeWidth="1"
-          opacity="0.4"
-        />
-        {renderBand(TOP_BAND_Y, 'top')}
-        {renderBand(BOTTOM_BAND_Y, 'bottom')}
-      </g>
+        <g filter={`url(#${shadowId})`}>
+          {/* Bridge joining the two bands, drawn first so the bands sit over it. */}
+          <rect
+            x="190"
+            y={TOP_BAND_Y + BAND_HEIGHT - 6}
+            width="40"
+            height={BOTTOM_BAND_Y - TOP_BAND_Y - BAND_HEIGHT + 12}
+            rx="5"
+            fill={band.mid}
+          />
+          <rect
+            x="190"
+            y={TOP_BAND_Y + BAND_HEIGHT - 6}
+            width="40"
+            height={BOTTOM_BAND_Y - TOP_BAND_Y - BAND_HEIGHT + 12}
+            rx="5"
+            fill="none"
+            stroke={band.stroke}
+            strokeWidth="1"
+            opacity="0.4"
+          />
+          {renderBand(TOP_BAND_Y, 'top')}
+          {renderBand(BOTTOM_BAND_Y, 'bottom')}
+        </g>
       </g>
     </svg>
   );
@@ -259,16 +266,9 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
         const isActive = activeSide === view.key;
 
         return (
-          <div
-            key={view.key}
-            className={classNames(styles.sideView, { [styles.sideViewActive]: isActive })}
-          >
+          <div key={view.key} className={styles.sideView}>
             {photo ? (
-              <SideImage
-                src={photo}
-                alt={`${view.label} - ${describeSide(view.side)}`}
-                className={styles.photo}
-              />
+              <SideImage src={photo} alt={`${view.label} - ${describeSide(view.side)}`} className={styles.photo} />
             ) : (
               <SideBands side={view.side} idPrefix={`${uid}-${view.key}`} />
             )}

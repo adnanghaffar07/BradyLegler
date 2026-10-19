@@ -106,12 +106,7 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
         ))}
       </div>
 
-      <div
-        className={styles.panel}
-        role="tabpanel"
-        id="subway-side-panel"
-        aria-labelledby={`subway-tab-${activeSide}`}
-      >
+      <div className={styles.panel} role="tabpanel" id="subway-side-panel" aria-labelledby={`subway-tab-${activeSide}`}>
         <div className={styles.metalGroup}>
           <Text as="span" className={styles.sectionLabel} text="Metal" />
           <div className={styles.metalOptions}>
@@ -142,12 +137,6 @@ const SubwayRingControls: React.FC<SubwayRingControlsProps> = ({
             >
               <span className={styles.bandLabel}>Stone or Enamel</span>
               <span className={styles.bandCurrent}>
-                <span
-                  className={classNames(styles.dot, {
-                    [styles.dotEmpty]: current.finish === 'Plain'
-                  })}
-                  style={{ backgroundColor: FINISH_SWATCH[current.finish] }}
-                />
                 <span className={styles.bandValue}>{describeFinish(current.finish)}</span>
                 <svg
                   width="11"
