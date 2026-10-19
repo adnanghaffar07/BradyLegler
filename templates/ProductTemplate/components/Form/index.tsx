@@ -34,6 +34,11 @@ type FormProps = {
   showSizeChartLink?: boolean;
   isRing?: boolean;
   hidePrice?: boolean;
+  /**
+   * Made-to-order configuration recorded against the cart line, so the shopper and
+   * whoever fulfils the order can both see exactly what was built.
+   */
+  cartLineAttributes?: { key: string; value: string }[];
 };
 
 const Form: React.FC<FormProps> = ({
@@ -43,7 +48,8 @@ const Form: React.FC<FormProps> = ({
   onOpenSizeGuide,
   showSizeChartLink = false,
   isRing = false,
-  hidePrice = false
+  hidePrice = false,
+  cartLineAttributes
 }) => {
   const product = sanityProductData?.store;
   const variants = useMemo(
@@ -200,7 +206,7 @@ const Form: React.FC<FormProps> = ({
 
   const trackSuccessfulAddToCart = async (variant: VariantType) => {
     try {
-      await addToCart(variant.gid, 1);
+      await addToCart(variant.gid, 1, cartLineAttributes);
 
       metaTrackAddToCart({
         content_ids: [variant.gid],

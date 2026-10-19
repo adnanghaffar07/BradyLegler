@@ -21,7 +21,8 @@ import {
   SideConfiguration,
   DEFAULT_METAL,
   DEFAULT_SIDE_ONE_FINISH,
-  DEFAULT_SIDE_TWO_FINISH
+  DEFAULT_SIDE_TWO_FINISH,
+  buildCartAttributes
 } from '../SubwayRingCustomizer/constants';
 import styles from './styles.module.scss';
 
@@ -183,6 +184,11 @@ const Details: React.FC<DetailsProps> = ({
                 showSizeChartLink={hasSizeGuide}
                 isRing={isRing}
                 hidePrice={isCustomizable}
+                cartLineAttributes={
+                  isCustomizable
+                    ? buildCartAttributes({ sideOne: sideOneConfig, sideTwo: sideTwoConfig })
+                    : undefined
+                }
               />
             </div>
           </div>

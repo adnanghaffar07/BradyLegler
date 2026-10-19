@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { createCart, retrieveCart, addToCart, updateCart } from '@/tools/apis/shopify';
+import type { CartLineAttribute } from '@/tools/apis/shopify';
 
 type CartStore = {
   cart: any;
@@ -12,7 +13,8 @@ type CartStore = {
   toggleCart: () => void;
   isAdding: boolean;
   isUpdating: boolean;
-  addToCart: (variantId: string, quantity: number) => void;
+  /** `attributes` records a made-to-order configuration against the cart line. */
+  addToCart: (variantId: string, quantity: number, attributes?: CartLineAttribute[]) => void;
   updateCart: (variantId: string, quantity: number) => void;
 };
 
@@ -31,19 +33,19 @@ export const useCart = create(
       toggleCart: () => set(state => ({ cartOpen: !state.cartOpen })),
       isAdding: false,
       isUpdating: false,
-      addToCart: async (variantId, quantity) => {
+      addToCart: async (variantId, quantity, attributes) => {
         let cartId = get().cartId;
         set({ isUpdating: true });
         set({ isAdding: true });
         if (cartId) {
-          await addToCart(cartId, variantId, quantity);
+          await addToCart(cartId, variantId, quantity, attributes);
           const cart = await retrieveCart(cartId);
           // If cart retrieval fails, the cart no longer exists (e.g., after checkout)
           // Clear the bad cartId and create a new cart
           if (!cart) {
             sessionStorage.removeItem('cartId');
             set({ cartId: null });
-            const newCart = await createCart(variantId, quantity);
+            const newCart = await createCart(variantId, quantity, attributes);
             const newCartId = newCart?.id;
             if (newCartId) {
               const retrievedCart = await retrieveCart(newCartId);
@@ -55,7 +57,7 @@ export const useCart = create(
             set({ cart });
           }
         } else {
-          const newCart = await createCart(variantId, quantity);
+          const newCart = await createCart(variantId, quantity, attributes);
           const newCartId = newCart?.id;
           if (newCartId) {
             const cart = await retrieveCart(newCartId);

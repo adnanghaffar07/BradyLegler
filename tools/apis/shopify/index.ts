@@ -22,7 +22,18 @@ type ShopifyCartCreateResponse = {
 
 export type CreateCartResponse = ShopifyCartCreateResponse['cartCreate']['cart'] | null;
 
-export const createCart = async (itemId: string, quantity: number): Promise<CreateCartResponse> => {
+/**
+ * Shopify line-item attributes. Recorded against the cart line and carried through
+ * to checkout and the order, so a made-to-order configuration is visible to the
+ * customer and to whoever fulfils it.
+ */
+export type CartLineAttribute = { key: string; value: string };
+
+export const createCart = async (
+  itemId: string,
+  quantity: number,
+  attributes?: CartLineAttribute[]
+): Promise<CreateCartResponse> => {
   const createCartMutation = gql`
     mutation createCart($cartInput: CartInput) {
       cartCreate(input: $cartInput) {
@@ -38,7 +49,8 @@ export const createCart = async (itemId: string, quantity: number): Promise<Crea
       lines: [
         {
           quantity: quantity,
-          merchandiseId: itemId
+          merchandiseId: itemId,
+          ...(attributes?.length ? { attributes } : {})
         }
       ]
     }
@@ -65,7 +77,12 @@ type ShopifyCartLinesAddResponse = {
 
 export type AddToCartResponse = ShopifyCartLinesAddResponse['cartLinesAdd']['cart'] | null;
 
-export const addToCart = async (cartId: string, variantId: string, quantity: number): Promise<AddToCartResponse> => {
+export const addToCart = async (
+  cartId: string,
+  variantId: string,
+  quantity: number,
+  attributes?: CartLineAttribute[]
+): Promise<AddToCartResponse> => {
   const addToCartMutation = gql`
     mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
       cartLinesAdd(cartId: $cartId, lines: $lines) {
@@ -80,7 +97,8 @@ export const addToCart = async (cartId: string, variantId: string, quantity: num
     lines: [
       {
         quantity: quantity,
-        merchandiseId: variantId
+        merchandiseId: variantId,
+        ...(attributes?.length ? { attributes } : {})
       }
     ]
   };

@@ -277,10 +277,26 @@ export const getSideImage = (side: SideConfiguration): string | undefined => {
 
 // ---------------------------------------------------------------- pricing
 
-// Placeholder figures - the client has not supplied final pricing. Clearly labelled
-// as illustrative in the UI.
-export const BASE_PRICE = 6250;
+// Pricing from the client's "Customizable Stone Pricing Matrix" (Oct 2026).
+//
+// CONFIRMED BY THE CLIENT: these are RETAIL figures, not cost - they are added to
+// the base price as-is, with no markup applied anywhere in this file.
+//
+// The matrix is additive per side: the quoted combo price is always the sum of the
+// two sides' stone prices, with enamel costing nothing. Verified against all 14
+// combo rows in the sheet - every one matches - so the per-side modifiers below
+// reproduce the sheet exactly.
+//
+// Stone prices are for the 51 x 1.2mm round setting on one side of the ring.
 
+// Derived, not supplied: the matrix prices stones only. 5975.50 + Diamond (274.50)
+// = $6,250.00, which is what the Yellow Gold / White Enamel / Diamond SKU sells for
+// in Shopify today - the one configuration that can be cross-checked. Confirm with
+// the client before this is treated as settled.
+export const BASE_PRICE = 5975.5;
+
+// Not in the pricing matrix - the sheet covers stones only. Platinum carries the
+// previous placeholder uplift until the client supplies metal pricing.
 export const METAL_PRICE_MODIFIER: Record<Metal, number> = {
   'Yellow Gold': 0,
   'White Gold': 0,
@@ -288,21 +304,32 @@ export const METAL_PRICE_MODIFIER: Record<Metal, number> = {
 };
 
 export const FINISH_PRICE_MODIFIER: Record<Finish, number> = {
+  // No stones set - no stone cost.
   Plain: 0,
-  Diamond: 1200,
-  'Black Diamond': 1100,
-  'Blue Sapphire': 950,
-  'Pink Sapphire': 950,
-  Emerald: 1000,
-  Ruby: 900,
-  'Aqua Marine': 850,
-  'White Enamel': 450,
-  'Black Enamel': 450,
-  'Blue Enamel': 450,
-  'Hot Pink Enamel': 450,
-  'Teal Enamel': 450,
-  'Red Enamel': 450,
-  'Coral Enamel': 450
+
+  // Priced directly from the matrix.
+  Diamond: 274.5,
+  Emerald: 320,
+  Ruby: 250,
+  // The sheet prices sapphire as one line covering "Blue, Pink, Yellow".
+  'Blue Sapphire': 250,
+  'Pink Sapphire': 250,
+
+  // NOT IN THE CLIENT'S MATRIX - interim figures pending their numbers. Both are set
+  // to their nearest priced relative so the configurator cannot under-quote: black
+  // diamond takes the diamond price, aqua marine the sapphire price. Real stones in
+  // both cases usually sit below those, so these are deliberate over-estimates.
+  'Black Diamond': 274.5,
+  'Aqua Marine': 250,
+
+  // Enamel adds nothing - confirmed by every "X/Enamel" row in the matrix.
+  'White Enamel': 0,
+  'Black Enamel': 0,
+  'Blue Enamel': 0,
+  'Hot Pink Enamel': 0,
+  'Teal Enamel': 0,
+  'Red Enamel': 0,
+  'Coral Enamel': 0
 };
 
 // ---------------------------------------------------------------- appearance
@@ -359,6 +386,35 @@ export const describeFinish = (finish: Finish): string =>
 /** Short label for the picker, where the group heading supplies the context. */
 export const shortFinishLabel = (finish: Finish): string =>
   FINISH_KIND[finish] === 'enamel' ? finish.replace(' Enamel', '') : finish;
+
+/**
+ * Shopify line-item attributes describing a configuration.
+ *
+ * These ride along with the cart line and appear in the cart, at checkout and on the
+ * order, so the shopper sees what they built and fulfilment knows what to make.
+ *
+ * NOTE: attributes are descriptive only - Shopify still charges the variant's own
+ * price. The configured total shown in the UI is NOT what gets charged. Charging a
+ * configured price needs a separate mechanism (draft orders, a Shopify Function, or
+ * per-configuration variants).
+ */
+export const buildCartAttributes = (
+  configuration: RingConfiguration,
+  configuredPrice?: string
+): { key: string; value: string }[] => {
+  const attributes = [
+    { key: 'Metal', value: configuration.sideOne.metal },
+    { key: 'Side One', value: describeFinish(configuration.sideOne.finish) },
+    { key: 'Side Two', value: describeFinish(configuration.sideTwo.finish) },
+    { key: 'Configuration SKU', value: buildSku(configuration) }
+  ];
+
+  if (configuredPrice) {
+    attributes.push({ key: 'Configured Price', value: configuredPrice });
+  }
+
+  return attributes;
+};
 
 /** Human-readable description of one side, for the final product display. */
 export const describeSide = ({ metal, finish }: SideConfiguration): string =>
