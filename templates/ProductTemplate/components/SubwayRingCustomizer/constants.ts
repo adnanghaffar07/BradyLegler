@@ -239,7 +239,19 @@ const AVAILABLE_SIDE_IMAGES = new Set<string>([
   'yellow-gold-diamond',
   'yellow-gold-white-enamel',
   'white-gold-diamond',
-  'white-gold-black-enamel'
+  'white-gold-black-enamel',
+  // Final batch from the client (Oct 2026) - completes every metal/finish pair, so
+  // nothing in yellow or white gold falls back to the illustration any more. The two
+  // Plain shots come from a different render pass than the rest: flatter camera angle,
+  // no engraving, and the yellow one reads a paler, greener gold (hue 52 against 37-38
+  // across every other yellow gold shot). Re-framed here to match the set's scale;
+  // matched re-renders have been requested.
+  'yellow-gold-plain',
+  'yellow-gold-black-enamel',
+  'white-gold-plain',
+  'white-gold-black-diamond',
+  'white-gold-aqua-marine',
+  'white-gold-white-enamel'
 ]);
 
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -317,11 +329,11 @@ export const FINISH_PRICE_MODIFIER: Record<Finish, number> = {
   'Blue Sapphire': 250,
   'Pink Sapphire': 250,
 
-  // NOT IN THE CLIENT'S MATRIX - interim figures pending their numbers. Both are set
-  // to their nearest priced relative so the configurator cannot under-quote: black
-  // diamond takes the diamond price, aqua marine the sapphire price. Real stones in
-  // both cases usually sit below those, so these are deliberate over-estimates.
-  'Black Diamond': 274.5,
+  // Confirmed by the client (Oct 2026): black diamond is priced the same as sapphire.
+  'Black Diamond': 250,
+
+  // STILL OUTSTANDING - the client has not given an aqua marine figure yet. Held at
+  // the sapphire price so the configurator cannot under-quote; replace on confirmation.
   'Aqua Marine': 250,
 
   // Enamel adds nothing - confirmed by every "X/Enamel" row in the matrix.
