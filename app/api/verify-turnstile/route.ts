@@ -34,10 +34,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!isEnforcementEnabled()) {
-      console.warn('[turnstile] enforcement disabled - issuing marker without verifying');
-      return NextResponse.json({ status: 'verified', marker: issueMarker() });
-    }
+    // Verification always runs; TURNSTILE_ENFORCE decides only whether a failure
+    // stops the signup. See the note in /api/form - monitor mode has to produce real
+    // siteverify data, otherwise the observation period proves nothing.
+    const enforcing = isEnforcementEnabled();
 
     const { token }: Payload = await req.json().catch(() => ({}));
 
@@ -57,7 +57,16 @@ export async function POST(req: NextRequest) {
     }
 
     if (result.outcome === 'fail') {
-      console.warn(`[turnstile] rejected token (${result.codes.join(', ') || 'no codes'}) from ${ip}`);
+      const codes = result.codes.join(', ') || 'no codes';
+
+      if (!enforcing) {
+        console.warn(
+          `[turnstile] MONITOR MODE - would have rejected token (${codes}) from ${ip}; allowing because TURNSTILE_ENFORCE=false`
+        );
+        return NextResponse.json({ status: 'verified', marker: issueMarker() });
+      }
+
+      console.warn(`[turnstile] rejected token (${codes}) from ${ip}`);
       return NextResponse.json({ status: 'rejected' }, { status: 403 });
     }
 

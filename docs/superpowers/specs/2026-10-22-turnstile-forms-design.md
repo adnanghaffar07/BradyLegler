@@ -145,17 +145,25 @@ window.
 | Widget failed to load; client sent `_turnstileUnavailable` | **Allow**, log at warn level | Ad-blockers and privacy extensions sometimes block `challenges.cloudflare.com`. Rejecting here would silently block genuine, privacy-conscious customers. The flag is client-supplied and therefore forgeable — but forging it only returns an attacker to the honeypot, timing and rate-limit floor that already exists today, so it is no worse than the pre-Turnstile position. Monitor the rate: a sharp rise means either an extension update or an attacker discovering the flag. |
 | Cloudflare returns a failure | **Reject**, respond as success to the client | Telling a bot which signal caught it helps it tune. Matches existing honeypot behaviour. |
 | Cloudflare unreachable, times out, or returns a malformed body | **Allow**, log at error level | The submission carries a real token; we could not reach the verifier. Blocking genuine enquiries over someone else's outage is the worse failure. Honeypot, timing and rate limiting still apply. |
-| `TURNSTILE_ENFORCE` is `false` | **Allow**, log at warn level | Kill switch. |
+| `TURNSTILE_ENFORCE` is `false` | **Verify anyway**, allow, log `MONITOR MODE` | Observation period still has to produce real siteverify data. |
 | Secret key missing from the environment | **Allow**, log at error level | A misconfigured deploy must not take the forms down. |
 
 Timeout on the siteverify call: 5 seconds. Beyond that it is treated as `unavailable`.
 
-### Kill switch
+### Enforcement switch and monitor mode
 
-`TURNSTILE_ENFORCE` defaults to enabled. Setting it to `false` in Vercel disables
-enforcement without a redeploy. The widget still renders and tokens are still
-collected and logged, so the switch changes only whether a failed verification blocks
-a submission.
+`TURNSTILE_ENFORCE` defaults to enabled. Setting it to `false` in Vercel takes effect
+without a redeploy.
+
+Crucially, `false` does **not** skip verification. Every submission is still verified
+against Cloudflare and every outcome is still logged - the flag decides only whether a
+failure rejects the submission. A rejection that monitor mode allows through is logged
+as `MONITOR MODE - would have rejected (...)`.
+
+This matters because the point of the observation period is to learn whether the
+server path works on real traffic. Skipping verification would leave Cloudflare
+reporting the widget as unvalidated, produce no valid/invalid token data, and defer
+every possible server-side problem to the exact moment enforcement is switched on.
 
 ## Configuration
 
