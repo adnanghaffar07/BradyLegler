@@ -56,8 +56,6 @@ const Form = (props: FormProps) => {
         await onSubmit({ ...values, _elapsedMs: Date.now() - renderedAtRef.current, ...turnstileFields }, methods);
       }
 
-      // Tokens are single-use, so the next submission needs a fresh one.
-      turnstile.reset();
       setIsSubmitting(false);
     },
     [onSubmit, methods, turnstile]
@@ -68,7 +66,7 @@ const Form = (props: FormProps) => {
     <FormProvider {...methods}>
       <form id={formId} onSubmit={methods.handleSubmit(onSubmitHandler)} className={classes}>
         <FieldBotCheck register={methods?.register} />
-        <FieldTurnstile containerRef={turnstile.containerRef} />
+        <FieldTurnstile containerRef={turnstile.containerRef} pending={turnstile.pending} />
         {Children.map(Children.toArray(children), child => {
           if (isValidElement(child))
             return cloneElement(child, {

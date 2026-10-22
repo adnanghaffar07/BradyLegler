@@ -9,8 +9,10 @@ import styles from './styles.module.scss';
  * Rendered alongside the `_gotcha` honeypot in <Form>, and wired explicitly into
  * ContactSidebar, which uses a plain <form>.
  *
- * The widget is "interaction-only": it verifies silently for virtually every genuine
- * visitor and only becomes visible when Cloudflare decides a challenge is warranted.
+ * The widget is visible on the form from the moment it loads. Cloudflare solves it
+ * silently for most genuine visitors - they see a brief tick - and shows a challenge
+ * to the rest. Either way it is dealt with BEFORE the customer presses submit, rather
+ * than appearing afterwards, which is confusing and leaves the challenge unanswered.
  *
  * It must never block a submission on its own. Ad-blockers and privacy extensions do
  * block challenges.cloudflare.com, and a customer who cannot load the script is far
@@ -24,8 +26,18 @@ const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render
 /** Give a blocked or slow script this long before giving up on it. */
 const LOAD_TIMEOUT_MS = 10_000;
 
-/** At submit time, wait this long for a challenge still in flight. */
-const PENDING_TOKEN_WAIT_MS = 2_500;
+/**
+ * How long a token may be reused before it is reminted. Turnstile tokens expire after
+ * 300s; staying well inside that avoids submitting one that died while the tab sat in
+ * the background, which siteverify reports as `invalid-input-response`.
+ */
+const MAX_TOKEN_AGE_MS = 90_000;
+
+/**
+ * How long to wait for a challenge at submit time. Generous on purpose: if Cloudflare
+ * asks this visitor to interact, a human needs time to notice the widget and click it.
+ */
+const CHALLENGE_WAIT_MS = 45_000;
 
 declare global {
   interface Window {
@@ -84,10 +96,13 @@ export type TurnstileHandle = {
    * would run while `.current` was still null and silently never render the widget.
    */
   containerRef: (element: HTMLDivElement | null) => void;
-  /** Fields to merge into the submitted payload. Never rejects. */
+  /**
+   * Fields to merge into the submitted payload, carrying a token minted seconds ago.
+   * Waits for an interactive challenge if Cloudflare asks for one. Never rejects.
+   */
   getFields: () => Promise<TurnstileFields>;
-  /** Tokens are single-use - reset after every submission. */
-  reset: () => void;
+  /** True while a challenge is in flight, so the form can say why it is waiting. */
+  pending: boolean;
 };
 
 /**
@@ -98,9 +113,19 @@ export type TurnstileHandle = {
 export const useTurnstile = (action?: string): TurnstileHandle => {
   // State, not a ref, so attaching the element re-runs the effect below.
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [pending, setPending] = useState(false);
   const tokenRef = useRef<string | null>(null);
+  const tokenAtRef = useRef(0);
   const unavailableRef = useRef(false);
   const widgetIdRef = useRef<string | null>(null);
+  /** Resolvers waiting on the next challenge outcome. */
+  const waitersRef = useRef<((token: string | null) => void)[]>([]);
+
+  const settle = (token: string | null) => {
+    const waiters = waitersRef.current;
+    waitersRef.current = [];
+    waiters.forEach(resolve => resolve(token));
+  };
 
   useEffect(() => {
     if (!container) return;
@@ -121,15 +146,18 @@ export const useTurnstile = (action?: string): TurnstileHandle => {
 
         widgetIdRef.current = window.turnstile.render(container, {
           sitekey: siteKey,
-          appearance: 'interaction-only',
+          appearance: 'always',
           ...(action ? { action } : {}),
           callback: (token: string) => {
             tokenRef.current = token;
+            tokenAtRef.current = Date.now();
             unavailableRef.current = false;
+            settle(token);
           },
           'error-callback': () => {
             tokenRef.current = null;
             unavailableRef.current = true;
+            settle(null);
           },
           'expired-callback': () => {
             tokenRef.current = null;
@@ -137,11 +165,15 @@ export const useTurnstile = (action?: string): TurnstileHandle => {
         });
       })
       .catch(() => {
-        if (!cancelled) unavailableRef.current = true;
+        if (!cancelled) {
+          unavailableRef.current = true;
+          settle(null);
+        }
       });
 
     return () => {
       cancelled = true;
+      settle(null);
       if (widgetIdRef.current && window.turnstile) {
         try {
           window.turnstile.remove(widgetIdRef.current);
@@ -153,42 +185,81 @@ export const useTurnstile = (action?: string): TurnstileHandle => {
     };
   }, [container, action]);
 
+  /** Start a fresh challenge and wait for its outcome. */
+  const mintToken = useCallback((): Promise<string | null> => {
+    if (!widgetIdRef.current || !window.turnstile) return Promise.resolve(null);
+
+    return new Promise<string | null>(resolve => {
+      const timer = setTimeout(() => {
+        waitersRef.current = waitersRef.current.filter(w => w !== onSettled);
+        resolve(null);
+      }, CHALLENGE_WAIT_MS);
+
+      const onSettled = (token: string | null) => {
+        clearTimeout(timer);
+        resolve(token);
+      };
+
+      waitersRef.current.push(onSettled);
+
+      try {
+        tokenRef.current = null;
+        window.turnstile!.reset(widgetIdRef.current!);
+      } catch {
+        clearTimeout(timer);
+        waitersRef.current = waitersRef.current.filter(w => w !== onSettled);
+        resolve(null);
+      }
+    });
+  }, []);
+
   const getFields = useCallback(async (): Promise<TurnstileFields> => {
-    if (tokenRef.current) return { _turnstileToken: tokenRef.current };
     if (unavailableRef.current) return { _turnstileUnavailable: true };
 
-    // Rendered but not solved yet. Give the challenge a moment rather than reporting
-    // a working widget as unavailable and weakening the check for no reason.
-    const deadline = Date.now() + PENDING_TOKEN_WAIT_MS;
-    while (Date.now() < deadline) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      if (tokenRef.current) return { _turnstileToken: tokenRef.current };
-      if (unavailableRef.current) break;
+    // A token minted moments ago is still good. Anything older is reminted rather
+    // than risked: Turnstile tokens expire after 300s, and `expired-callback` cannot
+    // be relied on to fire while a tab is backgrounded and its timers are throttled.
+    //
+    // It is consumed on the way out. Tokens are single-use, so handing the same one
+    // to a second submission would fail siteverify as `timeout-or-duplicate` - a
+    // retry after a failed submit has to carry a genuinely new token.
+    const age = Date.now() - tokenAtRef.current;
+    if (tokenRef.current && age < MAX_TOKEN_AGE_MS) {
+      const token = tokenRef.current;
+      tokenRef.current = null;
+      return { _turnstileToken: token };
     }
 
-    return { _turnstileUnavailable: true };
-  }, []);
-
-  const reset = useCallback(() => {
-    tokenRef.current = null;
-    if (widgetIdRef.current && window.turnstile) {
-      try {
-        window.turnstile.reset(widgetIdRef.current);
-      } catch {
-        // Nothing usable to reset.
-      }
+    // Otherwise run a fresh challenge and wait for it properly. If Cloudflare decides
+    // this visitor needs to interact, the widget becomes visible and we wait for them
+    // - giving up early here is what previously let a challenge be bypassed.
+    setPending(true);
+    try {
+      const token = await mintToken();
+      // Consumed here too: the solve callback stores it, and leaving it there would
+      // let the next submission resend a token this one has already spent.
+      tokenRef.current = null;
+      return token ? { _turnstileToken: token } : { _turnstileUnavailable: true };
+    } finally {
+      setPending(false);
     }
-  }, []);
+  }, [mintToken]);
 
   // Stable identity: <Form> lists this handle in a useCallback dependency array, so a
   // fresh object each render would rebuild its submit handler on every keystroke.
-  return useMemo(() => ({ containerRef: setContainer, getFields, reset }), [setContainer, getFields, reset]);
+  return useMemo(() => ({ containerRef: setContainer, getFields, pending }), [setContainer, getFields, pending]);
 };
 
-type FieldTurnstileProps = { containerRef: (element: HTMLDivElement | null) => void };
+type FieldTurnstileProps = {
+  containerRef: (element: HTMLDivElement | null) => void;
+  pending?: boolean;
+};
 
-const FieldTurnstile = ({ containerRef }: FieldTurnstileProps) => (
-  <div ref={containerRef} className={styles.container} />
+const FieldTurnstile = ({ containerRef, pending }: FieldTurnstileProps) => (
+  <div className={styles.wrapper}>
+    <div ref={containerRef} className={styles.container} />
+    {pending && <span className={styles.pending}>Checking your browser...</span>}
+  </div>
 );
 
 export default FieldTurnstile;

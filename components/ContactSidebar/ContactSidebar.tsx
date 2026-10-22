@@ -120,8 +120,6 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
         message: error.message || 'Failed to submit your enquiry. Please try again.'
       });
     } finally {
-      // Tokens are single-use, so a retry needs a fresh one.
-      turnstile.reset();
       setIsSubmitting(false);
       setTimeout(() => setSubmitStatus(null), 5000);
     }
@@ -377,7 +375,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  <FieldTurnstile containerRef={turnstile.containerRef} />
+                  <FieldTurnstile containerRef={turnstile.containerRef} pending={turnstile.pending} />
                   <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
                     {isSubmitting ? 'Sending...' : 'Send'}
                   </button>

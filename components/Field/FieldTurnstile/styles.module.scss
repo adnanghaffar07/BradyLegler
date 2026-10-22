@@ -1,6 +1,18 @@
 // Interaction-only mode keeps the widget collapsed unless Cloudflare decides a
 // challenge is needed, so this is usually a zero-height element. It only takes up
 // space on the rare occasion a visitor has to interact with it.
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+
+  &:empty {
+    display: none;
+  }
+}
+
 .container {
   display: flex;
   justify-content: center;
@@ -14,4 +26,13 @@
   iframe {
     max-width: 100%;
   }
+}
+
+// Shown only while a challenge is in flight, so a submit that is waiting on
+// Cloudflare does not look like a frozen button.
+.pending {
+  font-size: 12px;
+  font-weight: 300;
+  text-align: center;
+  opacity: 0.7;
 }
