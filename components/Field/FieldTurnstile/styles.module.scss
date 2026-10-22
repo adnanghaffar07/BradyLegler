@@ -1,0 +1,17 @@
+// Interaction-only mode keeps the widget collapsed unless Cloudflare decides a
+// challenge is needed, so this is usually a zero-height element. It only takes up
+// space on the rare occasion a visitor has to interact with it.
+.container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  &:empty {
+    display: none;
+  }
+
+  // The widget renders in an iframe of its own; keep it inside narrow panels.
+  iframe {
+    max-width: 100%;
+  }
+}

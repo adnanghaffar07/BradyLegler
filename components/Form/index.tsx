@@ -2,6 +2,7 @@ import { Children, cloneElement, isValidElement, useCallback, useRef, useState }
 import { useForm, FormProvider, UseFormReturn } from 'react-hook-form';
 import classNames from '@/helpers/classNames';
 import FieldBotCheck from '../Field/FieldBotCheck';
+import FieldTurnstile, { useTurnstile } from '../Field/FieldTurnstile';
 import styles from './styles.module.scss';
 
 type FormProps = {
@@ -37,15 +38,29 @@ const Form = (props: FormProps) => {
   // How long the form was on screen before submission. Passed through to callers so
   // the server can reject implausibly fast (scripted) submissions.
   const renderedAtRef = useRef(Date.now());
+  const turnstile = useTurnstile();
 
   const onSubmitHandler = useCallback(
     async (values: any) => {
       if (values._gotcha) return;
       setIsSubmitting(true);
-      if (onSubmit) await onSubmit({ ...values, _elapsedMs: Date.now() - renderedAtRef.current }, methods);
+
+      // Either a Turnstile token or a flag saying the widget could not run. Never
+      // blocks submission on its own - the server decides what each one means.
+      const turnstileFields = await turnstile.getFields();
+
+      if (onSubmit) {
+        await onSubmit(
+          { ...values, _elapsedMs: Date.now() - renderedAtRef.current, ...turnstileFields },
+          methods
+        );
+      }
+
+      // Tokens are single-use, so the next submission needs a fresh one.
+      turnstile.reset();
       setIsSubmitting(false);
     },
-    [onSubmit, methods]
+    [onSubmit, methods, turnstile]
   );
 
   const classes = classNames(styles.form, styles[`theme_${theme}`], styles[`layout_${layout}`], className);
@@ -53,6 +68,7 @@ const Form = (props: FormProps) => {
     <FormProvider {...methods}>
       <form id={formId} onSubmit={methods.handleSubmit(onSubmitHandler)} className={classes}>
         <FieldBotCheck register={methods?.register} />
+        <FieldTurnstile containerRef={turnstile.containerRef} />
         {Children.map(Children.toArray(children), child => {
           if (isValidElement(child))
             return cloneElement(child, {

@@ -7,6 +7,7 @@ import { lockBodyScroll, unlockBodyScroll } from '@/lib/bodyScrollLock';
 import { setMetaUserData, trackLead } from '@/lib/meta';
 import { identify } from '@/tools/klaviyo/client';
 import { useAnalytics } from '@/tools/analytics';
+import FieldTurnstile, { useTurnstile } from '@/components/Field/FieldTurnstile';
 import styles from './ContactSidebar.module.scss';
 
 interface ContactSidebarProps {
@@ -39,6 +40,8 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     message: string;
   } | null>(null);
   const { trackGenerateLead } = useAnalytics();
+  // This form uses a plain <form>, not the shared <Form>, so Turnstile is wired here.
+  const turnstile = useTurnstile();
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -55,6 +58,9 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
     try {
       setIsSubmitting(true);
 
+      // Either a token or a flag saying the widget could not run; the server decides.
+      const turnstileFields = await turnstile.getFields();
+
       // Send to your API endpoint which will forward to Klaviyo
       const response = await fetch('/api/form', {
         method: 'POST',
@@ -69,7 +75,8 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
           phone: formData.phone, // Make sure this is included
           contactMethod: formData.contactMethod, // Make sure this is included
           message: formData.inquiry, // This should map to the inquiry field
-          formName: 'Contact Sidebar Form'
+          formName: 'Contact Sidebar Form',
+          ...turnstileFields
         })
       });
 
@@ -113,6 +120,8 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
         message: error.message || 'Failed to submit your enquiry. Please try again.'
       });
     } finally {
+      // Tokens are single-use, so a retry needs a fresh one.
+      turnstile.reset();
       setIsSubmitting(false);
       setTimeout(() => setSubmitStatus(null), 5000);
     }
@@ -368,6 +377,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
+                  <FieldTurnstile containerRef={turnstile.containerRef} />
                   <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
                     {isSubmitting ? 'Sending...' : 'Send'}
                   </button>

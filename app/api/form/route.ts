@@ -10,6 +10,12 @@ import {
   pruneRateLimitBuckets,
   getClientIp
 } from '@/tools/helpers/botProtection';
+import {
+  consumeMarker,
+  isEnforcementEnabled,
+  pruneMarkers,
+  verifyTurnstileToken
+} from '@/tools/helpers/turnstile';
 
 type Payload = {
   type: 'newsletter' | 'enquiry';
@@ -24,6 +30,12 @@ type Payload = {
   _gotcha?: unknown;
   /** Milliseconds the form was on screen before submission. */
   _elapsedMs?: number;
+  /** Fresh Turnstile token from the widget. */
+  _turnstileToken?: unknown;
+  /** Signed stand-in from /api/verify-turnstile, for the newsletter fallback. */
+  _turnstileMarker?: unknown;
+  /** Set when the widget could not run at all - usually an ad-blocker. */
+  _turnstileUnavailable?: unknown;
 };
 
 export async function POST(req: NextRequest) {
@@ -60,6 +72,48 @@ export async function POST(req: NextRequest) {
         { status: 'error', message: 'Please enter a valid email address.' },
         { status: 400 }
       );
+    }
+
+    // Turnstile last: everything above is local and free, this costs a network call.
+    if (isEnforcementEnabled()) {
+      pruneMarkers();
+
+      const marker = typeof data._turnstileMarker === 'string' ? data._turnstileMarker : null;
+      const token = typeof data._turnstileToken === 'string' ? data._turnstileToken : null;
+
+      if (marker) {
+        // The newsletter already verified a token and spent it; this is its receipt.
+        if (!consumeMarker(marker)) {
+          console.warn(`[form] rejected invalid or replayed Turnstile marker from ${ip}`);
+          return NextResponse.json({ status: 'success', message: 'Submitted' });
+        }
+      } else if (token) {
+        const result = await verifyTurnstileToken(token, ip);
+
+        if (result.outcome === 'fail') {
+          // Same reasoning as the honeypot: answer as though it worked so a bot
+          // learns nothing about which signal caught it.
+          console.warn(`[form] rejected Turnstile token (${result.codes.join(', ') || 'no codes'}) from ${ip}`);
+          return NextResponse.json({ status: 'success', message: 'Submitted' });
+        }
+
+        if (result.outcome === 'unavailable') {
+          // Cloudflare is unreachable, not the visitor's fault. Let it through -
+          // the honeypot, timing and rate limits above still applied.
+          console.error(`[form] Turnstile unavailable (${result.reason}) - allowing submission from ${ip}`);
+        }
+      } else if (data._turnstileUnavailable) {
+        // Widget blocked or failed to load, commonly an ad-blocker. Allowing this
+        // only returns us to the pre-Turnstile position, which the checks above
+        // already cover. Watch the rate - a spike means a bot found the flag.
+        console.warn(`[form] Turnstile widget unavailable client-side - allowing submission from ${ip}`);
+      } else {
+        // Nothing at all: no token, no marker, no explanation. Not a real browser.
+        return NextResponse.json(
+          { status: 'error', message: 'Verification required. Please reload and try again.' },
+          { status: 400 }
+        );
+      }
     }
     // ------------------------------------------------------------------------
 
