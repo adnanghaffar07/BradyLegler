@@ -47,7 +47,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'rejected' }, { status: 400 });
     }
 
-    const result = await verifyTurnstileToken(token, ip);
+    // Only the newsletter uses this endpoint, so the expected action is fixed here
+    // rather than accepted from the caller.
+    const result = await verifyTurnstileToken(token, ip, 'newsletter');
 
     if (result.outcome === 'unavailable') {
       // Could not reach Cloudflare. Tell the caller to carry on without a marker -

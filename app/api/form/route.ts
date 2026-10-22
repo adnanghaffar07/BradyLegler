@@ -90,7 +90,11 @@ export async function POST(req: NextRequest) {
         reason = 'invalid or replayed marker';
       }
     } else if (token) {
-      const result = await verifyTurnstileToken(token, ip);
+      // Expected action is derived from the request type, never taken from the
+      // client - a bot could simply send whichever value it wanted. Cloudflare bakes
+      // the real action into the token at render time and reports it back.
+      const expectedAction = type === 'newsletter' ? 'newsletter' : 'enquiry';
+      const result = await verifyTurnstileToken(token, ip, expectedAction);
 
       if (result.outcome === 'fail') {
         rejection = 'quiet';

@@ -90,7 +90,12 @@ export type TurnstileHandle = {
   reset: () => void;
 };
 
-export const useTurnstile = (): TurnstileHandle => {
+/**
+ * `action` is baked into the token by Cloudflare at render time and reported back by
+ * siteverify, so the server can confirm a token came from the form it claims to.
+ * It is not client-supplied data at verification time, which is what makes it useful.
+ */
+export const useTurnstile = (action?: string): TurnstileHandle => {
   // State, not a ref, so attaching the element re-runs the effect below.
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const tokenRef = useRef<string | null>(null);
@@ -117,6 +122,7 @@ export const useTurnstile = (): TurnstileHandle => {
         widgetIdRef.current = window.turnstile.render(container, {
           sitekey: siteKey,
           appearance: 'interaction-only',
+          ...(action ? { action } : {}),
           callback: (token: string) => {
             tokenRef.current = token;
             unavailableRef.current = false;
@@ -145,7 +151,7 @@ export const useTurnstile = (): TurnstileHandle => {
       }
       widgetIdRef.current = null;
     };
-  }, [container]);
+  }, [container, action]);
 
   const getFields = useCallback(async (): Promise<TurnstileFields> => {
     if (tokenRef.current) return { _turnstileToken: tokenRef.current };

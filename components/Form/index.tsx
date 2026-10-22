@@ -15,6 +15,8 @@ type FormProps = {
   submitText?: string;
   layout?: 'grid' | 'normal' | 'flex';
   theme?: 'primary' | 'secondary';
+  /** Turnstile action, bound into the token so the server can tell forms apart. */
+  turnstileAction?: string;
 };
 
 const Form = (props: FormProps) => {
@@ -25,7 +27,8 @@ const Form = (props: FormProps) => {
     children,
     layout = 'grid',
     defaultValues = {},
-    theme = 'primary'
+    theme = 'primary',
+    turnstileAction
     // validationSchema = {},
   } = props;
 
@@ -38,7 +41,7 @@ const Form = (props: FormProps) => {
   // How long the form was on screen before submission. Passed through to callers so
   // the server can reject implausibly fast (scripted) submissions.
   const renderedAtRef = useRef(Date.now());
-  const turnstile = useTurnstile();
+  const turnstile = useTurnstile(turnstileAction);
 
   const onSubmitHandler = useCallback(
     async (values: any) => {
@@ -50,10 +53,7 @@ const Form = (props: FormProps) => {
       const turnstileFields = await turnstile.getFields();
 
       if (onSubmit) {
-        await onSubmit(
-          { ...values, _elapsedMs: Date.now() - renderedAtRef.current, ...turnstileFields },
-          methods
-        );
+        await onSubmit({ ...values, _elapsedMs: Date.now() - renderedAtRef.current, ...turnstileFields }, methods);
       }
 
       // Tokens are single-use, so the next submission needs a fresh one.

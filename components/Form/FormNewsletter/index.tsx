@@ -154,7 +154,7 @@ const FormNewsletter = ({
   return (
     <>
       <div className={styles.container}>
-        <Form onSubmit={handleOnSubmit} layout="normal" disabled={status === 'loading'}>
+        <Form onSubmit={handleOnSubmit} layout="normal" turnstileAction="newsletter" disabled={status === 'loading'}>
           <Field.Email className={styles.email} name="email" placeholder="Join for Private Access" required />
           <Field.Submit
             className={styles.button}

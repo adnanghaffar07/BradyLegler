@@ -41,7 +41,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({ isOpen, onClose }) => {
   } | null>(null);
   const { trackGenerateLead } = useAnalytics();
   // This form uses a plain <form>, not the shared <Form>, so Turnstile is wired here.
-  const turnstile = useTurnstile();
+  const turnstile = useTurnstile('enquiry');
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

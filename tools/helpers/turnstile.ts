@@ -38,14 +38,44 @@ export type VerifyOutcome =
 const getSecret = (): string | undefined => process.env.TURNSTILE_SECRET_KEY?.trim() || undefined;
 
 /**
+ * Hostnames permitted to solve a challenge, from TURNSTILE_HOSTNAMES.
+ *
+ * Cloudflare already restricts which hostnames may render the widget, so this is
+ * defence in depth: siteverify reports the hostname that actually solved the
+ * challenge, and checking it here means a token minted elsewhere cannot be replayed
+ * against this backend.
+ *
+ * Unset means "do not check" rather than "allow nothing" - local development has no
+ * list, and a missing variable must not take the forms down. Production sets it.
+ */
+const getAllowedHostnames = (): string[] | null => {
+  const raw = process.env.TURNSTILE_HOSTNAMES?.trim();
+  if (!raw) return null;
+  const list = raw
+    .split(',')
+    .map(h => h.trim().toLowerCase())
+    .filter(Boolean);
+  return list.length ? list : null;
+};
+
+/**
  * Enforcement kill switch. Defaults to on, so a missing variable fails safe towards
  * protection; set TURNSTILE_ENFORCE=false in Vercel to disable without a redeploy.
  */
 export const isEnforcementEnabled = (): boolean =>
   (process.env.TURNSTILE_ENFORCE ?? 'true').trim().toLowerCase() !== 'false';
 
-/** Verify a token with Cloudflare. Never throws - failures come back as an outcome. */
-export const verifyTurnstileToken = async (token: string, ip?: string): Promise<VerifyOutcome> => {
+/**
+ * Verify a token with Cloudflare. Never throws - failures come back as an outcome.
+ *
+ * `expectedAction` binds a token to the form it was minted on, so a token obtained
+ * from the newsletter widget cannot be replayed against the enquiry endpoint.
+ */
+export const verifyTurnstileToken = async (
+  token: string,
+  ip?: string,
+  expectedAction?: string
+): Promise<VerifyOutcome> => {
   const secret = getSecret();
 
   if (!secret) {
@@ -69,13 +99,35 @@ export const verifyTurnstileToken = async (token: string, ip?: string): Promise<
       return { outcome: 'unavailable', reason: `http-${response.status}` };
     }
 
-    const result = (await response.json()) as { success?: boolean; 'error-codes'?: string[] };
+    const result = (await response.json()) as {
+      success?: boolean;
+      'error-codes'?: string[];
+      hostname?: string;
+      action?: string;
+    };
 
     if (typeof result?.success !== 'boolean') {
       return { outcome: 'unavailable', reason: 'malformed-response' };
     }
 
-    return result.success ? { outcome: 'pass' } : { outcome: 'fail', codes: result['error-codes'] ?? [] };
+    if (!result.success) {
+      return { outcome: 'fail', codes: result['error-codes'] ?? [] };
+    }
+
+    // Cloudflare accepted the token. Two further checks it does not make for us.
+
+    const allowed = getAllowedHostnames();
+    const solvedOn = result.hostname?.toLowerCase();
+
+    if (allowed && solvedOn && !allowed.includes(solvedOn)) {
+      return { outcome: 'fail', codes: [`hostname-not-allowed:${solvedOn}`] };
+    }
+
+    if (expectedAction && result.action && result.action !== expectedAction) {
+      return { outcome: 'fail', codes: [`action-mismatch:${result.action}!=${expectedAction}`] };
+    }
+
+    return { outcome: 'pass' };
   } catch (error: any) {
     // Timeout, DNS failure, socket error, invalid JSON - all "we could not check".
     return { outcome: 'unavailable', reason: error?.name === 'TimeoutError' ? 'timeout' : 'network' };

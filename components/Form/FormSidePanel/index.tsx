@@ -91,7 +91,7 @@ const FormSidePanel: React.FC<FormSidePanelProps> = props => {
       <SidePanel title={title} show={show} onClose={onClose}>
         <SidePanel.Body>
           <div className={styles.container}>
-            <Form onSubmit={handleOnSubmit} layout="normal">
+            <Form onSubmit={handleOnSubmit} layout="normal" turnstileAction="enquiry">
               {children}
 
               <Field.Toggle label="Complete the captcha" name="captcha" className={styles.captcha} required hideError />
