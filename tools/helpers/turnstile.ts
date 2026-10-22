@@ -71,11 +71,7 @@ export const isEnforcementEnabled = (): boolean =>
  * `expectedAction` binds a token to the form it was minted on, so a token obtained
  * from the newsletter widget cannot be replayed against the enquiry endpoint.
  */
-export const verifyTurnstileToken = async (
-  token: string,
-  ip?: string,
-  expectedAction?: string
-): Promise<VerifyOutcome> => {
+export const verifyTurnstileToken = async (token: string, expectedAction?: string): Promise<VerifyOutcome> => {
   const secret = getSecret();
 
   if (!secret) {
@@ -83,8 +79,15 @@ export const verifyTurnstileToken = async (
     return { outcome: 'unavailable', reason: 'missing-secret' };
   }
 
+  // `remoteip` is deliberately NOT sent.
+  //
+  // Cloudflare validates the token against it, and the address we see is frequently
+  // not the one the challenge was solved from - a phone commonly reaches Cloudflare
+  // over IPv6 while Vercel sees an IPv4 through carrier NAT. The mismatch makes
+  // siteverify reject a perfectly good token as `invalid-input-response`, which is
+  // exactly what was blocking real mobile submissions. The parameter is optional and
+  // buys little: the token itself is the proof, and rate limiting already keys on IP.
   const body = new URLSearchParams({ secret, response: token });
-  if (ip && ip !== 'unknown') body.set('remoteip', ip);
 
   try {
     const response = await fetch(SITEVERIFY_URL, {
