@@ -63,20 +63,35 @@ const submitForm = async (data: {
 
     if (!profileResp.ok) {
       const errors = profileData?.errors;
-      console.error('Klaviyo API Error:', profileData);
-      
+
       if (errors) {
+        // A duplicate is the normal case for anyone who has contacted us before.
+        // Klaviyo hands back the existing profile's id, which is all we need, so it
+        // is handled rather than failed - and must not be logged as an error, or
+        // every returning customer leaves a false alarm in the production logs.
         const duplicateProfile = errors.find((e: any) => e.code === 'duplicate_profile');
         if (duplicateProfile) {
           profileId = duplicateProfile.meta?.duplicate_profile_id;
+
+          if (!profileId) {
+            console.error('Klaviyo returned a duplicate profile without an id:', profileData);
+            throw new Error('Could not resolve the existing Klaviyo profile.');
+          }
         } else {
+          console.error('Klaviyo API Error:', profileData);
           // Check for authentication errors
-          const authError = errors.find((e: any) => e.code === 'invalid_credentials' || e.detail?.includes('authentication'));
+          const authError = errors.find(
+            (e: any) => e.code === 'invalid_credentials' || e.detail?.includes('authentication')
+          );
           if (authError) {
-            throw new Error(`Klaviyo authentication error: ${authError.detail || 'Invalid credentials. Please check your API key.'}`);
+            throw new Error(
+              `Klaviyo authentication error: ${authError.detail || 'Invalid credentials. Please check your API key.'}`
+            );
           }
           throw new Error(errors[0]?.detail || 'Failed to create profile.');
         }
+      } else {
+        console.error('Klaviyo API Error:', profileData);
       }
     } else {
       profileId = profileData.data.id;
