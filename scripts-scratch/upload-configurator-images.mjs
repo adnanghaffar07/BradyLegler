@@ -8,7 +8,7 @@
  * SETS the whole array rather than appending, with a stable `_key` per row. A
  * half-finished run can simply be repeated.
  *
- * Usage: node scripts-scratch/upload-configurator-images.mjs [--dry-run]
+ * Usage: node scripts-scratch/upload-configurator-images.mjs [--dry-run] [--force]
  */
 import { readFileSync, existsSync, mkdtempSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -101,6 +101,29 @@ const patch = rows.map(row => ({
   finish: row.finish,
   image: { _type: 'image', asset: { _type: 'reference', _ref: assetIds.get(row.key) } }
 }));
+
+// The patch below REPLACES the whole array. That is what makes re-running safe while
+// public/subway/ is still the source of truth - but once the client has authored imagery
+// in the Studio, a careless re-run would silently discard their work, recoverable only
+// from Sanity's document history. So refuse when the document already holds rows this
+// script did not write.
+const existing = await fetch(
+  `${api}/data/query/${dataset}?query=${encodeURIComponent(
+    `*[_id=="${DOC_ID}"][0].configuratorImages[]._key`
+  )}`,
+  { headers: { Authorization: `Bearer ${env.SANITY_API_READ_TOKEN || token}` } }
+);
+if (!existing.ok) throw new Error(`read-back: ${existing.status} ${await existing.text()}`);
+const existingKeys = (await existing.json()).result ?? [];
+const ours = new Set(rows.map(row => row.key));
+const foreign = existingKeys.filter(key => !ours.has(key));
+if (foreign.length && !process.argv.includes('--force')) {
+  throw new Error(
+    `${DOC_ID} holds ${foreign.length} row(s) this script did not write ` +
+      `(${foreign.slice(0, 5).join(', ')}). Replacing the array would discard them. ` +
+      `Re-run with --force only if you are certain they are disposable.`
+  );
+}
 
 const res = await fetch(`${api}/data/mutate/${dataset}`, {
   method: 'POST',

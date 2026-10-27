@@ -68,3 +68,24 @@ export const FINISH_OPTIONS: string[] = [...FINISHES];
  * field without importing from the component tree.
  */
 export type ConfiguratorImage = { metal: string; finish: string; src: string | null };
+
+/**
+ * The duplicated `metal / finish` label in a `configuratorImages` array, or null when
+ * there is none. Used by the Sanity schema's validation.
+ *
+ * Rows that are not yet complete are skipped rather than compared. An editor adding
+ * thirty rows one at a time will often have two half-filled rows open at once, and
+ * comparing those on a built key makes them collide as the literal string
+ * "undefined|undefined" - reporting a duplicate that does not exist, in a message
+ * naming no values. `required()` on the fields is what reports an incomplete row.
+ */
+export const findDuplicateCombination = (rows?: { metal?: string; finish?: string }[]): string | null => {
+  const seen = new Set<string>();
+  for (const row of rows ?? []) {
+    if (!row?.metal || !row?.finish) continue;
+    const key = `${row.metal}|${row.finish}`;
+    if (seen.has(key)) return `${row.metal} / ${row.finish}`;
+    seen.add(key);
+  }
+  return null;
+};

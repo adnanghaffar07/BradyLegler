@@ -10,7 +10,8 @@ import ShopifyIcon from '../../components/icons/Shopify';
 import { ISeoObject } from '../objects/seo';
 import { IGallery } from '../objects/gallery';
 import { IFeatureMedia } from '../objects/featureMedia';
-import { ConfiguratorImage } from '@/templates/ProductTemplate/components/SubwayRingCustomizer/options';
+import type { ConfiguratorImage } from '@/templates/ProductTemplate/components/SubwayRingCustomizer/options';
+import { findDuplicateCombination } from '@/templates/ProductTemplate/components/SubwayRingCustomizer/options';
 
 interface IProductDocument {
   _id: string;
@@ -108,19 +109,17 @@ const productDocument = defineType({
     defineField({
       name: 'configuratorImages',
       title: 'Configurator Images',
-      description: 'For customizable products: one image per metal and stone combination.',
+      description:
+        'One image per metal and stone or enamel combination. Only products offering the ' +
+        'customizer use this - the Subway Double Band Ring today. Leave it empty for every ' +
+        'other product.',
       type: 'array',
       of: [{ type: 'configuratorImage' }],
       group: 'editorial',
       validation: Rule =>
         Rule.custom((rows?: { metal?: string; finish?: string }[]) => {
-          const seen = new Set<string>();
-          for (const row of rows ?? []) {
-            const key = `${row?.metal}|${row?.finish}`;
-            if (seen.has(key)) return `Duplicate combination: ${row?.metal} / ${row?.finish}`;
-            seen.add(key);
-          }
-          return true;
+          const duplicate = findDuplicateCombination(rows);
+          return duplicate ? `Duplicate combination: ${duplicate}` : true;
         })
     }),
     defineField({

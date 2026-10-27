@@ -14,7 +14,6 @@ export type { Metal, Finish } from './options';
 export { METALS, FINISHES } from './options';
 
 import type { Metal, Finish, ConfiguratorImage } from './options';
-import { FINISHES } from './options';
 
 export type SideKey = 'sideOne' | 'sideTwo';
 
@@ -173,12 +172,6 @@ export const buildSku = ({ sideOne, sideTwo }: RingConfiguration): string => {
 
 // ---------------------------------------------------------------- photography
 
-/**
- * Client photography, keyed per SIDE as `{metal}-{finish}`. Each photo shows one
- * side of the ring - both of its bands - so the same pool serves Side One and Side
- * Two. Anything not listed falls back to the generated illustration, which is how
- * Platinum and the unphotographed finishes render.
- */
 /** The shape the product projection returns. Declared in options.ts; see there. */
 export type { ConfiguratorImage } from './options';
 
@@ -203,10 +196,7 @@ export const getAllSideImages = (images: ConfiguratorImage[]): string[] =>
  * A row with no `src` is treated as absent rather than rendered, so an asset deleted
  * in Sanity degrades to the illustration instead of an empty <img>.
  */
-export const getSideImage = (
-  side: SideConfiguration,
-  images: ConfiguratorImage[]
-): string | undefined => {
+export const getSideImage = (side: SideConfiguration, images: ConfiguratorImage[]): string | undefined => {
   const match = (metal: Metal | undefined): string | undefined => {
     if (!metal) return undefined;
     return images.find(image => image.metal === metal && image.finish === side.finish && image.src)?.src ?? undefined;
@@ -214,7 +204,6 @@ export const getSideImage = (
 
   return match(side.metal) ?? match(PHOTO_METAL_FALLBACK[side.metal]);
 };
-
 
 // ---------------------------------------------------------------- pricing
 

@@ -1,19 +1,5 @@
 import { defineField, defineType } from 'sanity';
-import {
-  METAL_OPTIONS,
-  FINISH_OPTIONS
-} from '@/templates/ProductTemplate/components/SubwayRingCustomizer/options';
-
-export interface IConfiguratorImage {
-  metal: string;
-  finish: string;
-  image: {
-    asset: {
-      _ref: string;
-      _type: 'reference';
-    };
-  };
-}
+import { METAL_OPTIONS, FINISH_OPTIONS } from '@/templates/ProductTemplate/components/SubwayRingCustomizer/options';
 
 /**
  * One photograph of a customizable product in a given metal and stone or enamel.

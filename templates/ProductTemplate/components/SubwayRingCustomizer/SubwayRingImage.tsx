@@ -225,8 +225,9 @@ const SideImage: React.FC<{
 const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, sideTwo, images }) => {
   // Warm the browser cache with every photo once the page is idle. Without this the
   // first selection of each finish waits on a network round trip, which reads as the
-  // configurator lagging behind the click. The full set is ~1MB and this runs after
-  // mount, so it never competes with the initial render.
+  // configurator lagging behind the click. This runs after mount, so it never competes
+  // with the initial render. The set is only small enough to do this because the product
+  // projection caps each image's width - see the transform on configuratorImages.
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
