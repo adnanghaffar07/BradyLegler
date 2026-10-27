@@ -7,29 +7,16 @@
 // document, which is the authoritative spec: every side is either a pavé STONE or an
 // ENAMEL (or plain), and the SKU encodes metal + both sides + size.
 
+// The option vocabulary lives in options.ts so the Sanity schema can share it
+// without importing anything from the component tree. Re-exported here so every
+// existing importer of constants.ts is untouched.
+export type { Metal, Finish } from './options';
+export { METALS, FINISHES } from './options';
+
+import type { Metal, Finish } from './options';
+import { FINISHES } from './options';
+
 export type SideKey = 'sideOne' | 'sideTwo';
-
-export type Metal = 'Yellow Gold' | 'White Gold' | 'Platinum';
-
-export type Finish =
-  // Plain - no enamel, no stone
-  | 'Plain'
-  // Stones
-  | 'Diamond'
-  | 'Black Diamond'
-  | 'Blue Sapphire'
-  | 'Pink Sapphire'
-  | 'Emerald'
-  | 'Ruby'
-  | 'Aqua Marine'
-  // Enamels
-  | 'White Enamel'
-  | 'Black Enamel'
-  | 'Blue Enamel'
-  | 'Hot Pink Enamel'
-  | 'Teal Enamel'
-  | 'Red Enamel'
-  | 'Coral Enamel';
 
 export type FinishKind = 'none' | 'stone' | 'enamel';
 
@@ -38,28 +25,6 @@ export const SIDES: { key: SideKey; label: string }[] = [
   { key: 'sideTwo', label: 'Side Two' }
 ];
 
-export const METALS: Metal[] = ['Yellow Gold', 'White Gold', 'Platinum'];
-
-/** Stones first, then enamels - matches how the client lists them. */
-export const FINISHES: Finish[] = [
-  'Plain',
-  'Diamond',
-  'Black Diamond',
-  'Blue Sapphire',
-  'Pink Sapphire',
-  'Emerald',
-  'Ruby',
-  'Aqua Marine',
-  'White Enamel',
-  'Black Enamel',
-  'Blue Enamel',
-  'Hot Pink Enamel',
-  'Teal Enamel',
-  'Red Enamel',
-  'Coral Enamel'
-];
-
-/** Grouped for the picker - stones and enamels scan far better apart than as one list. */
 export const STONE_FINISHES: Finish[] = [
   'Diamond',
   'Black Diamond',
