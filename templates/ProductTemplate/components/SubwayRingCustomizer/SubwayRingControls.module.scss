@@ -49,9 +49,19 @@
 // black. It is deliberately not emphasised beyond that - the client wants this page
 // to read exactly like the others, with the configurator as the only addition.
 .price {
+  // Mirrors the b3 size the standard <Price> renders at on every other product page:
+  // 10px on mobile, 12px from tablet up. Without the explicit sizes this inherits the
+  // panel's flat 12px and ends up larger than the rest of the site on a phone.
+  font-size: 10px;
+  line-height: 16px;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   color: #000000 !important;
+
+  @include media-up(tablet) {
+    font-size: 12px;
+    line-height: 19.2px;
+  }
 }
 
 // ---------------------------------------------------------------- tabs
@@ -191,8 +201,6 @@
 
 .bandGroup {
   border-bottom: 1px solid var(--customizer-rule);
-
-
 }
 
 .bandHeader {
