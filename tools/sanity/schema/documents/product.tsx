@@ -104,6 +104,24 @@ const productDocument = defineType({
       group: 'editorial'
     }),
     defineField({
+      name: 'configuratorImages',
+      title: 'Configurator Images',
+      description: 'For customizable products: one image per metal and stone combination.',
+      type: 'array',
+      of: [{ type: 'configuratorImage' }],
+      group: 'editorial',
+      validation: Rule =>
+        Rule.custom((rows?: { metal?: string; finish?: string }[]) => {
+          const seen = new Set<string>();
+          for (const row of rows ?? []) {
+            const key = `${row?.metal}|${row?.finish}`;
+            if (seen.has(key)) return `Duplicate combination: ${row?.metal} / ${row?.finish}`;
+            seen.add(key);
+          }
+          return true;
+        })
+    }),
+    defineField({
       name: 'sections',
       title: 'Sections',
       type: 'array',

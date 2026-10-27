@@ -37,6 +37,7 @@ import seo from './objects/seo';
 import featureCard from './objects/featureCard';
 import { featureMedia, featureMediaWithItems } from './objects/featureMedia';
 import gallery from './objects/gallery';
+import configuratorImage from './objects/configuratorImage';
 import collectionHeader from './objects/collectionHeader';
 import customMedia from './objects/customMedia';
 import alignMedia from './objects/alignMedia';
@@ -133,6 +134,7 @@ const schema: SchemaTypeDefinition[] = [
   howToMeasureSection,
   quote,
   ...gallery,
+  configuratorImage,
 
   // Shopify objects
   inventory,
