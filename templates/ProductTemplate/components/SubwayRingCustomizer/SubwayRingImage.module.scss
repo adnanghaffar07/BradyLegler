@@ -10,7 +10,9 @@
 
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-6);
+  // 24px, the same rhythm the gallery uses between images on every other product
+  // page, so the two faces sit in the column exactly like gallery shots do.
+  gap: var(--spacing-7);
   flex: 1;
   text-align: center;
 }
@@ -23,10 +25,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-5);
-  // No horizontal padding: the shot must span the full column so it renders at the
-  // same size as the gallery on every other product page (424px at desktop).
-  padding: var(--spacing-7) 0;
+  // Positioning context for the caption, which is taken out of flow below.
+  position: relative;
+  // No padding at all: the view's box is exactly the square frame, so consecutive
+  // views sit the panel's 24px apart - identical to the gallery's rhythm on every
+  // other product page - and the shot spans the full column at the same size.
+  padding: 0;
   background: #ffffff;
   border-radius: var(--radius-1);
 }
@@ -56,14 +60,23 @@
 }
 
 .zoneCaption {
-  // The frame is square to match the other product pages, but the ring only fills
-  // its middle fifth - leaving roughly 40% white below it, which pushed this caption
-  // well away from the thing it labels. Pull it back up.
+  // The frame is square to match the other product pages, but the ring fills only
+  // its middle fifth - measured at 18.4% of the frame height, centred, with ~41%
+  // white above and below - so a caption in normal flow lands far from the thing it
+  // labels. The client asked for it to sit closer.
   //
-  // A percentage margin resolves against the container's WIDTH, and the frame is
-  // square, so this is also 36% of the frame's height - it stays correctly placed at
-  // every breakpoint without a second value to maintain.
-  margin-top: -36%;
+  // It is positioned over that lower white rather than pulled up with a negative
+  // margin. A negative margin shortens the FLEX BOX as well as moving the text: the
+  // view laid out 338px tall around a 409px photo, so consecutive shots overlapped
+  // each other by 55px and the first gallery image by 71px. Taking the caption out
+  // of flow keeps the box exactly one square frame tall, which is what makes the
+  // 24px rhythm above hold.
+  //
+  // 66% sits just under the ring, whose lower edge measures 59% of the frame.
+  position: absolute;
+  top: 66%;
+  left: 0;
+  right: 0;
 
   font-size: var(--customizer-caption-size) !important;
   text-align: center;
