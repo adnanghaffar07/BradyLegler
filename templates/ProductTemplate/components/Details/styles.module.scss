@@ -136,7 +136,9 @@
 .storyTextLeft {
   color: #444444;
   line-height: 1.8;
-  font-size: 11px;
+  // 12px, matching the product description and the rest of the detail column. This
+  // was 11px, which the client found too small to read.
+  font-size: 12px;
   font-weight: 300;
   margin: 0;
 }
@@ -366,7 +368,7 @@
   }
 
   .storyTextLeft {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .collectionInfoLeft {
