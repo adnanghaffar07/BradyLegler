@@ -4,7 +4,6 @@
 **Branch:** `sanity-customizer-images` (from `staging`)
 **Dataset:** `staging`
 **Status:** awaiting review
-**Shape:** interim — see *End state and migration*
 
 ## Context
 
@@ -45,8 +44,8 @@ migration.
   genuinely new finish still needs a developer — a deliberate choice, since Shopify
   variants are about to own pricing and we do not want retail figures in two places.
 - Not touching the illustration fallback itself.
-- Not performing the Shopify variant migration, and not adding editorial media to
-  `productVariant` — that is the end state and it is blocked on the restructure.
+- Not adding editorial media to `productVariant`. These images do not vary by ring
+  size, so a variant is the wrong thing to hang them on — see the reasoning below.
 - Not changing any other product page. Only the configurator reads this field.
 
 ## Current state
@@ -168,53 +167,56 @@ every side resolves to `undefined` and the configurator renders the illustration
 all 45 states. That is the existing fallback doing its job, not an error. No special
 casing, no crash, no blank frame.
 
-## End state and migration
+## Why metal and finish, and why that does not change
 
-The destination is **not** this field. It is editorial media on the `productVariant`
-document, mirroring how `product` works today: a read-only `store` object synced from
-Shopify, with editor-owned media fields beside it. That is how the client already
-manages every other ring's imagery, and variant imagery should work the same way.
+The configurator shows **one image per metal and stone/enamel combination**. It does
+not show a different photograph per ring size, and it is not going to. That single
+fact determines the whole shape of this field.
 
-`productVariant` currently has no editorial fields at all — only `hidden`, a title
-proxy, and `store`. Adding media there is the real answer.
+So an image is keyed by the two values that actually determine the picture. Not by
+SKU, and not by variant id:
 
-**It cannot be built yet.** Today's variants are ring sizes, 4 through 13. A
-configurator image varies by metal and finish, not by size, so there is nothing
-meaningful to attach it to — the staging dataset holds a single placeholder variant.
-Per-variant media only becomes coherent once Shopify models metal × finish × size.
+- A **SKU key** would need re-authoring the day Shopify variants land.
+- A **variant key** would be wrong on its own terms. A variant is metal × finish ×
+  size, so keying by it means storing the same photograph against nineteen variants
+  to express something that does not vary by size. 45 distinct images would become
+  855 rows carrying 45 pictures.
 
-So this field is deliberately interim: it lets the client manage imagery now, keyed
-by the two axes that actually determine the picture, instead of waiting on a Shopify
-restructure with no date.
+Keying by metal and finish says exactly what is true and no more.
 
-### What migration looks like
+### When Shopify variants arrive
 
-An image varies by metal and finish but not by size, which is why this field is keyed
-by those two values rather than by SKU or variant id. A SKU key would need
-re-authoring the day variants land; a key per variant would duplicate every image
-across nineteen ring sizes.
+Metal and finish become Shopify options alongside size. Resolution then reads the
+selected variant's option values **by option name** and matches the same two fields,
+ignoring size entirely:
 
-When the restructure happens:
+```ts
+const metal  = optionValue(variant, 'Metal');
+const finish = optionValue(variant, 'Finish');
+```
 
-1. `productVariant` gains editorial media, mirroring `product`.
-2. Resolution reads the selected variant's option values by option name — `Metal`,
-   `Finish` — instead of the configurator's client-side state.
-3. The 45 images are reassigned from this array onto their variants.
+The only new code is a constant mapping Shopify's option names onto these fields,
+because Shopify may name them differently — `Colour` rather than `Metal`, or
+`Stone or Enamel` rather than `Finish`. That mapping is the single place the
+migration touches.
 
-Step 3 is the only content work, and it is a reassignment rather than a re-upload:
-the assets already exist in the dataset. Shopify also allows one image to be applied
-to many variants at once, which is what stops 45 distinct images becoming 855 uploads
-(3 metals × 15 finishes × 19 sizes).
+**Nothing authored in Sanity changes.** The 45 entries stay as they are.
 
-Until step 1 exists, the lookup in this spec is the whole mechanism. After it, this
-field is deleted and the array with it.
+### Why not editorial media on `productVariant`
 
-### Why not wait
+`productVariant` has no editorial fields today — only `hidden`, a title proxy and the
+read-only `store` object — so adding media there would mirror how `product` works and
+was the obvious first answer.
 
-Waiting means the client keeps emailing photographs to a developer for every change —
-three batches in the past fortnight — for however long the Shopify work takes. The
-interim field costs one object type and one array, and the assets it holds are the
-same ones the end state will use.
+It is the wrong home for this. A variant carries size; these images do not vary by
+size. Putting them there would duplicate every photograph nineteen times and make the
+client maintain 855 rows to express 45 facts. If per-variant imagery is ever wanted
+for some other purpose, that is a separate field with a separate reason.
+
+### If a third axis is ever added
+
+The array gains a field and the matcher gains a term. Nothing already authored is
+invalidated.
 
 ## Files
 
