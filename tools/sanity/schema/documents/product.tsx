@@ -10,6 +10,7 @@ import ShopifyIcon from '../../components/icons/Shopify';
 import { ISeoObject } from '../objects/seo';
 import { IGallery } from '../objects/gallery';
 import { IFeatureMedia } from '../objects/featureMedia';
+import { ConfiguratorImage } from '@/templates/ProductTemplate/components/SubwayRingCustomizer/options';
 
 interface IProductDocument {
   _id: string;
@@ -21,6 +22,7 @@ interface IProductDocument {
   description: SanityTextBlock[];
   specification: SanityTextBlock[];
   collectionMedia: IFeatureMedia;
+  configuratorImages?: ConfiguratorImage[];
   inquireButtonEnabled?: boolean;
   inquireButtonLabel?: string;
   inquirePriceText?: string;

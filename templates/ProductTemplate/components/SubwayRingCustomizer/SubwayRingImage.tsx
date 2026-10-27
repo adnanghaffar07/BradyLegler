@@ -10,6 +10,7 @@ import {
   FINISH_GRADIENT,
   FINISH_KIND,
   getSideImage,
+  type ConfiguratorImage,
   getAllSideImages,
   describeSide
 } from './constants';
@@ -19,6 +20,8 @@ type SubwayRingImageProps = {
   activeSide: SideKey;
   sideOne: SideConfiguration;
   sideTwo: SideConfiguration;
+  /** Photography for this product, authored in Sanity. Empty renders illustrations. */
+  images: ConfiguratorImage[];
 };
 
 // One side of the ring, drawn face-on as a double band (top + bottom).
@@ -219,7 +222,7 @@ const SideImage: React.FC<{
   return <img src={shown} alt={alt} className={className} style={style} />;
 };
 
-const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, sideTwo }) => {
+const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, sideTwo, images }) => {
   // Warm the browser cache with every photo once the page is idle. Without this the
   // first selection of each finish waits on a network round trip, which reads as the
   // configurator lagging behind the click. The full set is ~1MB and this runs after
@@ -230,7 +233,7 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
     let cancelled = false;
     const preload = () => {
       if (cancelled) return;
-      getAllSideImages().forEach(src => {
+      getAllSideImages(images).forEach(src => {
         const img = new window.Image();
         img.decoding = 'async';
         img.src = src;
@@ -246,7 +249,7 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
       if (idle && cancelIdle) cancelIdle(handle as number);
       else window.clearTimeout(handle as number);
     };
-  }, []);
+  }, [images]);
 
   // SVG gradient ids are document-global, so scope them per instance.
   const uid = useId().replace(/:/g, '');
@@ -262,7 +265,7 @@ const SubwayRingImage: React.FC<SubwayRingImageProps> = ({ activeSide, sideOne, 
           client photography where we have it, and the generated illustration where
           we do not - so a part-photographed range still renders cleanly. */}
       {views.map(view => {
-        const photo = getSideImage(view.side);
+        const photo = getSideImage(view.side, images);
         const isActive = activeSide === view.key;
 
         return (

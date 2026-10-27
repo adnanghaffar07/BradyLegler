@@ -58,3 +58,13 @@ export const FINISHES: Finish[] = [
  */
 export const METAL_OPTIONS: string[] = [...METALS];
 export const FINISH_OPTIONS: string[] = [...FINISHES];
+
+/**
+ * One photograph of a customizable product in a given metal and finish, as authored in
+ * Sanity and flattened by the product projection. `src` is null when the asset has been
+ * deleted in Sanity but the row remains.
+ *
+ * It lives here rather than in constants.ts so the Sanity schema can type the document
+ * field without importing from the component tree.
+ */
+export type ConfiguratorImage = { metal: string; finish: string; src: string | null };

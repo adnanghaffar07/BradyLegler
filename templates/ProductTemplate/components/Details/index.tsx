@@ -22,13 +22,18 @@ import {
   DEFAULT_METAL,
   DEFAULT_SIDE_ONE_FINISH,
   DEFAULT_SIDE_TWO_FINISH,
-  buildCartAttributes
+  buildCartAttributes,
+  type ConfiguratorImage
 } from '../SubwayRingCustomizer/constants';
 import styles from './styles.module.scss';
 
 // Pilot: the customizable-image flow only applies to this one product for now, per the
 // client's request - not the full catalog. Match by handle so nothing else is affected.
 const CUSTOMIZABLE_PRODUCT_HANDLES = ['subway-double-band-ring-yellow-gold'];
+
+// Module-level so the identity is stable: `?? []` would build a new array on every
+// render and re-trigger the image preload effect in SubwayRingImage.
+const NO_CONFIGURATOR_IMAGES: ConfiguratorImage[] = [];
 
 interface CollectionData {
   store?: {
@@ -137,7 +142,12 @@ const Details: React.FC<DetailsProps> = ({
         {/* Center Column - Gallery */}
         <div className={styles.gallery}>
           {isCustomizable ? (
-            <SubwayRingImage activeSide={activeSide} sideOne={sideOneConfig} sideTwo={sideTwoConfig} />
+            <SubwayRingImage
+              activeSide={activeSide}
+              sideOne={sideOneConfig}
+              sideTwo={sideTwoConfig}
+              images={sanityProductData?.configuratorImages ?? NO_CONFIGURATOR_IMAGES}
+            />
           ) : (
             <Gallery
               featureMedia={sanityProductData?.featureMedia}

@@ -13,7 +13,7 @@
 export type { Metal, Finish } from './options';
 export { METALS, FINISHES } from './options';
 
-import type { Metal, Finish } from './options';
+import type { Metal, Finish, ConfiguratorImage } from './options';
 import { FINISHES } from './options';
 
 export type SideKey = 'sideOne' | 'sideTwo';
@@ -179,78 +179,42 @@ export const buildSku = ({ sideOne, sideTwo }: RingConfiguration): string => {
  * Two. Anything not listed falls back to the generated illustration, which is how
  * Platinum and the unphotographed finishes render.
  */
-const AVAILABLE_SIDE_IMAGES = new Set<string>([
-  'yellow-gold-aqua-marine',
-  'yellow-gold-black-diamond',
-  'yellow-gold-blue-sapphire',
-  'yellow-gold-emerald',
-  'yellow-gold-pink-sapphire',
-  'yellow-gold-ruby',
-  'yellow-gold-blue-enamel',
-  'yellow-gold-coral-enamel',
-  'yellow-gold-hot-pink-enamel',
-  'yellow-gold-red-enamel',
-  'yellow-gold-teal-enamel',
-  'white-gold-blue-sapphire',
-  'white-gold-emerald',
-  'white-gold-pink-sapphire',
-  'white-gold-ruby',
-  'white-gold-blue-enamel',
-  'white-gold-coral-enamel',
-  'white-gold-hot-pink-enamel',
-  'white-gold-red-enamel',
-  'white-gold-teal-enamel',
-  // Added after the client meeting - fills the Diamond / White Enamel / Black Enamel gaps.
-  'yellow-gold-diamond',
-  'yellow-gold-white-enamel',
-  'white-gold-diamond',
-  'white-gold-black-enamel',
-  // Final batch from the client (Oct 2026) - completes every metal/finish pair, so
-  // nothing in yellow or white gold falls back to the illustration any more. The two
-  // Plain shots come from a different render pass than the rest: flatter camera angle,
-  // no engraving, and the yellow one reads a paler, greener gold (hue 52 against 37-38
-  // across every other yellow gold shot). Re-framed here to match the set's scale;
-  // matched re-renders have been requested.
-  'yellow-gold-plain',
-  'yellow-gold-black-enamel',
-  'white-gold-plain',
-  'white-gold-black-diamond',
-  'white-gold-aqua-marine',
-  'white-gold-white-enamel'
-]);
-
-const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-export const buildSideImageKey = ({ metal, finish }: SideConfiguration): string =>
-  `${slug(metal)}-${slug(finish)}`;
-
-/** Every photo we hold, for preloading so finish changes swap instantly. */
-export const getAllSideImages = (): string[] =>
-  [...AVAILABLE_SIDE_IMAGES].map(key => `/subway/${key}.jpg`);
+/** The shape the product projection returns. Declared in options.ts; see there. */
+export type { ConfiguratorImage } from './options';
 
 /**
  * Metals we can borrow photography from when a shot is missing. Platinum and white
- * gold are near-indistinguishable in these studio shots, and there is no platinum
- * photography at all - so platinum shows the white gold frame rather than dropping
- * to the illustration. Only ever substitutes between visually equivalent metals.
+ * gold are near-indistinguishable in these studio shots, so platinum shows the white
+ * gold frame rather than dropping to the illustration. Only ever substitutes between
+ * visually equivalent metals, and only when platinum has no photograph of its own.
  */
 const PHOTO_METAL_FALLBACK: Partial<Record<Metal, Metal>> = {
   Platinum: 'White Gold'
 };
 
-/** Photo URL for one side, or undefined when we have no usable shot for it. */
-export const getSideImage = (side: SideConfiguration): string | undefined => {
-  const direct = buildSideImageKey(side);
-  if (AVAILABLE_SIDE_IMAGES.has(direct)) return `/subway/${direct}.jpg`;
+/** Every photo we hold, for preloading so finish changes swap instantly. */
+export const getAllSideImages = (images: ConfiguratorImage[]): string[] =>
+  images.map(image => image.src).filter((src): src is string => Boolean(src));
 
-  const substitute = PHOTO_METAL_FALLBACK[side.metal];
-  if (substitute) {
-    const key = buildSideImageKey({ ...side, metal: substitute });
-    if (AVAILABLE_SIDE_IMAGES.has(key)) return `/subway/${key}.jpg`;
-  }
+/**
+ * Photo URL for one side, or undefined when we have no usable shot for it - which is
+ * what makes the configurator fall back to the generated illustration.
+ *
+ * A row with no `src` is treated as absent rather than rendered, so an asset deleted
+ * in Sanity degrades to the illustration instead of an empty <img>.
+ */
+export const getSideImage = (
+  side: SideConfiguration,
+  images: ConfiguratorImage[]
+): string | undefined => {
+  const match = (metal: Metal | undefined): string | undefined => {
+    if (!metal) return undefined;
+    return images.find(image => image.metal === metal && image.finish === side.finish && image.src)?.src ?? undefined;
+  };
 
-  return undefined;
+  return match(side.metal) ?? match(PHOTO_METAL_FALLBACK[side.metal]);
 };
+
 
 // ---------------------------------------------------------------- pricing
 
