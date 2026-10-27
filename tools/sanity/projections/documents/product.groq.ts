@@ -52,6 +52,14 @@ const productProjection = groq`{
        video${fileProjection}
     },
   },
+  // Flattened to a URL rather than reusing imageProjection: the configurator needs a
+  // string for an <img src>, not an asset object. src is null when the asset has been
+  // deleted in Sanity, and getSideImage skips those rows.
+  configuratorImages[]{
+    metal,
+    finish,
+    "src": image.asset->url
+  },
   sections[]${sectionsProjection},
   inquireButtonEnabled,
   inquireButtonLabel,
