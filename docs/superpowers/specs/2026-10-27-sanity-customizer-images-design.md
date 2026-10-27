@@ -5,72 +5,32 @@
 **Dataset:** `staging`
 **Status:** awaiting review
 
-## Context
+## What this does
 
-The Subway ring configurator renders 30 photographs, two at a time — one per side
-of the ring. They are checked into `public/subway/` and listed in a hardcoded Set in
-`constants.ts`, keyed `{metal}-{finish}`:
+Open a product in Sanity. If it is a customizable product — one offered in several
+metals and stones — there is a field where you add an image for each combination.
+Add as many as that product needs: four, five, forty-five.
 
-```ts
-const AVAILABLE_SIDE_IMAGES = new Set(['yellow-gold-blue-sapphire', ...]);
+The configurator shows those images. That is the whole change.
 
-export const getSideImage = (side) => {
-  const direct = buildSideImageKey(side);
-  if (AVAILABLE_SIDE_IMAGES.has(direct)) return `/subway/${direct}.jpg`;
-  // Platinum borrows white gold
-};
-```
+## Why
 
-Swapping a photograph means a developer renames a file, edits the Set and ships a
-commit. Over the past fortnight the client has sent three batches of imagery; each
-one needed a developer. They have asked to manage this themselves.
+The photographs currently live in `public/subway/` and are listed in a hardcoded Set
+in `constants.ts`. Swapping one means a developer renames a file, edits the Set and
+ships a commit. The client has sent three batches of imagery in the past fortnight;
+every one needed a developer.
 
-They have also said that Shopify will later model **metal × finish × size** as real
-variants, each with its own SKU. Whatever we build has to survive that without a
-migration.
+## Scope
 
-## Goals
-
-- The client adds, replaces and removes configurator photography in Sanity, without
-  a developer and without a deploy.
-- The structure still works when metal and finish become Shopify variant options.
-- Missing imagery degrades exactly as it does today — Platinum borrows white gold,
-  and anything still missing falls back to the generated illustration.
-- No change to what a customer sees while the imagery is unchanged.
-
-## Non-goals
-
-- **Options, prices and SKU codes stay in code.** Only imagery moves. Adding a
-  genuinely new finish still needs a developer — a deliberate choice, since Shopify
-  variants are about to own pricing and we do not want retail figures in two places.
-- Not touching the illustration fallback itself.
-- Not adding editorial media to `productVariant`. These images do not vary by ring
-  size, so a variant is the wrong thing to hang them on — see the reasoning below.
-- Not changing any other product page. Only the configurator reads this field.
-
-## Current state
-
-| | |
-| --- | --- |
-| Images | 30 files in `public/subway/`, named `{metal}-{finish}.jpg` |
-| Registry | hardcoded `Set` of 30 keys in `constants.ts` |
-| Resolution | `getSideImage()` — pure function, no I/O |
-| Fallback | Platinum → White Gold, then the SVG illustration |
-| Preload | `getAllSideImages()` returns all 30 paths, warmed on idle |
-| Rendering | `SubwayRingImage` imports `getSideImage` directly |
-
-The established Sanity pattern in this repo: Shopify-synced data sits under a
-read-only `store` object on the `product` document, and editor-owned fields sit
-beside it (`featureMedia`, `gallery`, `collectionMedia`). Images reach the page as
-plain URLs — GROQ projects `"src": asset->url` plus dimension metadata, and
-`next/image` renders them. This design follows both conventions rather than
-inventing new ones.
+Imagery only. The list of metals and finishes, the prices and the SKU rules stay in
+code. Adding a genuinely new stone still needs a developer — Shopify variants are
+about to own pricing, and we do not want retail figures in two places.
 
 ## Design
 
 ### Schema
 
-A new `configuratorImage` object, used in an array field on `product`:
+A `configuratorImage` object, used in an array on the `product` document:
 
 ```ts
 {
@@ -88,32 +48,35 @@ A new `configuratorImage` object, used in an array field on `product`:
 defineField({
   name: 'configuratorImages',
   title: 'Configurator Images',
+  description: 'For customizable products: one image per metal and stone combination.',
   type: 'array',
   of: [{ type: 'configuratorImage' }],
   group: 'editorial'
 })
 ```
 
-Both option lists are **dropdowns, not free text**, and their values are the exact
-strings the configurator already uses — `'Yellow Gold'`, `'Blue Sapphire'` and so on.
-That matters more than it looks: a typo in a free-text key produces no image and no
-error, and nobody notices until someone spots an illustration where a photograph
-should be. A constrained list makes an unmatchable entry impossible to create.
+The field sits beside `gallery` and `featureMedia`, in the same editorial group, so it
+is where an editor already looks for a product's imagery.
 
-The lists live in one module shared by the schema and the runtime, so they cannot
-drift apart.
+It appears on every product. Products that are not customizable simply leave it empty —
+no flag to maintain, nothing to keep in sync.
 
-A `preview` shows `"{metal} — {finish}"` with the image as the thumbnail, so the
-array is readable in the Studio without opening each row.
+**Metal and finish are dropdowns, not free text.** Their values are the exact strings
+the configurator uses. This matters: a mistyped key produces no image *and no error* —
+the state silently falls back to the generated illustration, and nobody notices until
+someone spots a drawing where a photograph should be. A constrained list makes an
+unmatchable entry impossible to author.
 
-Validation: each `(metal, finish)` pair unique within the array, and all three fields
-required. A duplicate pair is an editor mistake with a silent outcome — first match
-wins — so it is rejected at authoring time instead.
+A `preview` shows `"{metal} — {finish}"` with the image as its thumbnail, so the array
+is readable without opening each row.
+
+Validation: all three fields required, and each metal/finish pair unique within the
+array. A duplicate is an editor mistake with a silent outcome — first match wins — so
+it is rejected at authoring time.
 
 ### Query
 
-`configuratorImages` is added to the product projection, following the gallery's
-shape:
+Added to the product projection, following the gallery's existing shape:
 
 ```groq
 configuratorImages[]{
@@ -127,12 +90,10 @@ configuratorImages[]{
 
 ### Resolution
 
-`getSideImage` keeps its signature and its fallback order, but takes the fetched
-images rather than closing over a hardcoded Set:
+`getSideImage` keeps its signature and fallback order, but reads the fetched images
+instead of a hardcoded Set:
 
 ```ts
-type ConfiguratorImage = { metal: string; finish: string; src: string };
-
 export const getSideImage = (
   side: SideConfiguration,
   images: ConfiguratorImage[]
@@ -144,152 +105,96 @@ export const getSideImage = (
 };
 ```
 
-Behaviour is unchanged: exact match, then the Platinum → White Gold substitution,
-then `undefined`, which renders the illustration. The fallback stays in code because
-it is logic, not content — and it disappears on its own the day someone uploads real
-platinum photography.
+Behaviour is unchanged: exact match, then Platinum borrowing white gold, then
+`undefined`, which renders the illustration. That fallback stays in code because it is
+logic, not content, and it stops mattering the day someone uploads platinum imagery.
 
-### Component changes
+### Components
 
-`Details/index.tsx` already receives `sanityProductData`. It passes
-`sanityProductData.configuratorImages ?? []` to `SubwayRingImage`, which passes it to
-`getSideImage` and to the preload helper. `SubwayRingImage` stops importing image
-data and takes it as a prop — the component becomes a pure function of its inputs,
-which is also what makes it testable.
+`Details/index.tsx` already receives `sanityProductData`; it passes
+`configuratorImages ?? []` down. `SubwayRingImage` takes the images as a prop instead
+of importing them, and passes them to `getSideImage` and to the preload helper. The
+component becomes a pure function of its inputs.
 
-`getAllSideImages(images)` likewise takes the array and returns the `src` values to
-warm on idle.
+### Empty field
 
-### Empty state
+Every side resolves to `undefined` and the configurator renders illustrations. That is
+the existing fallback working, not an error — no special casing, no blank frame.
 
-If `configuratorImages` is absent or empty — a product that has not been populated —
-every side resolves to `undefined` and the configurator renders the illustration for
-all 45 states. That is the existing fallback doing its job, not an error. No special
-casing, no crash, no blank frame.
+## Keying
 
-## Why metal and finish, and why that does not change
+An image is determined by the metal and the stone. It does not vary by ring size, so it
+is keyed by those two values and nothing else.
 
-The configurator shows **one image per metal and stone/enamel combination**. It does
-not show a different photograph per ring size, and it is not going to. That single
-fact determines the whole shape of this field.
+Not by SKU, which would need re-authoring when Shopify variants land. Not by variant,
+because a variant carries size — keying by it would store the same photograph against
+every size of the same combination.
 
-So an image is keyed by the two values that actually determine the picture. Not by
-SKU, and not by variant id:
-
-- A **SKU key** would need re-authoring the day Shopify variants land.
-- A **variant key** would be wrong on its own terms. A variant is metal × finish ×
-  size, so keying by it means storing the same photograph against nineteen variants
-  to express something that does not vary by size. 45 distinct images would become
-  855 rows carrying 45 pictures.
-
-Keying by metal and finish says exactly what is true and no more.
-
-### When Shopify variants arrive
-
-Metal and finish become Shopify options alongside size. Resolution then reads the
-selected variant's option values **by option name** and matches the same two fields,
-ignoring size entirely:
-
-```ts
-const metal  = optionValue(variant, 'Metal');
-const finish = optionValue(variant, 'Finish');
-```
-
-The only new code is a constant mapping Shopify's option names onto these fields,
-because Shopify may name them differently — `Colour` rather than `Metal`, or
-`Stone or Enamel` rather than `Finish`. That mapping is the single place the
-migration touches.
-
-**Nothing authored in Sanity changes.** The 45 entries stay as they are.
-
-### Why not editorial media on `productVariant`
-
-`productVariant` has no editorial fields today — only `hidden`, a title proxy and the
-read-only `store` object — so adding media there would mirror how `product` works and
-was the obvious first answer.
-
-It is the wrong home for this. A variant carries size; these images do not vary by
-size. Putting them there would duplicate every photograph nineteen times and make the
-client maintain 855 rows to express 45 facts. If per-variant imagery is ever wanted
-for some other purpose, that is a separate field with a separate reason.
-
-### If a third axis is ever added
-
-The array gains a field and the matcher gains a term. Nothing already authored is
-invalidated.
+When metal and finish become Shopify options, resolution reads the selected variant's
+option values by name and ignores size. The only new code is a constant mapping
+Shopify's option names onto these two fields, in case they are called `Colour` or
+`Stone or Enamel`. Nothing authored in Sanity changes.
 
 ## Files
 
 **New**
 
-- `tools/sanity/schema/objects/configuratorImage.ts` — the object type
-- `templates/ProductTemplate/components/SubwayRingCustomizer/options.ts` — the metal
-  and finish lists, shared by schema and runtime
+- `tools/sanity/schema/objects/configuratorImage.ts`
+- `.../SubwayRingCustomizer/options.ts` — the metal and finish lists, shared by the
+  schema and the runtime so they cannot drift apart
 
 **Changed**
 
-- `tools/sanity/schema/documents/product.tsx` — the `configuratorImages` field
-- `tools/sanity/schema/index.ts` — register the object type
+- `tools/sanity/schema/documents/product.tsx` — the field
+- `tools/sanity/schema/index.ts` — register the object
 - `tools/sanity/lib/queries.groq.ts` — the projection
-- `.../SubwayRingCustomizer/constants.ts` — `getSideImage` and `getAllSideImages`
-  take images; `AVAILABLE_SIDE_IMAGES` removed
+- `.../SubwayRingCustomizer/constants.ts` — `getSideImage` and `getAllSideImages` take
+  images; the hardcoded Set is removed
 - `.../SubwayRingCustomizer/SubwayRingImage.tsx` — images as a prop
-- `.../components/Details/index.tsx` — pass the images down
+- `.../components/Details/index.tsx` — pass them down
 
 ## The files in `public/subway/`
 
-They stay, for this change. Removing them is a separate step, and doing both at once
-means a single mistake shows as 30 missing photographs on a page the client is
-actively reviewing.
+They stay, for this change. Deleting them at the same time means one mistake shows as
+thirty missing photographs on a page the client is actively reviewing.
 
-Sequence: ship this, populate the staging dataset, confirm all 45 states render from
-Sanity, and only then delete the directory. Until that confirmation the files are a
-working rollback — reverting one commit restores the old path.
+Ship this, populate the staging dataset, confirm every state renders from Sanity, then
+delete the directory in a separate commit. Until that confirmation those files are a
+one-commit rollback.
 
 ## Dataset
 
 Content is authored in the **staging** dataset, which already holds the product
-document (`shopifyProduct-10355682017590`). The schema itself is code and applies to
-whichever dataset the Studio points at, so production gets the field as soon as the
-branch merges to `main` — it will simply be empty there until someone populates it.
-
-That asymmetry is expected and harmless: an empty field falls back to the
-illustration, and production has no configurator page yet.
+document (`shopifyProduct-10355682017590`). The schema is code, so production gets the
+field when the branch reaches `main` — empty, and therefore inert.
 
 ## Testing
 
-Because the repo has no test framework, this is verified at runtime, the same way the
-configurator has been verified throughout:
+No test framework in this repo, so this is verified at runtime, as the configurator has
+been throughout. The current behaviour is the oracle: a sweep of all 45 states before
+and after must match while the imagery is unchanged.
 
-- all 45 metal/finish states resolve to the expected image, matching the current
-  live behaviour exactly
+- every metal/finish state resolves to the expected image
 - Platinum still borrows white gold where platinum imagery is absent
-- removing an image in Sanity makes that state fall back to the illustration
-- an empty `configuratorImages` renders all 45 states as illustrations, with no error
-- the preload still warms every image on idle
-- prices, captions and the flip between sides are untouched
-
-The current behaviour is the oracle: a 45-state sweep before and after must produce
-the same result for every state while the imagery is unchanged.
+- removing an image in Sanity falls that state back to the illustration
+- an empty field renders every state as an illustration, with no error
+- preloading still warms every image on idle
+- prices, captions and the side flip are untouched
 
 ## Rollout
 
-1. Merge to `staging`. The field appears in the Studio; the configurator still reads
-   `public/subway/` because the array is empty — no visible change.
-2. Populate `configuratorImages` in the staging dataset.
-3. Sweep all 45 states and compare against the pre-change capture.
-4. Delete `public/subway/` in a separate commit once step 3 passes.
-5. Carry to `main` whenever the configurator goes to production.
+1. Merge to `staging`. The field appears; the array is empty, so nothing changes on
+   screen.
+2. Populate it in the staging dataset.
+3. Sweep all 45 states against the pre-change capture.
+4. Delete `public/subway/` in a separate commit.
+5. Carry to `main` when the configurator goes to production.
 
 ## Risks
 
-- **The staging dataset is stale.** Its copy of this product has one placeholder
-  variant rather than the nineteen ring sizes, which is what breaks add-to-cart there.
-  It does not affect this work — images attach to the product document, not to
-  variants — but it is the same document, so anyone re-syncing Shopify into staging
-  should know the field exists and is hand-authored.
 - **Thirty images is a tedious upload.** Mitigated by the dropdowns and the preview
-  label making a wrong pairing obvious, and by the illustration fallback meaning a
-  missed entry degrades rather than breaks.
-- **Schema reaches production before content does.** Intended. An empty field is
-  inert.
+  label making a wrong pairing visible, and by a missed entry degrading to the
+  illustration rather than breaking the page.
+- **Only one product is customizable today**, and its option list lives in code. If a
+  second customizable product ever needs a different set of metals or stones, that list
+  has to move to Sanity too — a separate change, deliberately not done here.
