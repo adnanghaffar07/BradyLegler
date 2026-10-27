@@ -147,6 +147,16 @@
    CENTER COLUMN - GALLERY
    =========================================== */
 
+/* Customizable products stack the configurator above the editorial gallery. .gallery is
+   a centred row, which would sit them side by side, so the pair gets its own column. */
+.customizerStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
 .gallery {
   width: 100%;
   order: 1;

@@ -142,12 +142,26 @@ const Details: React.FC<DetailsProps> = ({
         {/* Center Column - Gallery */}
         <div className={styles.gallery}>
           {isCustomizable ? (
-            <SubwayRingImage
-              activeSide={activeSide}
-              sideOne={sideOneConfig}
-              sideTwo={sideTwoConfig}
-              images={sanityProductData?.configuratorImages ?? NO_CONFIGURATOR_IMAGES}
-            />
+            // The configurator is the live preview of what the shopper has selected. The
+            // editorial imagery below it is the client's own gallery - model and campaign
+            // shots that set the mood rather than picture a specific combination - which
+            // this page used to drop entirely, so anything added there went nowhere.
+            //
+            // Shopify's generic product photos are deliberately NOT passed here. They show
+            // one fixed stone combination and would contradict the selection on screen.
+            <div className={styles.customizerStack}>
+              <SubwayRingImage
+                activeSide={activeSide}
+                sideOne={sideOneConfig}
+                sideTwo={sideTwoConfig}
+                images={sanityProductData?.configuratorImages ?? NO_CONFIGURATOR_IMAGES}
+              />
+              <Gallery
+                featureMedia={sanityProductData?.featureMedia}
+                gallery={sanityProductData?.gallery}
+                images={undefined}
+              />
+            </div>
           ) : (
             <Gallery
               featureMedia={sanityProductData?.featureMedia}
