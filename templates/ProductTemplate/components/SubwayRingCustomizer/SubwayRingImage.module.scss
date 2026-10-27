@@ -56,6 +56,15 @@
 }
 
 .zoneCaption {
+  // The frame is square to match the other product pages, but the ring only fills
+  // its middle fifth - leaving roughly 40% white below it, which pushed this caption
+  // well away from the thing it labels. Pull it back up.
+  //
+  // A percentage margin resolves against the container's WIDTH, and the frame is
+  // square, so this is also 36% of the frame's height - it stays correctly placed at
+  // every breakpoint without a second value to maintain.
+  margin-top: -36%;
+
   font-size: var(--customizer-caption-size) !important;
   text-align: center;
   color: var(--brand-black-70) !important;
