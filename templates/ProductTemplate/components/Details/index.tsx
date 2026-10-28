@@ -82,6 +82,14 @@ const Details: React.FC<DetailsProps> = ({
 
   const isCustomizable = CUSTOMIZABLE_PRODUCT_HANDLES.includes(sanityProductData?.store?.slug?.current || '');
 
+  // Gallery images the editor has hidden from the customizer page. The casts are here
+  // because IGallery describes an object while the projection returns an array - a
+  // pre-existing mismatch the code review flagged separately, deliberately not fixed
+  // in this change.
+  const customizerGallery = (
+    (sanityProductData?.gallery as unknown as { hideOnCustomizer?: boolean }[] | undefined) ?? []
+  ).filter(media => !media?.hideOnCustomizer) as unknown as typeof sanityProductData.gallery;
+
   const productCollectionIds = shopifyProductData?.collections?.edges?.map(edge => edge.node.id) || [];
   const ringCollections =
     shopifyProductData?.collections?.edges?.map(edge => ({ handle: edge.node.handle })) || [];
@@ -147,8 +155,10 @@ const Details: React.FC<DetailsProps> = ({
             // shots that set the mood rather than picture a specific combination - which
             // this page used to drop entirely, so anything added there went nowhere.
             //
-            // Shopify's generic product photos are deliberately NOT passed here. They show
-            // one fixed stone combination and would contradict the selection on screen.
+            // Shopify's generic product photos are deliberately NOT passed here, and
+            // gallery images ticked "Hide on the customizer page" are filtered out above,
+            // for the same reason: both show one fixed stone combination and would
+            // contradict the selection on screen.
             <div className={styles.customizerStack}>
               <SubwayRingImage
                 activeSide={activeSide}
@@ -156,11 +166,7 @@ const Details: React.FC<DetailsProps> = ({
                 sideTwo={sideTwoConfig}
                 images={sanityProductData?.configuratorImages ?? NO_CONFIGURATOR_IMAGES}
               />
-              <Gallery
-                featureMedia={sanityProductData?.featureMedia}
-                gallery={sanityProductData?.gallery}
-                images={undefined}
-              />
+              <Gallery featureMedia={sanityProductData?.featureMedia} gallery={customizerGallery} images={undefined} />
             </div>
           ) : (
             <Gallery

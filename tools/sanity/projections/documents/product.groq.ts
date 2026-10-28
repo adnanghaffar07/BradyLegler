@@ -47,6 +47,7 @@ const productProjection = groq`{
   gallery[]{
     "type": _type,
     size,
+    hideOnCustomizer,
     _type == 'galleryImage' => ${imageProjection},
     _type == 'galleryVideo' => {
        video${fileProjection}

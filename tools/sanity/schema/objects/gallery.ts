@@ -61,6 +61,23 @@ export const galleryImage = defineType({
   name: 'galleryImage',
   fields: [
     {
+      // On a customizable product the shopper is looking at the configuration they
+      // just chose, so a studio shot of the same ring in a different stone sits
+      // underneath contradicting it. Rather than guess which images those are - a
+      // rule based on shape breaks the first time someone uploads a square editorial
+      // shot - the choice is the editor's, per image.
+      //
+      // It only affects the customizer page. Every other product page shows the
+      // gallery in full, so ticking this never hides an image from the main site.
+      name: 'hideOnCustomizer',
+      title: 'Hide on the customizer page',
+      description:
+        'Tick this for shots of the piece in one fixed stone or enamel. Model and ' +
+        'campaign imagery should stay visible. Has no effect on other product pages.',
+      type: 'boolean',
+      initialValue: false
+    },
+    {
       name: 'size',
       title: 'Size',
       type: 'string',
