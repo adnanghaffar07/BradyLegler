@@ -233,3 +233,24 @@ export const PRODUCT_INQUIRY_FLAGS_QUERY = groq`
     inquirePriceText
   }
 `;
+// Lightweight index for the site search panel. Only live products: Shopify marks
+// archived or draft products with a non-active status, and deleted ones with isDeleted.
+export const SEARCH_PRODUCTS_QUERY = groq`
+  *[
+    _type == "product" &&
+    !(_id in path("drafts.**")) &&
+    store.status == "active" &&
+    store.isDeleted != true &&
+    defined(store.slug.current)
+  ] | order(store.title asc) {
+    "title": store.title,
+    "handle": store.slug.current,
+    "productType": store.productType,
+    "tags": store.tags,
+    "image": coalesce(gallery[_type == "galleryImage"][0].asset->url, store.previewImageUrl),
+    "minPrice": store.priceRange.minVariantPrice,
+    "maxPrice": store.priceRange.maxVariantPrice,
+    inquireButtonEnabled,
+    inquirePriceText
+  }
+`;

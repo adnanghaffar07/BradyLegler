@@ -11,6 +11,7 @@ import styles from './styles.module.scss';
 import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
 import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
+import { useSearch } from '@/tools/store/useSearch';
 
 type SubMenuState = {
   level: number;
@@ -347,9 +348,20 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
         ))}
 
         {display === 'right' && (
-          <li>
-            <HeaderNavigationCart />
-          </li>
+          <>
+            <li className={styles.navigationItem}>
+              <button
+                type="button"
+                className={styles.navigationLink}
+                onClick={() => useSearch.getState().setSearchOpen(true)}
+              >
+                <span className={styles.navText}>Search</span>
+              </button>
+            </li>
+            <li>
+              <HeaderNavigationCart />
+            </li>
+          </>
         )}
       </ul>
 

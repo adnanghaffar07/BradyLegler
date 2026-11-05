@@ -13,6 +13,7 @@ import ContactSidebar from '@/components/ContactSidebar/ContactSidebar';
 import PasscodeModal from '@/components/PasscodeModal';
 import HeaderNavigationCart from '../HeaderNavigation/HeaderNavigationCart';
 import { useContactSidebar } from '@/tools/hooks/useContactSidebar';
+import { useSearch } from '@/tools/store/useSearch';
 
 type HeaderNavigationMobileProps = {
   navItems: IHeaderDocument['header']['navItems'];
@@ -340,6 +341,22 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                       );
                     })}
                     
+                    <li className={styles.linkItem}>
+                      <button
+                        type="button"
+                        className={styles.navButton}
+                        onClick={e => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          closeAllMenus();
+                          useSearch.getState().setSearchOpen(true);
+                        }}
+                      >
+                        <span>Search</span>
+                        <Icon title="chevronRight" className={styles.navIcon} />
+                      </button>
+                    </li>
+
                     {/* Cart/Yours Button */}
                     <li className={styles.linkItem}>
                       <div className={styles.mobileCartWrapper}>

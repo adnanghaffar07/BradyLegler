@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ModalPortal from '@/components/Modal/ModalPortal';
 import Cart from '@/components/Cart';
+import Search from '@/components/Search';
 import VisualEditing from '@/components/VisualEditing';
 import ScrollToTop from '@/components/ScrollToTop';
 import { sanityFetch } from '@/tools/sanity/lib/fetch';
@@ -39,6 +40,7 @@ const PageLayout: React.FC<PageLayoutProps> = async props => {
       <Header {...headerDocument} collectionSlugs={collectionSlugs} productSlugs={productSlugs} />
       <main>{children}</main>
       <Cart />
+      <Search />
       {draftMode().isEnabled && <VisualEditing />}
       <Footer {...footerDocument} socials={socialMediaDocument?.socials} />
       <ModalPortal />

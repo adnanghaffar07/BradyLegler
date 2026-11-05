@@ -1,0 +1,119 @@
+// Same hairline and type scale as the cart panel this sits in.
+.field {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: white;
+  border-bottom: 0.2px solid rgba(20, 20, 32, 0.7);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 300;
+  font-size: 16px; // 16px stops iOS Safari zooming the page on focus
+  line-height: 24px;
+  letter-spacing: 0.06em;
+  color: var(--brand-black, #141420);
+
+  &::placeholder {
+    color: var(--brand-black-40, rgba(20, 20, 32, 0.4));
+  }
+
+  // Use the Clear button instead of the browser's own clear cross.
+  &::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  @include media-up(tablet) {
+    font-size: 14px;
+  }
+}
+
+.clear {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--primary-font), sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  color: var(--brand-black-70, rgba(20, 20, 32, 0.7));
+
+  &:hover {
+    color: var(--brand-black, #141420);
+  }
+
+  @include media-up(tablet) {
+    font-size: 12px;
+    line-height: 19.2px;
+  }
+}
+
+.status {
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  border-bottom: 0.2px solid rgba(20, 20, 32, 0.7);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 150ms ease;
+
+  &:hover,
+  &:focus-visible {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.image {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(20, 20, 32, 0.04);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @include media-up(tablet) {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.price {
+  color: var(--brand-black-70, rgba(20, 20, 32, 0.7));
+}
