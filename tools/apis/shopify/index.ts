@@ -590,6 +590,52 @@ type ShopifyProductRecommendationsResponse = {
   }[];
 };
 
+/*=============================================>>>>>
+= GET PUBLISHED PRODUCT HANDLES =
+===============================================>>>>>*/
+
+type ShopifyProductHandlesResponse = {
+  products: {
+    edges: { node: { handle: string } }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  };
+};
+
+/**
+ * Handles of every product the storefront can sell. The Storefront API only returns
+ * products that are active and published to this sales channel, so this is the
+ * source of truth for what is live - Sanity's synced copy of a product's status can
+ * lag behind Shopify. Throws on failure so callers can decide how to degrade.
+ */
+export const getPublishedProductHandles = async (): Promise<Set<string>> => {
+  const query = gql`
+    query publishedProductHandles($cursor: String) {
+      products(first: 250, after: $cursor) {
+        edges {
+          node {
+            handle
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  `;
+
+  const handles = new Set<string>();
+  let cursor: string | null = null;
+
+  do {
+    const response: ShopifyProductHandlesResponse = await client.request(query, { cursor });
+    response.products.edges.forEach(({ node }) => handles.add(node.handle));
+    cursor = response.products.pageInfo.hasNextPage ? response.products.pageInfo.endCursor : null;
+  } while (cursor);
+
+  return handles;
+};
+
 export type GetProductRecommendationsResponse = ShopifyProductRecommendationsResponse['productRecommendations'] | null;
 
 export const getProductRecommendations = async (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from '@/components/Link';
@@ -113,7 +113,10 @@ const Search = () => {
   const [products, setProducts] = useState<SearchProduct[] | null>(null);
   const [failed, setFailed] = useState(false);
 
-  const closeSearch = () => setSearchOpen(false);
+  // Must keep the same identity across renders: SidePanel re-runs its focus effect
+  // whenever onClose changes, which would move focus to the Close button on every
+  // keystroke.
+  const closeSearch = useCallback(() => setSearchOpen(false), [setSearchOpen]);
 
   // Close when the visitor follows a result to another page.
   useEffect(() => {
