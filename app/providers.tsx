@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { ContactSidebarProvider } from '@/tools/hooks/useContactSidebar';
 import { MetaPixelProvider } from '@/components/providers/MetaPixelProvider';
 import EmailSubscriptionPopup from '@/components/EmailSubscriptionPopup';
@@ -10,7 +10,9 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <MetaPixelProvider>
       <ContactSidebarProvider>
-        <KlaviyoTracker />
+        <Suspense fallback={null}>
+          <KlaviyoTracker />
+        </Suspense>
         {children}
         <EmailSubscriptionPopup />
       </ContactSidebarProvider>

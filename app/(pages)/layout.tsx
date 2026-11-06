@@ -36,7 +36,9 @@ const PageLayout: React.FC<PageLayoutProps> = async props => {
 
   return (
     <>
-      <ScrollToTop />
+      <React.Suspense fallback={null}>
+        <ScrollToTop />
+      </React.Suspense>
       <Header {...headerDocument} collectionSlugs={collectionSlugs} productSlugs={productSlugs} />
       <main>{children}</main>
       <Cart />

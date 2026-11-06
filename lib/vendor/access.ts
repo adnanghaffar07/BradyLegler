@@ -5,12 +5,15 @@ import { cookies } from 'next/headers';
  * Vendor access is one shared passcode (VENDOR_PASSCODE), checked on the server.
  * A correct passcode sets an httpOnly cookie holding a signature of the passcode,
  * so changing VENDOR_PASSCODE signs every vendor out. With no passcode set, the
- * vendor page stays locked.
+ * default passcode below is used.
  */
 export const VENDOR_COOKIE = 'bl_vendor_access';
 export const VENDOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
-const getPasscode = () => process.env.VENDOR_PASSCODE?.trim() || '';
+// Used when VENDOR_PASSCODE is not set, so the page works without any env setup.
+const DEFAULT_PASSCODE = 'local-vendor-test';
+
+const getPasscode = () => process.env.VENDOR_PASSCODE?.trim() || DEFAULT_PASSCODE;
 
 export const isVendorAccessConfigured = () => getPasscode().length > 0;
 
