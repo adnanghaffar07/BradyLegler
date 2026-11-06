@@ -123,6 +123,12 @@
       width: 250px;
       transform: translateY(30px);
     }
+
+    // Just above the desktop breakpoint the full-size logo leaves no room for the four
+    // left-hand nav items, so it steps down slightly until the window is wider.
+    @media (min-width: 890px) and (max-width: 999px) {
+      width: 210px;
+    }
   }
 
   .logoMonogram {

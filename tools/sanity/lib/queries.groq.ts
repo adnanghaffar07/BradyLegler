@@ -254,3 +254,13 @@ export const SEARCH_PRODUCTS_QUERY = groq`
     inquirePriceText
   }
 `;
+
+// Shopify ids and inquiry flags for the pieces on the /customize page.
+export const CUSTOMIZABLE_PRODUCTS_QUERY = groq`
+  *[_type == "product" && !(_id in path("drafts.**")) && store.slug.current in $handles]{
+    "handle": store.slug.current,
+    "id": store.gid,
+    inquireButtonEnabled,
+    inquirePriceText
+  }
+`;

@@ -347,6 +347,15 @@ const HeaderNavigation = ({ className, display, navItems: propNavItems = [] }: H
           </li>
         ))}
 
+        {/* Fixed link rather than a Sanity nav item so it sits after Story on every dataset. */}
+        {display === 'left' && (
+          <li className={styles.navigationItem}>
+            <Link variant="normal-sm" href="/customize" className={styles.navigationLink}>
+              <span className={styles.navText}>Customize</span>
+            </Link>
+          </li>
+        )}
+
         {display === 'right' && (
           <>
             <li className={styles.navigationItem}>

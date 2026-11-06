@@ -1,0 +1,32 @@
+// Spacing clears the fixed header the same way the other standalone pages do.
+.page {
+  padding: 112px 0 64px;
+
+  @include media-up(tablet) {
+    padding: 140px 0 96px;
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto 48px;
+  padding: 0 16px;
+  text-align: center;
+
+  @include media-up(tablet) {
+    margin-bottom: 64px;
+  }
+}
+
+.muted {
+  color: var(--brand-black-70, rgba(20, 20, 32, 0.7));
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+}

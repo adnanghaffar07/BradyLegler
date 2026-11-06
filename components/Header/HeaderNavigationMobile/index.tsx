@@ -40,6 +40,8 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
   // Show all nav items for mobile (both left and right)
   const mobileNavItems = navItems;
   const topLevelItems = mobileNavItems.filter(item => !item.isSubLink);
+  // Customize follows the last left-hand item (Story), matching its place on desktop.
+  const lastLeftIndex = topLevelItems.map(item => item.side).lastIndexOf('left');
 
   // Deduplicate items by title (what user sees)
   const deduplicateItems = (items: any[]) => {
@@ -244,6 +246,14 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
       }, 300);
     }
   }, [mobileNavOpen]);
+  const customizeItem = (
+    <li className={styles.linkItem}>
+      <Link variant="normal-sm" href="/customize" onClick={() => closeAllMenus()} className={styles.navLink}>
+        <span>Customize</span>
+      </Link>
+    </li>
+  );
+
   return (
     <>
       {/* Mobile Header Container */}
@@ -276,11 +286,13 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
               {!currentLevel && (
                 <div className={styles.menuLevel}>
                   <ul className={styles.links}>
-                    {topLevelItems.map(navItem => {
+                    {lastLeftIndex === -1 && customizeItem}
+                    {topLevelItems.map((navItem, index) => {
                       const navTitle = navItem.title?.toLowerCase() || '';
                       const hasAccess = hasPasscodeAccess(navItem);
                       return (
-                        <li key={navItem.title} className={styles.linkItem}>
+                        <React.Fragment key={navItem.title}>
+                        <li className={styles.linkItem}>
                           {navTitle === 'concierge' ? (
                             <button 
                               type="button"
@@ -338,9 +350,11 @@ const HeaderNavigationMobile: React.FC<HeaderNavigationMobileProps> = props => {
                             </Link>
                           )}
                         </li>
+                        {index === lastLeftIndex && customizeItem}
+                        </React.Fragment>
                       );
                     })}
-                    
+
                     <li className={styles.linkItem}>
                       <button
                         type="button"

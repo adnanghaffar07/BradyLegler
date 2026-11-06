@@ -25,11 +25,8 @@ import {
   buildCartAttributes,
   type ConfiguratorImage
 } from '../SubwayRingCustomizer/constants';
+import { getCustomizableProduct } from '../SubwayRingCustomizer/customizableProducts';
 import styles from './styles.module.scss';
-
-// Pilot: the customizable-image flow only applies to this one product for now, per the
-// client's request - not the full catalog. Match by handle so nothing else is affected.
-const CUSTOMIZABLE_PRODUCT_HANDLES = ['subway-double-band-ring-yellow-gold'];
 
 // Module-level so the identity is stable: `?? []` would build a new array on every
 // render and re-trigger the image preload effect in SubwayRingImage.
@@ -58,14 +55,19 @@ const Details: React.FC<DetailsProps> = ({
   sanitySizeGuide,
   primaryCollection
 }) => {
+  const customizableProduct = getCustomizableProduct(sanityProductData?.store?.slug?.current);
+  const isCustomizable = Boolean(customizableProduct);
+  // Open on the metal of the product being viewed, so the white gold ring starts white.
+  const initialMetal = customizableProduct?.defaultMetal ?? DEFAULT_METAL;
+
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [activeSide, setActiveSide] = useState<SideKey>('sideOne');
   const [sideOneConfig, setSideOneConfig] = useState<SideConfiguration>({
-    metal: DEFAULT_METAL,
+    metal: initialMetal,
     finish: DEFAULT_SIDE_ONE_FINISH
   });
   const [sideTwoConfig, setSideTwoConfig] = useState<SideConfiguration>({
-    metal: DEFAULT_METAL,
+    metal: initialMetal,
     finish: DEFAULT_SIDE_TWO_FINISH
   });
 
@@ -79,8 +81,6 @@ const Details: React.FC<DetailsProps> = ({
     setSideOneConfig(previous => ({ ...previous, metal }));
     setSideTwoConfig(previous => ({ ...previous, metal }));
   };
-
-  const isCustomizable = CUSTOMIZABLE_PRODUCT_HANDLES.includes(sanityProductData?.store?.slug?.current || '');
 
   // Gallery images the editor has hidden from the customizer page. The casts are here
   // because IGallery describes an object while the projection returns an array - a

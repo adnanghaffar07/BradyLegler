@@ -13,8 +13,13 @@
     gap: 20px;
   }
 
-  @include media-up(desktop) {
-    gap: 64px;
+  // The desktop nav (shown from 890px) grows its spacing with the window instead of
+  // jumping from 20px to 64px at 1340px. With four items on the left (Customize after
+  // Story) the jump pushed the last item into the centred logo just above 1340px.
+  @include media-up-desktop {
+    // 8px up to 950px, reaching 64px around 1415px; measured to keep a clear gap
+    // between the last item and the logo at every width in between.
+    gap: clamp(8px, calc(8px + (100vw - 950px) * 0.12), 64px);
   }
 }
 .backButton {
