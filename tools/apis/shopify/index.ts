@@ -636,6 +636,87 @@ export const getPublishedProductHandles = async (): Promise<Set<string>> => {
   return handles;
 };
 
+/*=============================================>>>>>
+= VENDOR CATALOGUE =
+===============================================>>>>>*/
+
+export type VendorCatalogProduct = {
+  handle: string;
+  title: string;
+  productType: string;
+  image: string | null;
+  options: { name: string; values: string[] }[];
+};
+
+type ShopifyVendorCatalogResponse = {
+  products: {
+    edges: {
+      node: {
+        handle: string;
+        title: string;
+        productType: string;
+        featuredImage: { url: string } | null;
+        options: { name: string; values: string[] }[];
+      };
+    }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  };
+};
+
+/**
+ * Every live product with the options a vendor picks from (size, metal, ...), for the
+ * /vendor order page. Like getPublishedProductHandles, the Storefront API only returns
+ * what is published, so drafts never show. Read-only: nothing here changes Shopify.
+ */
+export const getVendorCatalog = async (): Promise<VendorCatalogProduct[]> => {
+  const query = gql`
+    query vendorCatalog($cursor: String) {
+      products(first: 250, after: $cursor, sortKey: TITLE) {
+        edges {
+          node {
+            handle
+            title
+            productType
+            featuredImage {
+              url
+            }
+            options(first: 10) {
+              name
+              values
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  `;
+
+  const products: VendorCatalogProduct[] = [];
+  let cursor: string | null = null;
+
+  do {
+    const response: ShopifyVendorCatalogResponse = await client.request(query, { cursor });
+    response.products.edges.forEach(({ node }) =>
+      products.push({
+        handle: node.handle,
+        title: node.title.trim(),
+        productType: node.productType?.trim() || '',
+        image: node.featuredImage?.url ?? null,
+        // A product with no real options has a single "Title: Default Title" option.
+        options: node.options.filter(
+          option => !(option.values.length === 1 && option.values[0] === 'Default Title')
+        )
+      })
+    );
+    cursor = response.products.pageInfo.hasNextPage ? response.products.pageInfo.endCursor : null;
+  } while (cursor);
+
+  return products;
+};
+
 export type GetProductRecommendationsResponse = ShopifyProductRecommendationsResponse['productRecommendations'] | null;
 
 export const getProductRecommendations = async (

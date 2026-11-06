@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Modal from '@/components/Modal';
 import FormNewsletter from '@/components/Form/FormNewsletter';
 import Text from '@/components/Text';
@@ -21,6 +22,7 @@ const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
   const [isClient, setIsClient] = useState(false);
   const [popupStatus, setPopupStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [popupMessage, setPopupMessage] = useState('');
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
@@ -55,7 +57,8 @@ const EmailSubscriptionPopup: React.FC<EmailSubscriptionPopupProps> = ({
     setPopupMessage(message || '');
   };
 
-  if (!isClient) {
+  // Trade buyers on the private vendor page are not newsletter prospects.
+  if (!isClient || pathname?.startsWith('/vendor')) {
     return null;
   }
 

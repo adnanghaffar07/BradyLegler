@@ -75,6 +75,15 @@ const nextConfig = {
     return rewrites;
   },
 
+  // The vendor order page is private: keep it out of search engines even on production.
+  // It is not listed in robots.txt, which would advertise the URL.
+  async headers() {
+    return [
+      { source: '/vendor', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      { source: '/vendor/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }
+    ];
+  },
+
 
 
   webpack(config) {
